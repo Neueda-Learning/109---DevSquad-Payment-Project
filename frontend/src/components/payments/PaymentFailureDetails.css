@@ -1,0 +1,49 @@
+.failure-panel {
+  border: 1px solid rgba(224, 69, 63, 0.35);
+  background: rgba(224, 69, 63, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.failure-panel-header {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.failure-panel-header h3 {
+  margin: 0;
+  color: #e0453f;
+  font-size: 16px;
+}
+
+.failure-icon {
+  font-size: 20px;
+  color: #e0453f;
+}
+
+.failure-code {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.failure-message {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.failure-detail {
+  margin: 0;
+  color: var(--text);
+}
+
+.failure-timestamp {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+}

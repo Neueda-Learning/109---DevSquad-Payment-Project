@@ -1,0 +1,58 @@
+.status-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.status-timeline-step {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.status-timeline-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 16px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.status-timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border);
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.status-timeline-step.done .status-timeline-dot {
+  background: #1a9c5c;
+}
+
+.status-timeline-step.failed .status-timeline-dot {
+  background: #e0453f;
+}
+
+.status-timeline-step.skipped .status-timeline-dot {
+  background: var(--border);
+}
+
+.status-timeline-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.status-timeline-time {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--text);
+}

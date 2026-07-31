@@ -1,0 +1,21 @@
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.detail-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detail-card h2 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--text-h);
+}

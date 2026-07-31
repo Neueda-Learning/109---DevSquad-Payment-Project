@@ -1,0 +1,12 @@
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--text);
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  color: var(--text-h);
+}

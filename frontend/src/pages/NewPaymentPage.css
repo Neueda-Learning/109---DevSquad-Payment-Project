@@ -1,0 +1,94 @@
+.wizard-steps {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.wizard-steps li {
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+
+.wizard-steps li.active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+.form-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 640px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.form-field legend {
+  padding: 0;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row .form-field {
+  flex: 1;
+}
+
+.radio-row {
+  display: flex;
+  gap: 20px;
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+.radio-row label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirmation-card {
+  align-items: center;
+  text-align: center;
+}
+
+.confirmation-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(26, 156, 92, 0.12);
+  color: #1a9c5c;
+  font-size: 24px;
+}
+
+@media (max-width: 720px) {
+  .form-row {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,40 @@
+.stat-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  background: var(--code-bg);
+}
+
+.stat-card-label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.stat-card-value {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.stat-card-sublabel {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.stat-card-success .stat-card-value {
+  color: #1a9c5c;
+}
+.stat-card-danger .stat-card-value {
+  color: #e0453f;
+}
+.stat-card-warning .stat-card-value {
+  color: #c78100;
+}
+.stat-card-info .stat-card-value {
+  color: var(--accent);
+}
