@@ -1,0 +1,90 @@
+/* Shared page shell + typography primitives used across all pages. */
+
+.app-main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-header h1 {
+  margin: 0 0 4px;
+  color: var(--text-h);
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--text);
+}
+
+.page-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: var(--text-h);
+}
+
+.link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.back-link {
+  align-self: flex-start;
+}
+
+/* Generic definition list used for reviewing/displaying key-value details
+   (payment details, new-payment review step, etc). */
+.detail-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.detail-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.detail-list dt {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.detail-list dd {
+  margin: 0;
+  color: var(--text-h);
+  font-weight: 500;
+  text-align: right;
+}
