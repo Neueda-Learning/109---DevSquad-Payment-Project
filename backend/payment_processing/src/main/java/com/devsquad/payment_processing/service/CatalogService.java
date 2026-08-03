@@ -1,8 +1,8 @@
 package com.devsquad.payment_processing.service;
 
-//import com.devsquad.payment_processing.Model.Currency;
-//import com.devsquad.payment_processing.Model.PaymentMode;
-//import com.devsquad.payment_processing.Model.Tag;
+import com.devsquad.payment_processing.model.Currency;
+import com.devsquad.payment_processing.model.PaymentMode;
+import com.devsquad.payment_processing.model.Tag;
 import com.devsquad.payment_processing.repository.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

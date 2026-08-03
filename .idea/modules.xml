@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+<<<<<<< HEAD
+      <module fileurl="file://$PROJECT_DIR$/.idea/109---DevSquad-Payment-Project.iml" filepath="$PROJECT_DIR$/.idea/109---DevSquad-Payment-Project.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/109---DevSquad-payment-processing.iml" filepath="$PROJECT_DIR$/.idea/109---DevSquad-payment-processing.iml" />
+>>>>>>> ee29d14930871a456652f49a51ca14cedb785a2e
+    </modules>
+  </component>
+</project>
