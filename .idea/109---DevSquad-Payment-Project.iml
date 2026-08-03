@@ -3,7 +3,11 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$" />
+<<<<<<< HEAD
+    <orderEntry type="inheritedJdk" />
+=======
     <orderEntry type="jdk" jdkName="17" jdkType="JavaSDK" />
+>>>>>>> ee29d14930871a456652f49a51ca14cedb785a2e
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

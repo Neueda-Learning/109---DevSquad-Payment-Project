@@ -117,16 +117,6 @@ This feature significantly reduces effort when splitting bills, paying teams, re
 
 ---
 
-# 🎯 Future Enhancements
-
-* Email and SMS payment notifications
-* Real-time currency exchange rates
-* Payment analytics dashboard
-* AI-powered fraud detection
-* Recurring subscription payments
-* User authentication with JWT/OAuth
-* Expense reports and monthly summaries
-* Admin dashboard with payment insights
 
 ---
 

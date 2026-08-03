@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e4f28025-e6d8-45b5-af2a-9d5cfc9186bd" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/README-backend-coordination.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/README-dev1-payment-core.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/README-dev2-currency-catalog.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/README-dev3-scheduling-bulk.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/README-dev4-compliance-receipts-query.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/CatalogController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/PaymentController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/ScheduleController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Currency.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Payment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/PaymentMode.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/PaymentModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Tag.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/CatalogRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/CurrencyMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRowMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/TagRowMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/CatalogService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/PaymentService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/ScheduleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/109---DevSquad-Payment-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/109---DevSquad-Payment-Project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/UserRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/UserRestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/UserRowMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/UserRowMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/AccountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/AccountService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/schema.sql" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/Administrator/Desktop/109---DevSquad-payment-processing" value="3HLnROUsepSYEACLqNQ6acIQKSF" />
+      <entry key="_C:/Users/Administrator/Desktop/109---DevSquad-payment-processing/backend/payment_processing" value="3HPEFlH5HGxW9ZLKKl1tJm894yg" />
+    </persistenceIdMap>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="3HLnROUsepSYEACLqNQ6acIQKSF" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Merging aman",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e4f28025-e6d8-45b5-af2a-9d5cfc9186bd" name="Changes" comment="" />
+      <created>1785656210491</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1785656210491</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>
