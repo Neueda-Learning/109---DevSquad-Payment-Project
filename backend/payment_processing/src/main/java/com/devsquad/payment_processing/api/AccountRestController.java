@@ -20,4 +20,6 @@ public class AccountRestController {
     public ArrayList<Account> getAllAccounts() {
         return accountService.getAllAccountsS();
     }
+
+//    create api to get account by id
 }
