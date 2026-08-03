@@ -1,8 +1,9 @@
 
-package  com.devsquad.payment_processing.Service;
+package  com.devsquad.payment_processing.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 @Service
 public class PaymentService {

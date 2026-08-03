@@ -1,7 +1,6 @@
-package com.devsquad.payment_processing.Controller;
+package com.devsquad.payment_processing.api;
 
-import com.payment.management.model.Schedule;
-import com.payment.management.service.ScheduleService;
+import com.devsquad.payment_processing.service.ScheduleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

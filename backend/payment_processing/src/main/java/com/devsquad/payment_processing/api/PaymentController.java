@@ -1,13 +1,11 @@
-package com.payment.management.controller;
+package com.devsquad.payment_processing.api;
 
 
-import com.payment.management.service.PaymentService;
+import com.devsquad.payment_processing.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -35,7 +33,7 @@ public class PaymentController {
     }
     // Delete Payment
     @DeleteMapping("/{id}")
-    public String deletePayment(@PathVariable Long id) {
+    public String deletePayment(@PathVariable Integer id) {
 
         paymentService.deletePayment(id);
 

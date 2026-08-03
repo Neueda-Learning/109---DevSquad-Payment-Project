@@ -1,9 +1,9 @@
-package com.devsquad.payment_processing.Controller;
+package com.devsquad.payment_processing.api;
 
 //import com.devsquad.payment_processing.Model.Currency;
 //import com.devsquad.payment_processing.Model.PaymentMode;
 //import com.devsquad.payment_processing.Model.Tag;
-import com.devsquad.payment_processing.Service.CatalogService;
+import com.devsquad.payment_processing.service.CatalogService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
