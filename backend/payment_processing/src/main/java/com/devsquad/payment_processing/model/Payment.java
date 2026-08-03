@@ -12,7 +12,7 @@ public class Payment {
         CANCELLED
     }
 
-    private Long paymentId;
+    private Integer paymentId;
     private String invoiceNumber;
     private Long senderAccountNumber;
     private Long receiverAccountNumber;
@@ -26,7 +26,7 @@ public class Payment {
     private String schedulePeriod;
     private Status status;
 
-    public Payment(Long paymentId, String invoiceNumber, Long senderAccountNumber, Long receiverAccountNumber,
+    public Payment(Integer paymentId, String invoiceNumber, Long senderAccountNumber, Long receiverAccountNumber,
                    Double amount, Integer currencyId, Integer paymentModeId, Date paymentDate, Time paymentTime,
                    String description, boolean isScheduled, String schedulePeriod, Status status) {
         this.paymentId = paymentId;
@@ -44,11 +44,11 @@ public class Payment {
         this.status = status;
     }
 
-    public Long getPaymentId() {
+    public Integer getPaymentId() {
         return paymentId;
     }
 
-    public void setPaymentId(Long paymentId) {
+    public void setPaymentId(Integer paymentId) {
         this.paymentId = paymentId;
     }
 

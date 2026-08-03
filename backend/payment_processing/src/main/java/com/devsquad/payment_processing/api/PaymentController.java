@@ -1,6 +1,7 @@
 package com.devsquad.payment_processing.api;
 
 
+import com.devsquad.payment_processing.model.Payment;
 import com.devsquad.payment_processing.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
