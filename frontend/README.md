@@ -1,4 +1,4 @@
-# PaySquad — Payment Processing Interface
+# Payment Processing Interface
 
 A React + JavaScript frontend for a payment processing platform. This is currently a **frontend-only** build: all data comes from local demo fixtures and a stub API layer so the UI is fully interactive while the real backend is being developed.
 
