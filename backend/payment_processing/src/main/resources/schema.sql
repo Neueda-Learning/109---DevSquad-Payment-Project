@@ -82,6 +82,8 @@ CREATE TABLE IF NOT EXISTS Payments (
 
     amount DECIMAL(15,2) NOT NULL,
 
+    currency_id INT,
+
     payment_date DATE NOT NULL,
     payment_time TIME NOT NULL,
 

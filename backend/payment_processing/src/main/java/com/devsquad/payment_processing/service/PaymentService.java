@@ -1,26 +1,25 @@
 
 package  com.devsquad.payment_processing.service;
-
+import com.devsquad.payment_processing.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.devsquad.payment_processing.model.Payment;
 import java.util.List;
 @Service
 public class PaymentService {
     @Autowired
-    PaymentRepository  paymentRepo;
-    Payment createPayment(Payment request){
+    PaymentRepository paymentRepo;
+    public Payment createPayment(Payment request){
         return paymentRepo.createPayment(request);
     };
-    Payment getPaymentById(Integer paymentId){
+    public Payment getPaymentById(Integer paymentId){
         return   paymentRepo.getPaymentById(paymentId);
     };
 
-    List<Payment> getAllPayments(){
+    public List<Payment> getAllPayments(){
         return paymentRepo.getAllPayments();
     };
-    void deletePayment(Integer paymentId){
-        return paymentRepo.deletePayment(paymentId);
+    public void deletePayment(Integer paymentId){paymentRepo.deletePayment(paymentId);
     };
 
 }
