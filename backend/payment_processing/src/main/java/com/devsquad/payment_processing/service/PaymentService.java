@@ -22,11 +22,14 @@ import java.util.Set;
 
 @Service
 public class PaymentService {
-    @Autowired
-    PaymentRepository paymentRepo;
+    private final PaymentRepository paymentRepo;
+    private final AccountRepository accountRepo;
 
     @Autowired
-    AccountRepository accountRepo;
+    public PaymentService(PaymentRepository paymentRepo, AccountRepository accountRepo) {
+        this.paymentRepo = paymentRepo;
+        this.accountRepo = accountRepo;
+    }
 
     // ── Existing operations 
 
@@ -96,6 +99,9 @@ public class PaymentService {
         response.put("paymentId", paymentId);
         response.put("previousStatus", currentStatus);
         response.put("targetStatus", targetStatus);
+        if (reason != null && !reason.isBlank()) {
+            response.put("reason", reason);
+        }
         response.put("updatedAt", LocalDateTime.now().toString());
         return response;
     }
@@ -146,6 +152,9 @@ public class PaymentService {
         response.put("currentStatus", payment.getStatus());
         response.put("message", "Refund has been initiated for payment " + paymentId
                 + ". Awaiting downstream processing.");
+        if (reason != null && !reason.isBlank()) {
+            response.put("reason", reason);
+        }
         response.put("initiatedAt", LocalDateTime.now().toString());
         return response;
     }
@@ -171,7 +180,7 @@ public class PaymentService {
      * Executes a scheduled payment with full validation and money transfer.
      * This is the ONLY entry point for scheduled payment execution.
      * 
-     * @Transactional ensures atomicity:
+     * Transaction is atomic:
      *   - Validates accounts
      *   - Validates balance
      *   - Debits sender
@@ -208,20 +217,18 @@ public class PaymentService {
         // 4. Create Payment record
         String invoiceNumber = "SCH-" + schedule.getScheduleId() + "-" + System.currentTimeMillis();
 
-        Payment payment = new Payment(
-                null,
-                invoiceNumber,
-                schedule.getSenderAccountNumber(),
-                schedule.getReceiverAccountNumber(),
-                schedule.getAmount(),
-                schedule.getCurrencyId(),
-                schedule.getPaymentModeId(),
-                Date.valueOf(LocalDate.now()),
-                Time.valueOf(LocalTime.now()),
-                schedule.getDescription() != null ? schedule.getDescription() : "Scheduled Payment",
-                schedule.getScheduleId(),  // Link to originating schedule
-                Payment.Status.PENDING
-        );
+        Payment payment = new Payment();
+        payment.setInvoiceNumber(invoiceNumber);
+        payment.setSenderAccountNumber(schedule.getSenderAccountNumber());
+        payment.setReceiverAccountNumber(schedule.getReceiverAccountNumber());
+        payment.setAmount(schedule.getAmount());
+        payment.setCurrencyId(schedule.getCurrencyId());
+        payment.setPaymentModeId(schedule.getPaymentModeId());
+        payment.setPaymentDate(Date.valueOf(LocalDate.now()));
+        payment.setPaymentTime(Time.valueOf(LocalTime.now()));
+        payment.setDescription(schedule.getDescription() != null ? schedule.getDescription() : "Scheduled Payment");
+        payment.setScheduleId(schedule.getScheduleId());
+        payment.setStatus(Payment.Status.PENDING);
 
         Payment savedPayment = paymentRepo.createPayment(payment);
 

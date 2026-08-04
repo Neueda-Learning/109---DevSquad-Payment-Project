@@ -5,8 +5,11 @@ import com.devsquad.payment_processing.model.PaymentMode;
 import com.devsquad.payment_processing.model.Tag;
 import com.devsquad.payment_processing.repository.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.Map;
 
 import java.math.BigDecimal;
@@ -43,19 +46,46 @@ public class CatalogService {
 
     // Delete tag
     public void deleteTag(Integer tagId) {
-        catalogRepo.deleteTag(tagId);
+        int deleted = catalogRepo.deleteTag(tagId);
+        if (deleted == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "TAG_NOT_FOUND: " + tagId);
+        }
     }
 
     public BigDecimal convertCurrency(String fromCurrency, String toCurrency, BigDecimal amount) {
 
-        String url = API_URL + "?from=" + fromCurrency + "&to=" + toCurrency;
+        if (fromCurrency == null || fromCurrency.isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR: 'from' currency is required");
+        if (toCurrency == null || toCurrency.isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR: 'to' currency is required");
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR: amount must be positive");
+        if (fromCurrency.equalsIgnoreCase(toCurrency))
+            return amount;  // same currency, no conversion needed
 
-        Map response = restTemplate.getForObject(url, Map.class);
-        Map<String, Double> rates = (Map<String, Double>) response.get("rates");
+        String url = API_URL + "?from=" + fromCurrency.toUpperCase() + "&to=" + toCurrency.toUpperCase();
 
-        BigDecimal rate = BigDecimal.valueOf(rates.get(toCurrency));
+        try {
+            Map response = restTemplate.getForObject(url, Map.class);
+            if (response == null || !response.containsKey("rates"))
+                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "EXTERNAL_API_ERROR: No rates returned");
 
-        return amount.multiply(rate);
+            Map<String, Double> rates = (Map<String, Double>) response.get("rates");
+            Double rateValue = rates.get(toCurrency.toUpperCase());
+
+            if (rateValue == null)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "UNSUPPORTED_CURRENCY: No rate found for " + toCurrency.toUpperCase());
+
+            BigDecimal rate = BigDecimal.valueOf(rateValue);
+            return amount.multiply(rate).setScale(2, java.math.RoundingMode.HALF_UP);
+
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "EXTERNAL_API_ERROR: Currency conversion failed - " + e.getMessage());
+        }
     }
 
 }

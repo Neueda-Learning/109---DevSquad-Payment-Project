@@ -16,6 +16,7 @@ import java.util.List;
 public class CatalogController {
 
     @Autowired
+
     private CatalogService catalogService;
 
     // Get all supported currencies
@@ -41,13 +42,13 @@ public BigDecimal convert(
     }
 
     // Get all tags
-    @GetMapping("/tags")
+    @GetMapping("/tags/all")
     public List<Tag> getAllTags() {
         return catalogService.getAllTags();
     }
 
     // Create a new tag
-    @PostMapping("/tags")
+    @PostMapping("/tags/add")
     public Tag createTag(@Valid @RequestBody Tag tag) {
         return catalogService.createTag(tag);
     }

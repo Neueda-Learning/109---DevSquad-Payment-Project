@@ -72,6 +72,42 @@ CREATE TABLE IF NOT EXISTS PaymentMethods (
         REFERENCES Accounts(account_number)
 );
 
+CREATE TABLE IF NOT EXISTS Schedules (
+    schedule_id        BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    sender_account_number   BIGINT NOT NULL,
+    receiver_account_number BIGINT NOT NULL,
+
+    amount             DECIMAL(15,2) NOT NULL,
+    currency_id        INT,
+
+    payment_method_id  BIGINT NOT NULL,
+
+    description        VARCHAR(500),
+
+    frequency          ENUM('DAILY','WEEKLY','MONTHLY','YEARLY') NOT NULL,
+
+    start_date         DATE NOT NULL,
+    end_date           DATE,
+    next_run_date      DATE,
+    last_run_date      DATE,
+
+    status             ENUM('ACTIVE','PAUSED','COMPLETED','CANCELLED')
+                           NOT NULL DEFAULT 'ACTIVE',
+
+    CONSTRAINT fk_schedule_sender
+        FOREIGN KEY (sender_account_number)
+        REFERENCES Accounts(account_number),
+
+    CONSTRAINT fk_schedule_receiver
+        FOREIGN KEY (receiver_account_number)
+        REFERENCES Accounts(account_number),
+
+    CONSTRAINT fk_schedule_method
+        FOREIGN KEY (payment_method_id)
+        REFERENCES PaymentMethods(payment_method_id)
+);
+
 CREATE TABLE IF NOT EXISTS Payments (
     payment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
@@ -117,38 +153,10 @@ CREATE TABLE IF NOT EXISTS Payments (
         ON DELETE SET NULL
 );
 
-CREATE TABLE IF NOT EXISTS Schedules (
-    schedule_id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-
-    sender_account_number   BIGINT NOT NULL,
-    receiver_account_number BIGINT NOT NULL,
-
-    amount             DECIMAL(15,2) NOT NULL,
-    currency_id        INT,
-
-    payment_method_id  BIGINT NOT NULL,
-
-    description        VARCHAR(500),
-
-    frequency          ENUM('DAILY','WEEKLY','MONTHLY','YEARLY') NOT NULL,
-
-    start_date         DATE NOT NULL,
-    end_date           DATE,
-    next_run_date      DATE,
-    last_run_date      DATE,
-
-    status             ENUM('ACTIVE','PAUSED','COMPLETED','CANCELLED')
-                           NOT NULL DEFAULT 'ACTIVE',
-
-    CONSTRAINT fk_schedule_sender
-        FOREIGN KEY (sender_account_number)
-        REFERENCES Accounts(account_number),
-
-    CONSTRAINT fk_schedule_receiver
-        FOREIGN KEY (receiver_account_number)
-        REFERENCES Accounts(account_number),
-
-    CONSTRAINT fk_schedule_method
-        FOREIGN KEY (payment_method_id)
-        REFERENCES PaymentMethods(payment_method_id)
+CREATE TABLE IF NOT EXISTS tags (
+    tag_id      INT AUTO_INCREMENT PRIMARY KEY,
+    tag_name    VARCHAR(100) NOT NULL UNIQUE,
+    description VARCHAR(255)
 );
+
+

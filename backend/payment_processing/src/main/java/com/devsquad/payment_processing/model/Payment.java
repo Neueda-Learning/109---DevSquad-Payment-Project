@@ -5,6 +5,10 @@ import java.sql.Time;
 
 public class Payment {
 
+    public Payment() {
+
+    }
+
     public enum Status {
         PENDING,
         COMPLETED,
