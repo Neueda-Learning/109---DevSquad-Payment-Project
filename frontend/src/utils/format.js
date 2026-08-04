@@ -2,7 +2,9 @@
 
 export function formatDate(isoString, options) {
   if (!isoString) return '—'
+
   const date = new Date(isoString)
+
   return date.toLocaleString(undefined, {
     dateStyle: 'medium',
     timeStyle: options?.withTime ? 'short' : undefined,
@@ -10,31 +12,31 @@ export function formatDate(isoString, options) {
 }
 
 export const STATUS_LABELS = {
-  success: 'Successful',
-  pending: 'Pending',
-  processing: 'Processing',
-  failed: 'Failed',
-  refunded: 'Refunded',
-  scheduled: 'Scheduled',
-  paused: 'Paused',
-  cancelled: 'Cancelled',
+  COMPLETED: 'Completed',
+  PENDING: 'Pending',
+  PROCESSING: 'Processing',
+  FAILED: 'Failed',
+  REFUNDED: 'Refunded',
+  SCHEDULED: 'Scheduled',
+  PAUSED: 'Paused',
+  CANCELLED: 'Cancelled',
 }
 
 export const STATUS_TONES = {
-  success: 'success',
-  pending: 'warning',
-  processing: 'info',
-  failed: 'danger',
-  refunded: 'neutral',
-  scheduled: 'info',
-  paused: 'warning',
-  cancelled: 'neutral',
+  COMPLETED: 'success',
+  PENDING: 'warning',
+  PROCESSING: 'info',
+  FAILED: 'danger',
+  REFUNDED: 'neutral',
+  SCHEDULED: 'info',
+  PAUSED: 'warning',
+  CANCELLED: 'neutral',
 }
 
 export function getStatusLabel(status) {
-  return STATUS_LABELS[status] || status
+  return STATUS_LABELS[status?.toUpperCase()] || status
 }
 
 export function getStatusTone(status) {
-  return STATUS_TONES[status] || 'neutral'
+  return STATUS_TONES[status?.toUpperCase()] || 'neutral'
 }
