@@ -136,10 +136,10 @@ VALUES
     TRUE,
     'MONTHLY',
     4
-<<<<<<< HEAD
+
 );
-=======
-(6, 'Tax', 'Government tax related payment');
+
+
 
 -- SCHEDULES
 INSERT IGNORE INTO Schedules (
@@ -189,4 +189,12 @@ VALUES
     'ACTIVE'
 );
 
->>>>>>> e63df368c6ab59ac85e88d605334f3877a432a0f
+
+INSERT IGNORE INTO tags (tag_id, tag_name, description)
+VALUES
+(1, 'Bills',    'Utility and recurring bills'),
+(2, 'Personal', 'Personal payments'),
+(3, 'Business', 'Business related transfers'),
+(4, 'Shopping', 'Shopping expenses'),
+(5, 'Travel',   'Travel and transport'),
+(6, 'Others',   'Miscellaneous');

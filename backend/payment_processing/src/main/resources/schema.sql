@@ -149,3 +149,9 @@ CREATE TABLE IF NOT EXISTS Schedules (
         FOREIGN KEY (payment_method_id)
         REFERENCES PaymentMethods(payment_method_id)
 );
+
+CREATE TABLE IF NOT EXISTS tags (
+    tag_id      INT AUTO_INCREMENT PRIMARY KEY,
+    tag_name    VARCHAR(100) NOT NULL UNIQUE,
+    description VARCHAR(255)
+);
