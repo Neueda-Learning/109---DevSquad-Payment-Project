@@ -1,5 +1,6 @@
-public class PaymentMethod {
+package com.devsquad.payment_processing.model;
 
+public class PaymentMethod {
     private Integer paymentMethodId;
 
     private Integer paymentModeId;
