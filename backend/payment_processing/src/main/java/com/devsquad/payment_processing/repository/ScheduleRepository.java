@@ -147,24 +147,24 @@ public class ScheduleRepository {
 
         jdbcTemplate.update(sql, scheduleId);
     }
-
-    // Get execution details for a schedule
-    public Map<String, Object> getScheduleExecution(Long scheduleId) {
-        Schedule schedule = getScheduleById(scheduleId.intValue());
-        if (schedule == null) {
-            return null;
-        }
-
-        Map<String, Object> execution = new HashMap<>();
-        execution.put("scheduleId", schedule.getScheduleId());
-        execution.put("status", schedule.getStatus());
-        execution.put("frequency", schedule.getFrequency());
-        execution.put("startDate", schedule.getStartDate());
-        execution.put("endDate", schedule.getEndDate());
-        execution.put("lastRunDate", schedule.getLastRunDate());
-        execution.put("nextRunDate", schedule.getNextRunDate());
-        return execution;
-    }
+//
+//    // Get execution details for a schedule
+//    public Map<String, Object> getScheduleExecution(Long scheduleId) {
+//        Schedule schedule = getScheduleById(scheduleId.intValue());
+//        if (schedule == null) {
+//            return null;
+//        }
+//
+//        Map<String, Object> execution = new HashMap<>();
+//        execution.put("scheduleId", schedule.getScheduleId());
+//        execution.put("status", schedule.getStatus());
+//        execution.put("frequency", schedule.getFrequency());
+//        execution.put("startDate", schedule.getStartDate());
+//        execution.put("endDate", schedule.getEndDate());
+//        execution.put("lastRunDate", schedule.getLastRunDate());
+//        execution.put("nextRunDate", schedule.getNextRunDate());
+//        return execution;
+//    }
 
 
     private void setNullableInt(PreparedStatement ps, int index, Integer value)
@@ -229,6 +229,16 @@ public class ScheduleRepository {
                 """;
 
         jdbcTemplate.update(sql, scheduleId);
+    }
+
+    public List<Schedule> getAllSchedules() {
+        String sql = """
+                SELECT *
+                FROM Schedules
+                ORDER BY schedule_id
+                """;
+
+        return jdbcTemplate.query(sql, scheduleRowMapper);
     }
 }
 

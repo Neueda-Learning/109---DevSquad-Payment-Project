@@ -31,6 +31,25 @@ public class PaymentService {
     // ── Existing operations 
 
     public Payment createPayment(Payment request) {
+        // Force auto-generation: ignore paymentId and invoiceNumber from request body
+        request.setPaymentId(null);  // Always null - database will auto-generate
+        request.setInvoiceNumber(null);  // Always null - repository will auto-generate
+        
+        // Auto-set current date/time if not provided
+        if (request.getPaymentDate() == null) {
+            request.setPaymentDate(Date.valueOf(LocalDate.now()));
+        }
+        if (request.getPaymentTime() == null) {
+            request.setPaymentTime(Time.valueOf(LocalTime.now()));
+        }
+        
+        // Default to PENDING status if not provided
+        if (request.getStatus() == null) {
+            request.setStatus(Payment.Status.PENDING);
+        }
+        
+        // scheduleId is optional - can be null for manual payments
+        
         return paymentRepo.createPayment(request);
     }
 

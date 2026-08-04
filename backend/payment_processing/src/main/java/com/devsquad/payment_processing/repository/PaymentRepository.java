@@ -24,6 +24,10 @@ public class PaymentRepository {
     }
 
     public Payment createPayment(Payment request) {
+        request.setInvoiceNumber("INV-" + System.currentTimeMillis());
+        
+        final String finalInvoiceNumber = request.getInvoiceNumber();
+
         String sql = """
                 INSERT INTO Payments (
                     payment_invoice_number,
@@ -48,7 +52,7 @@ public class PaymentRepository {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, request.getInvoiceNumber());
+            preparedStatement.setString(1, finalInvoiceNumber);
             preparedStatement.setLong(2, request.getSenderAccountNumber());
             preparedStatement.setLong(3, request.getReceiverAccountNumber());
             preparedStatement.setDouble(4, request.getAmount());
