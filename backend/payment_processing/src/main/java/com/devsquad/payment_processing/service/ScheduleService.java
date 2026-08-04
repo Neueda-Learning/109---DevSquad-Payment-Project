@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 public class ScheduleService {
 
@@ -49,11 +51,15 @@ public class ScheduleService {
         executionService.executeSchedule(schedule);
     }
 
+    public List<Schedule> getAllSchedules() {
+        return scheduleRepo.getAllSchedules();
+    }
+
     /**
      * Returns schedule execution details.
      * Payment history is in the Payments table (via schedule_id link).
      */
-    public Object getScheduleExecution(Long scheduleId) {
-        return scheduleRepo.getScheduleExecution(scheduleId);
-    }
+//    public Object getScheduleExecution(Long scheduleId) {
+//        return scheduleRepo.getScheduleExecution(scheduleId);
+//    }
 }
