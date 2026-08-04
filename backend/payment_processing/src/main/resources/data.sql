@@ -85,8 +85,7 @@ INSERT IGNORE INTO Payments (
     status,
     description,
     payment_mode,
-    is_scheduled_payment,
-    schedule_period,
+    schedule_id,
     payment_method_id
 )
 VALUES
@@ -101,7 +100,6 @@ VALUES
     'COMPLETED',
     'Rent Payment',
     'UPI',
-    FALSE,
     NULL,
     1
 ),
@@ -117,7 +115,6 @@ VALUES
     'COMPLETED',
     'Electricity Bill',
     'CREDIT_CARD',
-    FALSE,
     NULL,
     3
 ),
@@ -133,10 +130,9 @@ VALUES
     'CREATED',
     'Monthly Transfer',
     'BANK_TRANSFER',
-    TRUE,
-    'MONTHLY',
+    NULL,
     4
-(6, 'Tax', 'Government tax related payment');
+);
 
 -- SCHEDULES
 INSERT IGNORE INTO Schedules (

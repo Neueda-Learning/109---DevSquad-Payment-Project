@@ -22,13 +22,12 @@ public class Payment {
     private Date paymentDate;
     private Time paymentTime;
     private String description;
-    private boolean isScheduled;
-    private String schedulePeriod;
+    private Integer scheduleId;        // nullable — links to Schedule if this was auto-executed
     private Status status;
 
     public Payment(Integer paymentId, String invoiceNumber, Long senderAccountNumber, Long receiverAccountNumber,
                    Double amount, Integer currencyId, Integer paymentModeId, Date paymentDate, Time paymentTime,
-                   String description, boolean isScheduled, String schedulePeriod, Status status) {
+                   String description, Integer scheduleId, Status status) {
         this.paymentId = paymentId;
         this.invoiceNumber = invoiceNumber;
         this.senderAccountNumber = senderAccountNumber;
@@ -39,8 +38,7 @@ public class Payment {
         this.paymentDate = paymentDate;
         this.paymentTime = paymentTime;
         this.description = description;
-        this.isScheduled = isScheduled;
-        this.schedulePeriod = schedulePeriod;
+        this.scheduleId = scheduleId;
         this.status = status;
     }
 
@@ -124,20 +122,12 @@ public class Payment {
         this.description = description;
     }
 
-    public boolean isScheduled() {
-        return isScheduled;
+    public Integer getScheduleId() {
+        return scheduleId;
     }
 
-    public void setScheduled(boolean scheduled) {
-        isScheduled = scheduled;
-    }
-
-    public String getSchedulePeriod() {
-        return schedulePeriod;
-    }
-
-    public void setSchedulePeriod(String schedulePeriod) {
-        this.schedulePeriod = schedulePeriod;
+    public void setScheduleId(Integer scheduleId) {
+        this.scheduleId = scheduleId;
     }
 
     public Status getStatus() {
