@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -129,6 +130,83 @@ public class PaymentRepository {
         jdbcTemplate.update(sql, paymentId);
     }
 
+    // ── Filtered list with pagination 
+
+    public List<Payment> getPaymentsWithFilters(String status, String mode,
+                                                String fromDate, String toDate,
+                                                Double minAmount, Double maxAmount,
+                                                int page, int size) {
+
+        StringBuilder sql = new StringBuilder("""
+                SELECT payment_id,
+                       payment_invoice_number,
+                       sender_account_number,
+                       receiver_account_number,
+                       amount,
+                       currency_id,
+                       payment_date,
+                       payment_time,
+                       status,
+                       description,
+                       is_scheduled_payment,
+                       schedule_period,
+                       payment_method_id
+                FROM Payments
+                WHERE 1=1
+                """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (status != null && !status.isBlank()) {
+            switch (status.toUpperCase()) {
+                case "PENDING" -> sql.append(" AND status IN ('CREATED','VALIDATED','SENT')");
+                case "COMPLETED" -> sql.append(" AND status = 'COMPLETED'");
+                case "FAILED", "CANCELLED" -> sql.append(" AND status = 'FAILED'");
+            }
+        }
+
+        if (mode != null && !mode.isBlank()) {
+            sql.append(" AND payment_mode = ?");
+            params.add(mode.toUpperCase());
+        }
+
+        if (fromDate != null && !fromDate.isBlank()) {
+            sql.append(" AND payment_date >= ?");
+            params.add(fromDate);
+        }
+
+        if (toDate != null && !toDate.isBlank()) {
+            sql.append(" AND payment_date <= ?");
+            params.add(toDate);
+        }
+
+        if (minAmount != null) {
+            sql.append(" AND amount >= ?");
+            params.add(minAmount);
+        }
+
+        if (maxAmount != null) {
+            sql.append(" AND amount <= ?");
+            params.add(maxAmount);
+        }
+
+        sql.append(" ORDER BY payment_id LIMIT ? OFFSET ?");
+        params.add(size);
+        params.add((long) page * size);
+
+        return jdbcTemplate.query(sql.toString(), paymentRowMapper, params.toArray());
+    }
+
+    // ── Status update
+
+    public void updatePaymentStatus(Integer paymentId, Payment.Status targetStatus) {
+        String dbStatus = mapModelStatus(targetStatus);
+        String sql = "UPDATE Payments SET status = ? WHERE payment_id = ?";
+        jdbcTemplate.update(sql, dbStatus, paymentId);
+    }
+
+
+    // ── Helpers 
 
     private String mapModelStatus(Payment.Status status) {
         if (status == null) {
