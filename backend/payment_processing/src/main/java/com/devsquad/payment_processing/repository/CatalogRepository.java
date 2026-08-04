@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -97,5 +98,22 @@ public class CatalogRepository {
                 """;
 
         jdbcTemplate.update(sql, tagId);
+    }
+
+    public BigDecimal convertCurrency(String fromCurrency, String toCurrency, BigDecimal amount) {
+        String sql = """
+                SELECT exchange_rate FROM currency_exchange_rates
+                WHERE from_currency = ? AND to_currency = ?
+                """;
+
+        BigDecimal exchangeRate = jdbcTemplate.queryForObject(
+                sql,
+                BigDecimal.class,
+                fromCurrency,
+                toCurrency
+        );
+
+        return amount.multiply(exchangeRate);
+
     }
 }
