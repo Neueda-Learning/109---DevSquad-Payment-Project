@@ -152,5 +152,3 @@ CREATE TABLE IF NOT EXISTS Schedules (
         FOREIGN KEY (payment_method_id)
         REFERENCES PaymentMethods(payment_method_id)
 );
-
-

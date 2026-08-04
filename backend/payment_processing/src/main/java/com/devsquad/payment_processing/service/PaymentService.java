@@ -125,7 +125,7 @@ public class PaymentService {
         return response;
     }
 
-    // ── Refund hook ────────
+    // ── Refund hook
 
     public Map<String, Object> refundPayment(Integer paymentId, String reason) {
         Payment payment = paymentRepo.getPaymentById(paymentId);
@@ -165,7 +165,7 @@ public class PaymentService {
         return allowed.contains(to);
     }
 
-    // ── Scheduled Payment Execution (Complete Transactional Flow) ────────────
+    // ── Scheduled Payment Execution (Complete Transactional Flow)
 
     /**
      * Executes a scheduled payment with full validation and money transfer.
