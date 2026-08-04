@@ -136,4 +136,57 @@ VALUES
     TRUE,
     'MONTHLY',
     4
+<<<<<<< HEAD
 );
+=======
+(6, 'Tax', 'Government tax related payment');
+
+-- SCHEDULES
+INSERT IGNORE INTO Schedules (
+    schedule_id,
+    sender_account_number,
+    receiver_account_number,
+    amount,
+    currency_id,
+    payment_method_id,
+    description,
+    frequency,
+    start_date,
+    end_date,
+    next_run_date,
+    last_run_date,
+    status
+)
+VALUES
+(
+    1,
+    100000001,
+    100000002,
+    2500.00,
+    NULL,
+    1,
+    'Monthly Rent',
+    'MONTHLY',
+    '2026-08-01',
+    '2027-08-01',
+    '2026-09-01',
+    NULL,
+    'ACTIVE'
+),
+(
+    2,
+    100000002,
+    100000003,
+    500.00,
+    NULL,
+    2,
+    'Weekly Grocery Transfer',
+    'WEEKLY',
+    '2026-08-04',
+    NULL,
+    '2026-08-11',
+    '2026-08-04',
+    'ACTIVE'
+);
+
+>>>>>>> e63df368c6ab59ac85e88d605334f3877a432a0f

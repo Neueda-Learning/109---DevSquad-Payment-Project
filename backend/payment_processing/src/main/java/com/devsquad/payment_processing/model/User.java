@@ -8,8 +8,8 @@ public class User {
     private String name;
     private String mobile;
 
-    private ArrayList<Account> accounts;
-    private ArrayList<CreditCard> creditCards;
+    private ArrayList<Long> accounts;
+    private ArrayList<String> creditCards;
 
     public User() {
         this.accounts = new ArrayList<>();
@@ -48,19 +48,19 @@ public class User {
         this.mobile = mobile;
     }
 
-    public ArrayList<Account> getAccounts() {
+    public ArrayList<Long> getAccounts() {
         return accounts;
     }
 
-    public void setAccounts(ArrayList<Account> accounts) {
+    public void setAccounts(ArrayList<Long> accounts) {
         this.accounts = accounts;
     }
 
-    public ArrayList<CreditCard> getCreditCards() {
+    public ArrayList<String> getCreditCards() {
         return creditCards;
     }
 
-    public void setCreditCards(ArrayList<CreditCard> creditCards) {
+    public void setCreditCards(ArrayList<String> creditCards) {
         this.creditCards = creditCards;
     }
 
