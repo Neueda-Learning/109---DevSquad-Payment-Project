@@ -1,7 +1,9 @@
 package com.devsquad.payment_processing.service;
 
 import com.devsquad.payment_processing.model.Account;
+import com.devsquad.payment_processing.model.User;
 import com.devsquad.payment_processing.repository.AccountRepository;
+import com.devsquad.payment_processing.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,4 +18,5 @@ public class AccountService {
     public ArrayList<Account> getAllAccountsS() {
         return accountRepository.getAllAccountsR();
     }
+
 }
