@@ -30,6 +30,7 @@ public class PaymentService {
 
     // ── Existing operations 
 
+    @Transactional
     public Payment createPayment(Payment request) {
         // Force auto-generation: ignore paymentId and invoiceNumber from request body
         request.setPaymentId(null);  // Always null - database will auto-generate
@@ -43,14 +44,14 @@ public class PaymentService {
             request.setPaymentTime(Time.valueOf(LocalTime.now()));
         }
         
-        // Default to PENDING status if not provided
-        if (request.getStatus() == null) {
-            request.setStatus(Payment.Status.PENDING);
-        }
+        // Set initial status to CREATED (first stage of workflow)
+        request.setStatus(Payment.Status.CREATED);
         
         // scheduleId is optional - can be null for manual payments
         
-        return paymentRepo.createPayment(request);
+        Payment savedPayment = paymentRepo.createPayment(request);
+
+        return processPayment(savedPayment.getPaymentId());
     }
 
     public Payment getPaymentById(Integer paymentId) {
@@ -127,9 +128,9 @@ public class PaymentService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "PAYMENT_NOT_FOUND");
         }
 
-        if (payment.getStatus() != Payment.Status.PENDING) {
+        if (payment.getStatus() != Payment.Status.CREATED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "INVALID_PAYMENT_STATE: Only PENDING payments can be cancelled. Current status: "
+                    "INVALID_PAYMENT_STATE: Only CREATED payments can be cancelled. Current status: "
                     + payment.getStatus());
         }
 
@@ -173,15 +174,110 @@ public class PaymentService {
     // ── Transition rules
 
     private static final Map<Payment.Status, Set<Payment.Status>> VALID_TRANSITIONS = Map.of(
-            Payment.Status.PENDING,    Set.of(Payment.Status.COMPLETED, Payment.Status.FAILED, Payment.Status.CANCELLED),
-            Payment.Status.COMPLETED,  Set.of(),
-            Payment.Status.FAILED,     Set.of(),
-            Payment.Status.CANCELLED,  Set.of()
+            Payment.Status.CREATED,      Set.of(Payment.Status.VALIDATING, Payment.Status.CANCELLED),
+            Payment.Status.VALIDATING,   Set.of(Payment.Status.COMPLETED, Payment.Status.FAILED),
+            Payment.Status.COMPLETED,    Set.of(),  // Terminal state
+            Payment.Status.FAILED,       Set.of(),  // Terminal state
+            Payment.Status.CANCELLED,    Set.of()   // Terminal state
     );
 
     private boolean isValidTransition(Payment.Status from, Payment.Status to) {
         Set<Payment.Status> allowed = VALID_TRANSITIONS.getOrDefault(from, Set.of());
         return allowed.contains(to);
+    }
+
+    // ── Complete Payment Workflow ─────────────────────────────────────────────
+
+    /**
+     * Processes a payment through the complete workflow:
+     * CREATED → VALIDATING → COMPLETED or FAILED
+     * 
+     * This method handles all validation checks and account operations.
+     */
+    @Transactional
+    public Payment processPayment(Integer paymentId) {
+        Payment payment = paymentRepo.getPaymentById(paymentId);
+        if (payment == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "PAYMENT_NOT_FOUND");
+        }
+
+        // Verify payment is in CREATED status
+        if (payment.getStatus() != Payment.Status.CREATED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "INVALID_PAYMENT_STATE: Can only process payments in CREATED status. Current: " + payment.getStatus());
+        }
+        
+        // Stage 1: CREATED → VALIDATING
+        try {
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATING);
+            payment.setStatus(Payment.Status.VALIDATING);
+
+            // Run validation checks
+            validatePayment(payment);
+
+            // Execute the actual payment transfer
+            executePaymentTransfer(payment);
+
+            // Stage 2: VALIDATING → COMPLETED
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.COMPLETED);
+            payment.setStatus(Payment.Status.COMPLETED);
+
+            return payment;
+
+        } catch (ResponseStatusException e) {
+            // Mark as FAILED if any validation or transfer fails
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
+            payment.setStatus(Payment.Status.FAILED);
+            throw e;
+        } catch (Exception e) {
+            // Catch any unexpected errors
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
+            payment.setStatus(Payment.Status.FAILED);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                    "PAYMENT_PROCESSING_ERROR: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Validates payment details and account balances
+     */
+    private void validatePayment(Payment payment) {
+        // 1. Validate sender account exists and is active
+        Double senderBalance = accountRepo.getAccountBalance(payment.getSenderAccountNumber());
+        if (senderBalance == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "ACCOUNT_NOT_FOUND: Sender account " + payment.getSenderAccountNumber() + " does not exist");
+        }
+
+        // 2. Validate receiver account exists
+        Double receiverBalance = accountRepo.getAccountBalance(payment.getReceiverAccountNumber());
+        if (receiverBalance == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "ACCOUNT_NOT_FOUND: Receiver account " + payment.getReceiverAccountNumber() + " does not exist");
+        }
+
+        // 3. Validate sufficient balance
+        if (senderBalance < payment.getAmount()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "INSUFFICIENT_BALANCE: Required " + payment.getAmount() + ", available " + senderBalance);
+        }
+
+        // 4. Validate amount is positive
+        if (payment.getAmount() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "INVALID_AMOUNT: Amount must be positive");
+        }
+    }
+
+    /**
+     * Executes the actual money transfer between accounts
+     */
+    private void executePaymentTransfer(Payment payment) {
+        // Debit sender account
+        accountRepo.debitAccount(payment.getSenderAccountNumber(), payment.getAmount());
+        
+        // Credit receiver account
+        accountRepo.creditAccount(payment.getReceiverAccountNumber(), payment.getAmount());
     }
 
     // ── Scheduled Payment Execution (Complete Transactional Flow)
@@ -224,7 +320,7 @@ public class PaymentService {
         accountRepo.debitAccount(schedule.getSenderAccountNumber(), schedule.getAmount());
         accountRepo.creditAccount(schedule.getReceiverAccountNumber(), schedule.getAmount());
 
-        // 4. Create Payment record
+        // 4. Create Payment record with CREATED status
         String invoiceNumber = "SCH-" + schedule.getScheduleId() + "-" + System.currentTimeMillis();
 
         Payment payment = new Payment(
@@ -239,12 +335,12 @@ public class PaymentService {
                 Time.valueOf(LocalTime.now()),
                 schedule.getDescription() != null ? schedule.getDescription() : "Scheduled Payment",
                 schedule.getScheduleId(),  // Link to originating schedule
-                Payment.Status.PENDING
+                Payment.Status.CREATED
         );
 
         Payment savedPayment = paymentRepo.createPayment(payment);
 
-        // 5. Mark payment as COMPLETED
+        // 5. Mark payment as COMPLETED (scheduled payments auto-complete after successful transfer)
         paymentRepo.updatePaymentStatus(savedPayment.getPaymentId(), Payment.Status.COMPLETED);
         savedPayment.setStatus(Payment.Status.COMPLETED);
 
