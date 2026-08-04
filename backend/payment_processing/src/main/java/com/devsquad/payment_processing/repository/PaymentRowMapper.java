@@ -22,8 +22,7 @@ public class PaymentRowMapper implements RowMapper<Payment> {
                 rs.getDate("payment_date"),
                 rs.getTime("payment_time"),
                 rs.getString("description"),
-                rs.getBoolean("is_scheduled_payment"),
-                rs.getString("schedule_period"),
+                rs.getObject("schedule_id", Integer.class),
                 mapDatabaseStatus(rs.getString("status"))
         );
     }

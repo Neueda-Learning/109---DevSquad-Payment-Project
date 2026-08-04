@@ -25,18 +25,14 @@ public class CatalogController {
     }
 
     // Convert currency
-//    @PostMapping("/currency/convert")
-//    public BigDecimal convertCurrency(
-//            @RequestParam String fromCurrency,
-//            @RequestParam String toCurrency,
-//            @RequestParam BigDecimal amount) {
-//
-//        return catalogService.convertCurrency(
-//                fromCurrency,
-//                toCurrency,
-//                amount
-//        );
-//    }
+    @GetMapping("/convert")
+public BigDecimal convert(
+        @RequestParam String from,
+        @RequestParam String to,
+        @RequestParam BigDecimal amount) {
+
+    return catalogService.convertCurrency(from, to, amount);
+}
 
     // Get all payment modes
     @GetMapping("/payment-modes")

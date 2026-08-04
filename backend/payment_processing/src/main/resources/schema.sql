@@ -95,9 +95,7 @@ CREATE TABLE IF NOT EXISTS Payments (
     payment_mode ENUM('UPI','CREDIT_CARD','BANK_TRANSFER')
         NOT NULL,
 
-    is_scheduled_payment BOOLEAN NOT NULL DEFAULT FALSE,
-
-    schedule_period VARCHAR(50),
+    schedule_id BIGINT,
 
     payment_method_id BIGINT NOT NULL,
 
@@ -111,5 +109,48 @@ CREATE TABLE IF NOT EXISTS Payments (
 
     CONSTRAINT fk_payment_method
         FOREIGN KEY (payment_method_id)
+        REFERENCES PaymentMethods(payment_method_id),
+
+    CONSTRAINT fk_payment_schedule
+        FOREIGN KEY (schedule_id)
+        REFERENCES Schedules(schedule_id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS Schedules (
+    schedule_id        BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    sender_account_number   BIGINT NOT NULL,
+    receiver_account_number BIGINT NOT NULL,
+
+    amount             DECIMAL(15,2) NOT NULL,
+    currency_id        INT,
+
+    payment_method_id  BIGINT NOT NULL,
+
+    description        VARCHAR(500),
+
+    frequency          ENUM('DAILY','WEEKLY','MONTHLY','YEARLY') NOT NULL,
+
+    start_date         DATE NOT NULL,
+    end_date           DATE,
+    next_run_date      DATE,
+    last_run_date      DATE,
+
+    status             ENUM('ACTIVE','PAUSED','COMPLETED','CANCELLED')
+                           NOT NULL DEFAULT 'ACTIVE',
+
+    CONSTRAINT fk_schedule_sender
+        FOREIGN KEY (sender_account_number)
+        REFERENCES Accounts(account_number),
+
+    CONSTRAINT fk_schedule_receiver
+        FOREIGN KEY (receiver_account_number)
+        REFERENCES Accounts(account_number),
+
+    CONSTRAINT fk_schedule_method
+        FOREIGN KEY (payment_method_id)
         REFERENCES PaymentMethods(payment_method_id)
 );
+
+

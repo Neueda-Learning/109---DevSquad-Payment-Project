@@ -85,8 +85,7 @@ INSERT IGNORE INTO Payments (
     status,
     description,
     payment_mode,
-    is_scheduled_payment,
-    schedule_period,
+    schedule_id,
     payment_method_id
 )
 VALUES
@@ -101,7 +100,6 @@ VALUES
     'COMPLETED',
     'Rent Payment',
     'UPI',
-    FALSE,
     NULL,
     1
 ),
@@ -117,7 +115,6 @@ VALUES
     'COMPLETED',
     'Electricity Bill',
     'CREDIT_CARD',
-    FALSE,
     NULL,
     3
 ),
@@ -133,7 +130,55 @@ VALUES
     'CREATED',
     'Monthly Transfer',
     'BANK_TRANSFER',
-    TRUE,
-    'MONTHLY',
+    NULL,
     4
-(6, 'Tax', 'Government tax related payment');
+);
+
+-- SCHEDULES
+INSERT IGNORE INTO Schedules (
+    schedule_id,
+    sender_account_number,
+    receiver_account_number,
+    amount,
+    currency_id,
+    payment_method_id,
+    description,
+    frequency,
+    start_date,
+    end_date,
+    next_run_date,
+    last_run_date,
+    status
+)
+VALUES
+(
+    1,
+    100000001,
+    100000002,
+    2500.00,
+    NULL,
+    1,
+    'Monthly Rent',
+    'MONTHLY',
+    '2026-08-01',
+    '2027-08-01',
+    '2026-09-01',
+    NULL,
+    'ACTIVE'
+),
+(
+    2,
+    100000002,
+    100000003,
+    500.00,
+    NULL,
+    2,
+    'Weekly Grocery Transfer',
+    'WEEKLY',
+    '2026-08-04',
+    NULL,
+    '2026-08-11',
+    '2026-08-04',
+    'ACTIVE'
+);
+
