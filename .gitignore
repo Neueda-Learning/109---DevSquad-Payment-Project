@@ -1,0 +1,14 @@
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.settings/
+backend/.classpath
+backend/.project
+backend/bin/
+
+.idea/
+.idea
+ *.iml
+out/
+
+backend/.idea/
+backend/*.iml
