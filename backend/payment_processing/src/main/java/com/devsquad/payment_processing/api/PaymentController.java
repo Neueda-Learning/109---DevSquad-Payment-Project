@@ -1,13 +1,15 @@
 package com.devsquad.payment_processing.api;
 
-
 import com.devsquad.payment_processing.model.Payment;
 import com.devsquad.payment_processing.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/payments")
@@ -18,30 +20,89 @@ public class PaymentController {
 
     // Create Payment
     @PostMapping("/create")
-    public Payment createPayment(@Valid @RequestBody Payment request) {
-        return paymentService.createPayment( request);
+    public ResponseEntity<Payment> createPayment(@Valid @RequestBody Payment request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(request));
     }
     // Get Payment By Id
     @GetMapping("/{id}")
-    public Payment getPaymentById(@PathVariable Integer id) {
-        return paymentService.getPaymentById(id);
+    public ResponseEntity<Payment> getPaymentById(@PathVariable Integer id) {
+        // Service throws 404 ResponseStatusException when not found
+        return ResponseEntity.ok(paymentService.getPaymentById(id));
     }
 
     // Get All Payments
     @GetMapping("/all")
-    public List<Payment> getAllPayments() {
-        return paymentService.getAllPayments();
+    public ResponseEntity<List<Payment>> getAllPayments() {
+        return ResponseEntity.ok(paymentService.getAllPayments());
     }
-    // Delete Payment
+
+    // ── List Payments with Filters + Pagination
+
+    @GetMapping
+    public ResponseEntity<List<Payment>> getPaymentsWithFilters(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String mode,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam(required = false) Double minAmount,
+            @RequestParam(required = false) Double maxAmount,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        return ResponseEntity.ok(
+                paymentService.getPaymentsWithFilters(status, mode, fromDate, toDate,
+                        minAmount, maxAmount, page, size));
+    }
+
+    // ── Update Payment Status
+    /**
+     * PATCH /api/v1/payments/{id}/status
+     * Body: { "targetStatus": "COMPLETED|FAILED|CANCELLED", "reason": "optional" }
+     * Valid transitions: PENDING -> COMPLETED | FAILED | CANCELLED
+     */
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Map<String, Object>> updatePaymentStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> request) {
+
+        return ResponseEntity.ok(
+                paymentService.updatePaymentStatus(id, request.get("targetStatus"), request.get("reason")));
+    }
+
+    // ── Cancel Payment Hook
+
+    /**
+     * POST /api/v1/payments/{id}/cancel
+     * Transitions a PENDING payment to CANCELLED.
+     */
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<Map<String, Object>> cancelPayment(@PathVariable Integer id) {
+        return ResponseEntity.ok(paymentService.cancelPayment(id));
+    }
+
+    // ── Refund Payment Hook
+
+    /**
+     * POST /api/v1/payments/{id}/refund
+     * Body (optional): { "reason": "..." }
+     * Validates the payment is COMPLETED and records refund initiation.
+     */
+    @PostMapping("/{id}/refund")
+    public ResponseEntity<Map<String, Object>> refundPayment(
+            @PathVariable Integer id,
+            @RequestBody(required = false) Map<String, String> request) {
+
+        String reason = request != null ? request.get("reason") : null;
+        return ResponseEntity.ok(paymentService.refundPayment(id, reason));
+    }
+
+
+    // ── Delete Payment
+
     @DeleteMapping("/{id}")
-    public String deletePayment(@PathVariable Integer id) {
-
+    public ResponseEntity<String> deletePayment(@PathVariable Integer id) {
         paymentService.deletePayment(id);
-
-        return "Payment deleted successfully";
+        return ResponseEntity.ok("Payment deleted successfully");
     }
-
-
-
 
 }
