@@ -1,0 +1,54 @@
+.payment-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.payment-filters input,
+.payment-filters select {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-h);
+  font-size: 14px;
+  outline: none;
+}
+
+.payment-filters input {
+  flex: 1;
+  min-width: 260px;
+}
+
+.payment-filters input:focus,
+.payment-filters select:focus {
+  border-color: var(--accent);
+}
+
+.payment-filters select {
+  background: var(--surface);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+}
+
+.payment-filters select option {
+  background: #1f2937;
+  color: #f9fafb;
+}
+
+.page-subtitle strong {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .payment-filters {
+    flex-direction: column;
+  }
+
+  .payment-filters input,
+  .payment-filters select {
+    width: 100%;
+  }
+}

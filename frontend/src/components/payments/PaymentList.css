@@ -1,7 +1,9 @@
 .payment-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .payment-table {
@@ -12,18 +14,34 @@
 
 .payment-table th,
 .payment-table td {
-  padding: 12px 16px;
+  padding: 14px 18px;
   text-align: left;
-  border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
 
 .payment-table th {
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: var(--text);
   background: var(--code-bg);
+  border-bottom: 2px solid var(--border);
+}
+
+.payment-table td {
+  border-bottom: 1px solid var(--border);
+}
+
+.payment-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.payment-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.payment-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
 }
 
 .payment-table tr:last-child td {
@@ -33,19 +51,39 @@
 .payment-table-ref {
   display: block;
   color: var(--text-h);
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
 }
 
 .payment-table-ref:hover {
+  color: var(--accent);
   text-decoration: underline;
 }
 
 .payment-table-desc {
   display: block;
+  margin-top: 4px;
   font-size: 13px;
   color: var(--text);
 }
+
+.payment-table td:last-child {
+  width: 90px;
+}
+
+/* Amount colors */
+
+.amount-credit {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.amount-debit {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* Mobile Responsive */
 
 @media (max-width: 720px) {
   .payment-table thead {
@@ -61,19 +99,25 @@
   }
 
   .payment-table tr {
-    padding: 12px 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
   }
 
   .payment-table td {
     border: none;
-    padding: 4px 0;
+    padding: 6px 0;
   }
 
   .payment-table td[data-label]::before {
     content: attr(data-label);
     display: block;
+    margin-bottom: 2px;
+
     font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.04em;
+
     color: var(--text);
   }
 }
