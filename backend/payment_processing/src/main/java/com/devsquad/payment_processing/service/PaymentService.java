@@ -1,13 +1,20 @@
 package com.devsquad.payment_processing.service;
 
 import com.devsquad.payment_processing.model.Payment;
+import com.devsquad.payment_processing.model.Schedule;
+import com.devsquad.payment_processing.repository.AccountRepository;
 import com.devsquad.payment_processing.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +24,9 @@ import java.util.Set;
 public class PaymentService {
     @Autowired
     PaymentRepository paymentRepo;
+
+    @Autowired
+    AccountRepository accountRepo;
 
     // ── Existing operations 
 
@@ -153,5 +163,72 @@ public class PaymentService {
     private boolean isValidTransition(Payment.Status from, Payment.Status to) {
         Set<Payment.Status> allowed = VALID_TRANSITIONS.getOrDefault(from, Set.of());
         return allowed.contains(to);
+    }
+
+    // ── Scheduled Payment Execution (Complete Transactional Flow) ────────────
+
+    /**
+     * Executes a scheduled payment with full validation and money transfer.
+     * This is the ONLY entry point for scheduled payment execution.
+     * 
+     * @Transactional ensures atomicity:
+     *   - Validates accounts
+     *   - Validates balance
+     *   - Debits sender
+     *   - Credits receiver
+     *   - Creates payment record
+     *   - Marks payment COMPLETED
+     *   - Rolls back everything on failure
+     */
+    @Transactional
+    public Payment executeScheduledPayment(Schedule schedule) {
+        // 1. Validate accounts exist and are active
+        Double senderBalance = accountRepo.getAccountBalance(schedule.getSenderAccountNumber());
+        Double receiverBalance = accountRepo.getAccountBalance(schedule.getReceiverAccountNumber());
+
+        if (senderBalance == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "ACCOUNT_NOT_FOUND: Sender account " + schedule.getSenderAccountNumber());
+        }
+        if (receiverBalance == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "ACCOUNT_NOT_FOUND: Receiver account " + schedule.getReceiverAccountNumber());
+        }
+
+        // 2. Validate sufficient balance
+        if (senderBalance < schedule.getAmount()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "INSUFFICIENT_BALANCE: Required " + schedule.getAmount() + ", available " + senderBalance);
+        }
+
+        // 3. Debit sender and credit receiver
+        accountRepo.debitAccount(schedule.getSenderAccountNumber(), schedule.getAmount());
+        accountRepo.creditAccount(schedule.getReceiverAccountNumber(), schedule.getAmount());
+
+        // 4. Create Payment record
+        String invoiceNumber = "SCH-" + schedule.getScheduleId() + "-" + System.currentTimeMillis();
+
+        Payment payment = new Payment(
+                null,
+                invoiceNumber,
+                schedule.getSenderAccountNumber(),
+                schedule.getReceiverAccountNumber(),
+                schedule.getAmount(),
+                schedule.getCurrencyId(),
+                schedule.getPaymentModeId(),
+                Date.valueOf(LocalDate.now()),
+                Time.valueOf(LocalTime.now()),
+                schedule.getDescription() != null ? schedule.getDescription() : "Scheduled Payment",
+                schedule.getScheduleId(),  // Link to originating schedule
+                Payment.Status.PENDING
+        );
+
+        Payment savedPayment = paymentRepo.createPayment(payment);
+
+        // 5. Mark payment as COMPLETED
+        paymentRepo.updatePaymentStatus(savedPayment.getPaymentId(), Payment.Status.COMPLETED);
+        savedPayment.setStatus(Payment.Status.COMPLETED);
+
+        return savedPayment;
     }
 }
