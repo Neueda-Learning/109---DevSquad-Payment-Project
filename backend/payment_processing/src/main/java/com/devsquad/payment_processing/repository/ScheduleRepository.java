@@ -1,5 +1,6 @@
 package com.devsquad.payment_processing.repository;
 
+import com.devsquad.payment_processing.model.Frequency;
 import com.devsquad.payment_processing.model.Schedule;
 import com.devsquad.payment_processing.model.ScheduleStatus;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,6 +14,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -55,7 +57,7 @@ public class ScheduleRepository {
             setNullableInt(ps, 4, schedule.getCurrencyId());
             ps.setInt(5, schedule.getPaymentModeId());
             ps.setString(6, schedule.getDescription());
-            ps.setString(7, schedule.getFrequency());
+            ps.setString(7, schedule.getFrequency() != null ? schedule.getFrequency().name() : null);
             ps.setDate(8, schedule.getStartDate());
             ps.setDate(9, schedule.getEndDate());
             // default next_run_date to start_date if not provided
@@ -125,7 +127,7 @@ public class ScheduleRepository {
                 schedule.getCurrencyId(),
                 schedule.getPaymentModeId(),
                 schedule.getDescription(),
-                schedule.getFrequency(),
+                schedule.getFrequency() != null ? schedule.getFrequency().name() : null,
                 schedule.getStartDate(),
                 schedule.getEndDate(),
                 schedule.getNextRunDate(),
@@ -146,28 +148,6 @@ public class ScheduleRepository {
         jdbcTemplate.update(sql, scheduleId);
     }
 
-    // Trigger Schedule Manually — marks last_run_date as today and advances next_run_date
-    public void triggerSchedule(Long scheduleId) {
-        LocalDate today = LocalDate.now();
-        java.sql.Date todaySql = java.sql.Date.valueOf(today);
-
-        Schedule schedule = getScheduleById(scheduleId.intValue());
-        if (schedule == null) {
-            return;
-        }
-
-        java.sql.Date nextRun = computeNextRunDate(today, schedule.getFrequency());
-
-        String sql = """
-                UPDATE Schedules
-                SET last_run_date = ?,
-                    next_run_date = ?
-                WHERE schedule_id = ?
-                """;
-
-        jdbcTemplate.update(sql, todaySql, nextRun, scheduleId);
-    }
-
     // Get execution details for a schedule
     public Map<String, Object> getScheduleExecution(Long scheduleId) {
         Schedule schedule = getScheduleById(scheduleId.intValue());
@@ -186,19 +166,6 @@ public class ScheduleRepository {
         return execution;
     }
 
-    // Helper — compute next run date given today and frequency
-    private java.sql.Date computeNextRunDate(LocalDate from, String frequency) {
-        if (frequency == null) {
-            return java.sql.Date.valueOf(from.plusMonths(1));
-        }
-        LocalDate next = switch (frequency.toUpperCase()) {
-            case "DAILY"   -> from.plusDays(1);
-            case "WEEKLY"  -> from.plusWeeks(1);
-            case "YEARLY"  -> from.plusYears(1);
-            default        -> from.plusMonths(1); // MONTHLY and fallback
-        };
-        return java.sql.Date.valueOf(next);
-    }
 
     private void setNullableInt(PreparedStatement ps, int index, Integer value)
             throws java.sql.SQLException {
@@ -207,6 +174,61 @@ public class ScheduleRepository {
         } else {
             ps.setNull(index, Types.INTEGER);
         }
+    }
+
+    // ── Scheduler support methods ─────────────────────────────────────────────
+
+    /**
+     * Returns all ACTIVE schedules whose next_run_date is today or in the past.
+     */
+    public List<Schedule> getDueSchedules() {
+        String sql = """
+                SELECT schedule_id,
+                       sender_account_number,
+                       receiver_account_number,
+                       amount,
+                       currency_id,
+                       payment_method_id,
+                       description,
+                       frequency,
+                       start_date,
+                       end_date,
+                       next_run_date,
+                       last_run_date,
+                       status
+                FROM Schedules
+                WHERE status = 'ACTIVE'
+                  AND next_run_date <= CURDATE()
+                """;
+
+        return jdbcTemplate.query(sql, scheduleRowMapper);
+    }
+
+    /**
+     * Advances last_run_date and next_run_date after a successful execution.
+     */
+    public void updateNextExecution(Long scheduleId, java.sql.Date lastRun, java.sql.Date nextRun) {
+        String sql = """
+                UPDATE Schedules
+                SET last_run_date = ?,
+                    next_run_date = ?
+                WHERE schedule_id = ?
+                """;
+
+        jdbcTemplate.update(sql, lastRun, nextRun, scheduleId);
+    }
+
+    /**
+     * Marks a schedule COMPLETED (end_date reached or one-shot finished).
+     */
+    public void markCompleted(Long scheduleId) {
+        String sql = """
+                UPDATE Schedules
+                SET status = 'COMPLETED'
+                WHERE schedule_id = ?
+                """;
+
+        jdbcTemplate.update(sql, scheduleId);
     }
 }
 

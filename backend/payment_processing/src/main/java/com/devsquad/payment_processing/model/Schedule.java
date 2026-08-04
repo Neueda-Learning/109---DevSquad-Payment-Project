@@ -11,7 +11,7 @@ public class Schedule {
     private Integer currencyId;
     private Integer paymentModeId;
     private String description;
-    private String frequency;       // DAILY, WEEKLY, MONTHLY, YEARLY
+    private Frequency frequency;
     private Date startDate;
     private Date endDate;           // nullable
     private Date nextRunDate;
@@ -20,7 +20,7 @@ public class Schedule {
 
     public Schedule(Integer scheduleId, Long senderAccountNumber, Long receiverAccountNumber,
                     Double amount, Integer currencyId, Integer paymentModeId,
-                    String description, String frequency,
+                    String description, Frequency frequency,
                     Date startDate, Date endDate,
                     Date nextRunDate, Date lastRunDate,
                     ScheduleStatus status) {
@@ -95,11 +95,11 @@ public class Schedule {
         this.description = description;
     }
 
-    public String getFrequency() {
+    public Frequency getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(String frequency) {
+    public void setFrequency(Frequency frequency) {
         this.frequency = frequency;
     }
 
