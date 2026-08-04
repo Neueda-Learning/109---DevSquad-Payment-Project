@@ -136,4 +136,4 @@ VALUES
     TRUE,
     'MONTHLY',
     4
-(6, 'Tax', 'Government tax related payment');
+);

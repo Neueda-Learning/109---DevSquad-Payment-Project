@@ -29,4 +29,15 @@ public class AccountRepository {
 
         return new ArrayList<>(databaseAccounts);
     }
+
+    public Account getAccountByIdR(Integer accountNumber) {
+
+        String sql = """
+                SELECT account_number, user_id, bank_name, account_type, balance, ifsc, bank_address, country, is_active, not_active_reason
+                FROM accounts
+                WHERE account_number = ?
+               """;
+
+        return jdbcTemplate.queryForObject(sql, accountRowMapper , accountNumber);
+    }
 }

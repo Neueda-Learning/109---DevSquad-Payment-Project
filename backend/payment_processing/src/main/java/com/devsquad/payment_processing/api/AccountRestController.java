@@ -22,4 +22,8 @@ public class AccountRestController {
     }
 
 //    create api to get account by id
+    @GetMapping("/{accountNumber}")
+    public Account getAccountById(Integer accountNumber) {
+        return accountService.getAccountByIdS(accountNumber);
+    }
 }

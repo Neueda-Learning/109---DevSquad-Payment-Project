@@ -22,12 +22,12 @@ public class CatalogService {
     }
 
     // Convert currency
-    public BigDecimal convertCurrency(String fromCurrency,
-                                      String toCurrency,
-                                      BigDecimal amount) {
-
-        return catalogRepo.convertCurrency(fromCurrency, toCurrency, amount);
-    }
+//    public BigDecimal convertCurrency(String fromCurrency,
+//                                      String toCurrency,
+//                                      BigDecimal amount) {
+//
+//        return catalogRepo.convertCurrency(fromCurrency, toCurrency, amount);
+//    }
 
     // Get all payment modes
     public List<PaymentMode> getPaymentModes() {
