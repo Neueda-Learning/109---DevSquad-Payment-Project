@@ -19,7 +19,7 @@ public class AccountService {
         return accountRepository.getAllAccountsR();
     }
 
-    public Account getAccountByIdS(Integer accountNumber) {
+    public Account getAccountByIdS(Long accountNumber) {
         return accountRepository.getAccountByIdR(accountNumber);
     }
 }

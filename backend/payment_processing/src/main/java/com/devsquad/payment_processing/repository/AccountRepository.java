@@ -30,7 +30,7 @@ public class AccountRepository {
         return new ArrayList<>(databaseAccounts);
     }
 
-    public Account getAccountByIdR(Integer accountNumber) {
+    public Account getAccountByIdR(Long accountNumber) {
 
         String sql = """
                 SELECT account_number, user_id, bank_name, account_type, balance, ifsc, bank_address, country, is_active, not_active_reason
