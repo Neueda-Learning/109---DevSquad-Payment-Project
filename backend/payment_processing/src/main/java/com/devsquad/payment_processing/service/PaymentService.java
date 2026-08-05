@@ -55,9 +55,9 @@ public class PaymentService {
         request.setStatus(Payment.Status.CREATED);
         
         // scheduleId is optional - can be null for manual payments
-        
+        System.out.println("Creating payment: " + request);
         Payment savedPayment = paymentRepo.createPayment(request);
-
+        System.out.println("Payment created with ID: " + savedPayment.getPaymentId());
         return processPayment(savedPayment.getPaymentId());
     }
 
@@ -218,16 +218,21 @@ public class PaymentService {
             paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATED);
             payment.setStatus(Payment.Status.VALIDATED);
 
+            System.out.println("ABover validate");
             // Run validation checks
             validatePayment(payment);
 
+            System.out.println("After validate");
+
             // Execute the actual payment transfer
+            System.out.println("Before execute");
             executePaymentTransfer(payment);
+            System.out.println("After execute");
 
             // Stage 2: VALIDATING → COMPLETED
             paymentRepo.updatePaymentStatus(paymentId, Payment.Status.COMPLETED);
             payment.setStatus(Payment.Status.COMPLETED);
-
+            System.out.println("Payment processed successfully: " + paymentId);
             return payment;
 
         } catch (ResponseStatusException e) {
@@ -280,11 +285,14 @@ public class PaymentService {
      */
     private void executePaymentTransfer(Payment payment) {
         // Debit sender account
+        System.out.println("Before debit");
         BigDecimal amount = catalogService.convertCurrency(payment.getCurrencyId(), 1, payment.getAmount());
         accountRepo.debitAccount(payment.getSenderAccountNumber(), amount);
-        
+
+        System.out.println("After debit");
         // Credit receiver account
         accountRepo.creditAccount(payment.getReceiverAccountNumber(), amount);
+        System.out.println("After credit");
     }
 
     // ── Scheduled Payment Execution (Complete Transactional Flow)

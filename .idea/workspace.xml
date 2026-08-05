@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="848fc9d1-c15e-44c7-95a7-4d1608dbc212" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRowMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRowMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/CatalogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/CatalogService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/PaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/schema.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -25,25 +24,25 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 1
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="3HUSCfCDr9hmQVhGfKxDsHMjLRc" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.PaymentProcessingApplication.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "aman",
-    "kotlin-language-version-configured": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.PaymentProcessingApplication.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;aman&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="848fc9d1-c15e-44c7-95a7-4d1608dbc212" name="Changes" comment="" />

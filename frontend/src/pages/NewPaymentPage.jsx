@@ -1,4 +1,5 @@
 import { useState , useEffect } from 'react'
+import { CURRENCIES } from '../utils/currency'
 import './NewPaymentPage.css'
 
 function NewPaymentPage({
@@ -20,6 +21,10 @@ function NewPaymentPage({
     batchId: null,
     status: 'CREATED',
   })
+
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    CURRENCIES[1].currency
+  )
 
 
   useEffect(() => {
@@ -208,12 +213,32 @@ function NewPaymentPage({
           <label className="form-field">
             <span>Currency</span>
 
-            <select className="input">
-              <option>INR</option>
-              <option>USD</option>
-              <option>EUR</option>
-              <option>GBP</option>
-              <option>JPY</option>
+            <select
+              className="input"
+              value={selectedCurrency}
+              onChange={(e) => {
+                const currency = e.target.value
+
+                setSelectedCurrency(currency)
+
+                const index = CURRENCIES.findIndex(
+                  (c) => c.currency === currency
+                )
+
+                setPayment((prev) => ({
+                  ...prev,
+                  currencyId: index
+                }))
+              }}
+            >
+              {CURRENCIES.map((currency) => (
+                <option
+                  key={currency.currency}
+                  value={currency.currency}
+                >
+                  {currency.currency} ({currency.symbol})
+                </option>
+              ))}
             </select>
           </label>
 
