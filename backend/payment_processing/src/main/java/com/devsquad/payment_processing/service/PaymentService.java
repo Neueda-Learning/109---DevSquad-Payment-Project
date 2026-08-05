@@ -141,12 +141,12 @@ public class PaymentService {
                     + payment.getStatus());
         }
 
-        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.CANCELLED);
+        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("paymentId", paymentId);
         response.put("previousStatus", payment.getStatus());
-        response.put("targetStatus", Payment.Status.CANCELLED);
+        response.put("targetStatus", Payment.Status.FAILED);
         response.put("message", "Payment has been successfully cancelled");
         response.put("updatedAt", LocalDateTime.now().toString());
         return response;
@@ -181,11 +181,10 @@ public class PaymentService {
     // ── Transition rules
 
     private static final Map<Payment.Status, Set<Payment.Status>> VALID_TRANSITIONS = Map.of(
-            Payment.Status.CREATED,      Set.of(Payment.Status.VALIDATING, Payment.Status.CANCELLED),
-            Payment.Status.VALIDATING,   Set.of(Payment.Status.COMPLETED, Payment.Status.FAILED),
+            Payment.Status.CREATED,      Set.of(Payment.Status.VALIDATED, Payment.Status.FAILED),
+            Payment.Status.VALIDATED,   Set.of(Payment.Status.COMPLETED, Payment.Status.FAILED),
             Payment.Status.COMPLETED,    Set.of(),  // Terminal state
-            Payment.Status.FAILED,       Set.of(),  // Terminal state
-            Payment.Status.CANCELLED,    Set.of()   // Terminal state
+            Payment.Status.FAILED,       Set.of()  // Terminal state
     );
 
     private boolean isValidTransition(Payment.Status from, Payment.Status to) {
@@ -216,8 +215,8 @@ public class PaymentService {
         
         // Stage 1: CREATED → VALIDATING
         try {
-            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATING);
-            payment.setStatus(Payment.Status.VALIDATING);
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATED);
+            payment.setStatus(Payment.Status.VALIDATED);
 
             // Run validation checks
             validatePayment(payment);

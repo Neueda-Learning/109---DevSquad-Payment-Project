@@ -8,7 +8,6 @@ function NewPaymentPage({
   const [paymentType, setPaymentType] = useState('now')
 
   const [payment, setPayment] = useState({
-    invoiceNumber: '',
     senderAccountNumber: '',
     receiverAccountNumber: '',
     amount: '',
@@ -18,6 +17,7 @@ function NewPaymentPage({
     paymentTime: '',
     description: '',
     scheduleId: null,
+    batchId: null,
     status: 'CREATED',
   })
 
@@ -60,9 +60,6 @@ function NewPaymentPage({
 
         const paymentRequest = {
           ...payment,
-
-          invoiceNumber:
-            `INV-${Date.now()}`,
 
           paymentDate:
             now.toISOString().split('T')[0],
