@@ -6,8 +6,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/schedules")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ScheduleController {
 
     @Autowired
@@ -16,6 +19,10 @@ public class ScheduleController {
     /**
      * Create a new scheduled payment
      */
+    @GetMapping("/all")
+    public List<Schedule> getAllSchedules() {
+        return scheduleService.getAllSchedules();
+    }
     @PostMapping
     public Schedule createSchedule(
             @Valid @RequestBody Schedule request) {
@@ -53,11 +60,11 @@ public class ScheduleController {
     /**
      * Get execution history/status of a schedule
      */
-    @GetMapping("/{scheduleId}/execution")
-    public Object getScheduleExecution(
-            @PathVariable Long scheduleId) {
-
-        return scheduleService.getScheduleExecution(scheduleId);
-    }
+//    @GetMapping("/{scheduleId}/execution")
+//    public Object getScheduleExecution(
+//            @PathVariable Long scheduleId) {
+//        System.out.println("Raised a requestto execute schedule with id: " + scheduleId);
+//        return scheduleService.getScheduleExecution(scheduleId);
+//    }
 
 }

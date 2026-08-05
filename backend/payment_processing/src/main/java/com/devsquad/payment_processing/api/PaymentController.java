@@ -1,5 +1,7 @@
 package com.devsquad.payment_processing.api;
 
+import com.devsquad.payment_processing.model.BatchPaymentRequest;
+import com.devsquad.payment_processing.model.BatchPaymentResponse;
 import com.devsquad.payment_processing.model.Payment;
 import com.devsquad.payment_processing.service.PaymentService;
 import jakarta.validation.Valid;
@@ -13,16 +15,58 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/payments")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
 
-    // Create Payment
+    /**
+     * POST /api/v1/payments/create
+     * Creates and automatically processes a payment in one step.
+     * 
+     * Workflow: CREATED → VALIDATING → COMPLETED or FAILED
+     * 
+     * Returns payment with final status (COMPLETED or FAILED)
+     * and proper error messages if validation fails.
+     */
     @PostMapping("/create")
     public ResponseEntity<Payment> createPayment(@Valid @RequestBody Payment request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(request));
     }
+
+    /**
+     * POST /api/v1/payments/batch
+     * Creates multiple payments in a single batch.
+     * 
+     * Each payment is processed independently:
+     * - Success/failure is tracked per recipient
+     * - One failure does NOT stop others
+     * - All payments share the same batchId
+     * 
+     * Returns summary with individual results.
+     * Returns HTTP 207 Multi-Status if partial failures occur.
+     */
+    @PostMapping("/batch")
+    public ResponseEntity<BatchPaymentResponse> createBatchPayment(
+            @Valid @RequestBody BatchPaymentRequest request) {
+        
+        BatchPaymentResponse response = paymentService.createBatchPayment(request);
+        
+        // Return 207 Multi-Status if there are partial failures
+        if (response.getFailedPayments() > 0 && response.getSuccessfulPayments() > 0) {
+            return ResponseEntity.status(207).body(response);  // HTTP 207 Multi-Status
+        }
+        
+        // Return 201 if all succeeded
+        if (response.getFailedPayments() == 0) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
+        
+        // Return 400 if all failed
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     // Get Payment By Id
     @GetMapping("/{id}")
     public ResponseEntity<Payment> getPaymentById(@PathVariable Integer id) {
