@@ -9,6 +9,7 @@ import ScheduledPaymentsPage from './pages/ScheduledPaymentsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import './styles/layout.css'
 import './styles/buttons.css'
+import './styles/app.css'
 
 function App() {
   const [users, setUsers] = useState([])

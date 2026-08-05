@@ -1,7 +1,7 @@
-import StatusBadge from '../common/StatusBadge'
-import { formatCurrency } from '../../utils/currency'
-import { formatDate } from '../../utils/format'
 import { Link } from 'react-router-dom'
+import StatusBadge from '../common/StatusBadge'
+import { CURRENCIES, formatCurrency } from '../../utils/currency'
+import { formatDate } from '../../utils/format'
 import './PaymentList.css'
 
 function PaymentList({
@@ -31,6 +31,9 @@ function PaymentList({
                 payment.receiverAccountNumber
               )
 
+            const currency =
+              CURRENCIES[payment.currencyId - 1]?.currency || 'INR'
+
             return (
               <tr key={payment.paymentId}>
                 <td data-label="Invoice">
@@ -48,7 +51,7 @@ function PaymentList({
                   {isIncoming ? '+' : '-'}{' '}
                   {formatCurrency(
                     payment.amount,
-                    payment.currencyCode || 'INR'
+                    currency
                   )}
                 </td>
 
@@ -67,14 +70,13 @@ function PaymentList({
                 </td>
 
                 <td data-label="Action">
-                    <Link
-                      to={`/payments/${payment.paymentId}`}
-                      className="view-btn"
-                    >
-                      View
-                    </Link>
+                  <Link
+                    to={`/payments/${payment.paymentId}`}
+                    className="view-btn"
+                  >
+                    View
+                  </Link>
                 </td>
-
               </tr>
             )
           })}

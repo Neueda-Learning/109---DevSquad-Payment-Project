@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
+import ThemeToggle from './ThemeToggle'
 import './Navbar.css'
 
 const links = [
@@ -40,10 +41,11 @@ function Navbar({
         </nav>
 
         <div className="navbar-right">
-          <Link
-            to="/payments/new"
-            className="btn btn-primary navbar-cta"
-          >
+          <div className="navbar-theme-toggle">
+            <ThemeToggle />
+          </div>
+
+          <Link to="/payments/new" className="btn btn-primary navbar-cta">
             + New Payment
           </Link>
 

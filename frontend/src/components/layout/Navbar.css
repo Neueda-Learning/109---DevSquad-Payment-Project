@@ -80,6 +80,26 @@
   gap: 16px;
 }
 
+.navbar-theme-toggle {
+  width: 100px;
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: visible;
+}
+
+.navbar-theme-toggle .theme-switch {
+  transform: scale(0.5);
+  transform-origin: center center;
+}
+
+.navbar-cta {
+  white-space: nowrap;
+}
+
 .user-selector {
   position: relative;
 }

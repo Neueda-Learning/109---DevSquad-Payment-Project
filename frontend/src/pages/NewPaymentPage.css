@@ -147,6 +147,135 @@ fieldset {
   opacity: 0.9;
 }
 
+/* ===========================
+   Glassmorphism Popup
+=========================== */
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  z-index: 9999;
+
+  animation: fadeIn 0.25s ease;
+}
+
+.popup-card {
+  width: 420px;
+  max-width: 92%;
+
+  padding: 32px;
+
+  border-radius: 22px;
+
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+  text-align: center;
+
+  animation: popupScale 0.28s ease;
+}
+
+.popup-icon {
+  width: 82px;
+  height: 82px;
+
+  margin: 0 auto 22px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 42px;
+  font-weight: bold;
+
+  color: white;
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.popup-icon.success {
+  background: linear-gradient(
+    135deg,
+    #22c55e,
+    #16a34a
+  );
+}
+
+.popup-icon.error {
+  background: linear-gradient(
+    135deg,
+    #ef4444,
+    #dc2626
+  );
+}
+
+.popup-card h2 {
+  margin: 0 0 12px;
+
+  color: white;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.popup-card p {
+  margin: 0 0 28px;
+
+  color: rgba(255, 255, 255, 0.85);
+
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.popup-card .btn {
+  min-width: 140px;
+  border-radius: 12px;
+  padding: 12px 24px;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+@keyframes popupScale {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 
 /* Responsive */
 
