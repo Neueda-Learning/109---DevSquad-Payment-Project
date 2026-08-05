@@ -26,6 +26,13 @@ function NewPaymentPage({
     CURRENCIES[1].currency
   )
 
+  const [popup, setPopup] = useState({
+    show: false,
+    success: true,
+    title: '',
+    message: '',
+  })
+
 
   useEffect(() => {
     if (selectedUser?.accounts?.length) {
@@ -115,9 +122,12 @@ function NewPaymentPage({
         )
 
 
-        alert(
-          "Payment created successfully"
-        )
+        setPopup({
+          show: true,
+          success: true,
+          title: 'Payment Successful',
+          message: 'Your payment has been created successfully.',
+        })
 
 
       } catch (error) {
@@ -127,9 +137,12 @@ function NewPaymentPage({
           error
         )
 
-        alert(
-          "Failed to create payment"
-        )
+        setPopup({
+          show: true,
+          success: false,
+          title: 'Payment Failed',
+          message: 'Unable to create payment. Please try again.',
+        })
 
       }
     }
@@ -227,7 +240,7 @@ function NewPaymentPage({
 
                 setPayment((prev) => ({
                   ...prev,
-                  currencyId: index
+                  currencyId: index + 1
                 }))
               }}
             >
@@ -356,6 +369,39 @@ function NewPaymentPage({
         </div>
 
       </form>
+
+      {popup.show && (
+        <div className="popup-overlay">
+          <div className="popup-card">
+            <div
+              className={
+                popup.success
+                  ? 'popup-icon success'
+                  : 'popup-icon error'
+              }
+            >
+              {popup.success ? '✓' : '✕'}
+            </div>
+
+            <h2>{popup.title}</h2>
+
+            <p>{popup.message}</p>
+
+            <button
+              className="btn btn-primary"
+              onClick={() =>
+                setPopup({
+                  ...popup,
+                  show: false,
+                })
+              }
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

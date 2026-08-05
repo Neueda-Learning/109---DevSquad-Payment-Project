@@ -17,30 +17,32 @@ function HomePage({ selectedUser }) {
       try {
         setLoading(true)
 
-        const response = await fetch(
-          'http://localhost:8080/api/v1/payments/all'
-        )
+        const apiUrl = import.meta.env.VITE_API_BASE_URL
 
-        const allPayments = await response.json()
-         const paymentsArray = Array.isArray(allPayments) ? allPayments : []
+        const [paymentsResponse, accountsResponse] = await Promise.all([
+          fetch(`${apiUrl}/api/v1/payments/all`),
+          fetch(`${apiUrl}/api/1.0/accounts/all`),
+        ])
 
-         const userAccounts = selectedUser.accounts || []
-         const userPayments = paymentsArray.filter(
-           (payment) =>
-             userAccounts.includes(payment.senderAccountNumber) ||
-             userAccounts.includes(payment.receiverAccountNumber)
-         )
+        const allPayments = await paymentsResponse.json()
+        const allAccounts = await accountsResponse.json()
 
-        const totalPaid = userPayments
-          .filter(
+        const userAccounts = selectedUser.accounts || []
+        const userAccountSet = new Set(userAccounts.map((accountNumber) => Number(accountNumber)))
+
+        const balance = (Array.isArray(allAccounts) ? allAccounts : [])
+          .filter((account) => userAccountSet.has(Number(account.accountNumber)))
+          .reduce((sum, account) => sum + Number(account.balance || 0), 0)
+
+        const userPayments =
+          allPayments.filter(
             (payment) =>
-              payment.status ===
-              'COMPLETED'
-          )
-          .reduce(
-            (sum, payment) =>
-              sum + payment.amount,
-            0
+              userAccounts.includes(
+                payment.senderAccountNumber
+              ) ||
+              userAccounts.includes(
+                payment.receiverAccountNumber
+              )
           )
 
         const totalFailed =
@@ -74,7 +76,7 @@ function HomePage({ selectedUser }) {
             .slice(0, 5)
 
         setSummary({
-          totalPaid,
+          balance,
           totalFailed,
           totalPending,
           upcomingScheduled,
@@ -169,12 +171,12 @@ function HomePage({ selectedUser }) {
         <>
           <div className="stat-grid">
             <StatCard
-              label="Total Paid"
+              label="Balance"
               value={formatCurrency(
-                summary.totalPaid,
+                summary.balance,
                 'INR'
               )}
-              sublabel="Completed transactions"
+              sublabel="Across all linked accounts"
               tone="success"
             />
 
