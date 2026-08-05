@@ -12,6 +12,39 @@ import { demoScheduledPayments } from '../data/demoScheduledPayments'
 import { demoVendors } from '../data/demoVendors'
 import { demoCurrencies } from '../data/demoCurrencies'
 
+const CURRENCY_BY_ID = {
+  1: 'USD',
+  2: 'INR',
+  3: 'GBP',
+  4: 'EUR',
+  5: 'JPY',
+}
+
+function mapScheduleFromBackend(schedule) {
+  const id = schedule.scheduleId ?? schedule.id
+  return {
+    id,
+    scheduleId: id,
+    senderAccountNumber: schedule.senderAccountNumber,
+    receiverAccountNumber: schedule.receiverAccountNumber,
+    amount: schedule.amount,
+    currencyId: schedule.currencyId,
+    currency: CURRENCY_BY_ID[schedule.currencyId] || 'USD',
+    paymentModeId: schedule.paymentModeId,
+    description: schedule.description || '',
+    startDate: schedule.startDate,
+    endDate: schedule.endDate,
+    nextRunDate: schedule.nextRunDate,
+    lastRunDate: schedule.lastRunDate,
+    scheduledFor: schedule.nextRunDate || schedule.startDate,
+    recurrence: (schedule.frequency || '').toLowerCase(),
+    frequency: schedule.frequency,
+    status: (schedule.status || '').toLowerCase(),
+    vendor: `A/C ${schedule.receiverAccountNumber ?? '-'}`,
+    tags: schedule.frequency ? [schedule.frequency] : [],
+  }
+}
+
 // Simulates network latency so loading states can be exercised in the UI.
 const simulateRequest = (data, delay = 500) =>
   new Promise((resolve) => setTimeout(() => resolve(data), delay))
@@ -153,53 +186,45 @@ export async function downloadReceipt(id) {
  * GET ROUTES.SCHEDULED_PAYMENTS
  * Fetch upcoming scheduled/recurring payments.
  */
-export async function fetchScheduledPayments() {
-  const backendData = await tryFetch(ROUTES.SCHEDULED_PAYMENTS)
-  if (backendData) return backendData
 
-  return simulateRequest([...demoScheduledPayments])
-}
 
 /**
  * POST ROUTES.SCHEDULE_PAYMENT
  * Schedule a new future/recurring payment.
  */
+export async function fetchScheduledPayments() {
+  const backendData = await tryFetch(ROUTES.SCHEDULED_PAYMENTS)
+
+  if (backendData) {
+    return Array.isArray(backendData)
+      ? backendData.map(mapScheduleFromBackend)
+      : [mapScheduleFromBackend(backendData)]
+  }
+
+  // Fall back to demo data if backend fails
+  return simulateRequest(demoScheduledPayments)
+}
+
 export async function schedulePayment(scheduleDraft) {
   const backendData = await tryFetch(ROUTES.SCHEDULE_PAYMENT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(scheduleDraft),
   })
-  if (backendData) return backendData
 
-  const newSchedule = {
-    id: `sch_${Math.floor(Math.random() * 100000)}`,
-    status: 'scheduled',
-    ...scheduleDraft,
+  if (!backendData) {
+    throw new Error(`Failed to create schedule via ${ROUTES.SCHEDULE_PAYMENT}`)
   }
-  return simulateRequest(newSchedule, 800)
+
+  return mapScheduleFromBackend(backendData)
 }
 
-/**
- * POST ROUTES.CANCEL_SCHEDULED_PAYMENT(id)
- * Cancel a previously scheduled payment.
- */
 export async function cancelScheduledPayment(id) {
-  const backendData = await tryFetch(ROUTES.CANCEL_SCHEDULED_PAYMENT(id), { method: 'POST' })
-  if (backendData) return backendData
-
-  return simulateRequest({ id, status: 'cancelled' }, 500)
-}
-
-/**
- * GET ROUTES.VENDORS
- * Fetch known vendors/payees (used for filters and payment creation).
- */
-export async function fetchVendors() {
-  const backendData = await tryFetch(ROUTES.VENDORS)
-  if (backendData) return backendData
-
-  return simulateRequest([...demoVendors])
+  const backendData = await tryFetch(ROUTES.CANCEL_SCHEDULED_PAYMENT(id), { method: 'DELETE' })
+  if (!backendData) {
+    throw new Error(`Failed to cancel schedule ${id}`)
+  }
+  return backendData
 }
 
 /**
@@ -249,4 +274,12 @@ export async function fetchDashboardSummary() {
     upcomingScheduled: upcoming,
     recentPayments: demoPayments.slice(0, 5),
   })
+  /**
+   * GET ROUTES.VENDORS
+   * Fetch available vendors for payment creation.
+   */
+
 }
+ export async function fetchVendors() {
+   return simulateRequest([...demoVendors])
+ }
