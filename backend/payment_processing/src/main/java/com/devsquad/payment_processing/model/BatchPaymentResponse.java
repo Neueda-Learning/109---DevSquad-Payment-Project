@@ -1,5 +1,6 @@
 package com.devsquad.payment_processing.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,14 +39,14 @@ public class BatchPaymentResponse {
     // Nested class for individual payment result
     public static class PaymentResult {
         private Long receiverAccountNumber;
-        private Double amount;
+        private BigDecimal amount;
         private Integer paymentId;
         private String status;       // "SUCCESS" or "FAILED"
         private String errorMessage; // Only for failed payments
 
         public PaymentResult() {}
 
-        public PaymentResult(Long receiverAccountNumber, Double amount, Integer paymentId,
+        public PaymentResult(Long receiverAccountNumber, BigDecimal amount, Integer paymentId,
                              String status, String errorMessage) {
             this.receiverAccountNumber = receiverAccountNumber;
             this.amount = amount;
@@ -57,8 +58,8 @@ public class BatchPaymentResponse {
         public Long getReceiverAccountNumber() { return receiverAccountNumber; }
         public void setReceiverAccountNumber(Long receiverAccountNumber) { this.receiverAccountNumber = receiverAccountNumber; }
 
-        public Double getAmount() { return amount; }
-        public void setAmount(Double amount) { this.amount = amount; }
+        public BigDecimal getAmount() { return amount; }
+        public void setAmount(BigDecimal amount) { this.amount = amount; }
 
         public Integer getPaymentId() { return paymentId; }
         public void setPaymentId(Integer paymentId) { this.paymentId = paymentId; }
