@@ -1,5 +1,8 @@
 package com.devsquad.payment_processing.service;
 
+import com.devsquad.payment_processing.model.BatchPaymentRecipient;
+import com.devsquad.payment_processing.model.BatchPaymentRequest;
+import com.devsquad.payment_processing.model.BatchPaymentResponse;
 import com.devsquad.payment_processing.model.Payment;
 import com.devsquad.payment_processing.model.Schedule;
 import com.devsquad.payment_processing.repository.AccountRepository;
@@ -340,6 +343,7 @@ public class PaymentService {
                 Time.valueOf(LocalTime.now()),
                 schedule.getDescription() != null ? schedule.getDescription() : "Scheduled Payment",
                 schedule.getScheduleId(),  // Link to originating schedule
+                null,  // batchId - not part of a batch
                 Payment.Status.CREATED
         );
 
@@ -350,5 +354,91 @@ public class PaymentService {
         savedPayment.setStatus(Payment.Status.COMPLETED);
 
         return savedPayment;
+    }
+
+    // ── Batch Payment Execution ──────────────────────────────────────────────
+
+    /**
+     * Processes a batch payment by creating individual payments for each recipient.
+     * REUSES createPayment() for each recipient - no duplicate logic.
+     * 
+     * Partial Success Strategy:
+     * - Each payment is independent
+     * - If one fails, others continue
+     * - Returns detailed results for each payment
+     * 
+     * @param request Batch payment request with sender and multiple recipients
+     * @return BatchPaymentResponse with summary and individual results
+     */
+    public BatchPaymentResponse createBatchPayment(BatchPaymentRequest request) {
+        // 1. Generate unique batch ID
+        String batchId = "BATCH-" + System.currentTimeMillis();
+        
+        // 2. Initialize response
+        BatchPaymentResponse response = new BatchPaymentResponse(batchId);
+        response.setTotalPayments(request.getRecipients().size());
+        
+        int successCount = 0;
+        int failedCount = 0;
+        System.out.println("in batch processing service");
+        
+        // 3. Process each recipient independently
+        for (BatchPaymentRecipient recipient : request.getRecipients()) {
+            BatchPaymentResponse.PaymentResult result = new BatchPaymentResponse.PaymentResult();
+            result.setReceiverAccountNumber(recipient.getReceiverAccountNumber());
+            result.setAmount(recipient.getAmount());
+            
+            try {
+                // 4. Build Payment object
+                Payment payment = new Payment(
+                        null,  // paymentId - auto-generated
+                        null,  // invoiceNumber - auto-generated
+                        request.getSenderAccountNumber(),
+                        recipient.getReceiverAccountNumber(),
+                        recipient.getAmount(),
+                        request.getCurrencyId(),
+                        request.getPaymentModeId(),
+                        null,  // paymentDate - auto-set
+                        null,  // paymentTime - auto-set
+                        recipient.getDescription() != null 
+                                ? recipient.getDescription() 
+                                : request.getDescription(),
+                        null,  // scheduleId - not from schedule
+                        batchId,  // batchId - link to this batch
+                        null   // status - will be set by createPayment
+                );
+                
+                // 5. REUSE existing createPayment() - follows full workflow
+                Payment savedPayment = createPayment(payment);
+                
+                // 6. Record success
+                result.setPaymentId(savedPayment.getPaymentId());
+                result.setStatus("SUCCESS");
+                result.setErrorMessage(null);
+                successCount++;
+                
+            } catch (ResponseStatusException e) {
+                // 7. Record failure but continue processing
+                result.setPaymentId(null);
+                result.setStatus("FAILED");
+                result.setErrorMessage(e.getReason());
+                failedCount++;
+                
+            } catch (Exception e) {
+                // Catch any unexpected errors
+                result.setPaymentId(null);
+                result.setStatus("FAILED");
+                result.setErrorMessage("UNEXPECTED_ERROR: " + e.getMessage());
+                failedCount++;
+            }
+            
+            response.getResults().add(result);
+        }
+        
+        // 8. Set summary
+        response.setSuccessfulPayments(successCount);
+        response.setFailedPayments(failedCount);
+        
+        return response;
     }
 }

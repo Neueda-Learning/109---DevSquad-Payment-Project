@@ -41,11 +41,12 @@ public class PaymentRepository {
                     description,
                     payment_mode,
                     schedule_id,
+                    batch_id,
                     payment_method_id
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
                         (SELECT method_type FROM PaymentMethods WHERE payment_method_id = ?),
-                        ?, ?)
+                        ?, ?, ?)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -63,7 +64,8 @@ public class PaymentRepository {
             preparedStatement.setString(9, request.getDescription());
             preparedStatement.setInt(10, request.getPaymentModeId());
             setNullableInt(preparedStatement, 11, request.getScheduleId());
-            preparedStatement.setInt(12, request.getPaymentModeId());
+            setNullableString(preparedStatement, 12, request.getBatchId());
+            preparedStatement.setInt(13, request.getPaymentModeId());
             return preparedStatement;
         }, keyHolder);
 
@@ -88,6 +90,7 @@ public class PaymentRepository {
                        status,
                        description,
                        schedule_id,
+                       batch_id,
                        payment_method_id
                 FROM Payments
                 WHERE payment_id = ?
@@ -113,6 +116,7 @@ public class PaymentRepository {
                        status,
                        description,
                        schedule_id,
+                       batch_id,
                        payment_method_id
                 FROM Payments
                 ORDER BY payment_id
@@ -149,6 +153,7 @@ public class PaymentRepository {
                        status,
                        description,
                        schedule_id,
+                       batch_id,
                        payment_method_id
                 FROM Payments
                 WHERE 1=1
@@ -229,6 +234,14 @@ public class PaymentRepository {
             preparedStatement.setInt(index, value);
         } else {
             preparedStatement.setNull(index, Types.INTEGER);
+        }
+    }
+
+    private void setNullableString(PreparedStatement preparedStatement, int index, String value) throws SQLException {
+        if (value != null) {
+            preparedStatement.setString(index, value);
+        } else {
+            preparedStatement.setNull(index, Types.VARCHAR);
         }
     }
 }
