@@ -285,11 +285,12 @@ public class PaymentService {
      */
     private void executePaymentTransfer(Payment payment) {
         // Debit sender account
-        System.out.println("Before debit");
+        System.out.println("Before debit : ");
         BigDecimal amount = catalogService.convertCurrency(payment.getCurrencyId(), 1, payment.getAmount());
         accountRepo.debitAccount(payment.getSenderAccountNumber(), amount);
 
         System.out.println("After debit");
+        System.out.println(amount);
         // Credit receiver account
         accountRepo.creditAccount(payment.getReceiverAccountNumber(), amount);
         System.out.println("After credit");
@@ -403,7 +404,7 @@ public class PaymentService {
                         request.getSenderAccountNumber(),
                         recipient.getReceiverAccountNumber(),
                         recipient.getAmount(),
-                        request.getCurrencyId(),
+                        recipient.getCurrencyId(),
                         request.getPaymentModeId(),
                         null,  // paymentDate - auto-set
                         null,  // paymentTime - auto-set
