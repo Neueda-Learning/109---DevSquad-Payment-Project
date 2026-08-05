@@ -13,52 +13,42 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CatalogController {
 
     @Autowired
-
     private CatalogService catalogService;
 
-    // Get all supported currencies
     @GetMapping("/currencies")
     public List<Currency> getAllCurrencies() {
         return catalogService.getAllCurrencies();
     }
 
-    // Convert currency
     @GetMapping("/convert")
-public BigDecimal convert(
-        @RequestParam String from,
-        @RequestParam String to,
-        @RequestParam BigDecimal amount) {
+    public BigDecimal convert(
+            @RequestParam Integer from,
+            @RequestParam Integer to,
+            @RequestParam BigDecimal amount) {
+        return catalogService.convertCurrency(from, to, amount);
+    }
 
-    return catalogService.convertCurrency(from, to, amount);
-}
-
-    // Get all payment modes
     @GetMapping("/payment-modes")
     public List<PaymentMode> getPaymentModes() {
         return catalogService.getPaymentModes();
     }
 
-    // Get all tags
     @GetMapping("/tags/all")
     public List<Tag> getAllTags() {
         return catalogService.getAllTags();
     }
 
-    // Create a new tag
     @PostMapping("/tags/add")
     public Tag createTag(@Valid @RequestBody Tag tag) {
         return catalogService.createTag(tag);
     }
 
-    // Delete a tag
     @DeleteMapping("/tags/{tagId}")
     public void deleteTag(@PathVariable Integer tagId) {
-
         catalogService.deleteTag(tagId);
-
     }
-
 }

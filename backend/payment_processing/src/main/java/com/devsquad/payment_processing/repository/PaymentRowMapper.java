@@ -16,13 +16,14 @@ public class PaymentRowMapper implements RowMapper<Payment> {
                 rs.getString("payment_invoice_number"),
                 rs.getLong("sender_account_number"),
                 rs.getLong("receiver_account_number"),
-                rs.getDouble("amount"),
+                rs.getBigDecimal("amount"),
                 rs.getObject("currency_id", Integer.class),
                 rs.getInt("payment_method_id"),
                 rs.getDate("payment_date"),
                 rs.getTime("payment_time"),
                 rs.getString("description"),
                 rs.getObject("schedule_id", Integer.class),
+                rs.getString("batch_id"),
                 mapDatabaseStatus(rs.getString("status"))
         );
     }
@@ -30,10 +31,10 @@ public class PaymentRowMapper implements RowMapper<Payment> {
     private Payment.Status mapDatabaseStatus(String databaseStatus) {
         return switch (databaseStatus) {
             case "CREATED" -> Payment.Status.CREATED;
-            case "VALIDATED" -> Payment.Status.VALIDATING;
+            case "VALIDATED" -> Payment.Status.VALIDATED;
             case "COMPLETED" -> Payment.Status.COMPLETED;
             case "FAILED" -> Payment.Status.FAILED;
-            case "SENT" -> Payment.Status.VALIDATING;  // Map old SENT to VALIDATING
+            case "SENT" -> Payment.Status.VALIDATED;  // Map old SENT to VALIDATING
             default -> throw new IllegalArgumentException("Unsupported payment status: " + databaseStatus);
         };
     }

@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/schedules")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ScheduleController {
 
     @Autowired

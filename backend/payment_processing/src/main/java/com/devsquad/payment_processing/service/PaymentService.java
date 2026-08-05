@@ -1,5 +1,8 @@
 package com.devsquad.payment_processing.service;
 
+import com.devsquad.payment_processing.model.BatchPaymentRecipient;
+import com.devsquad.payment_processing.model.BatchPaymentRequest;
+import com.devsquad.payment_processing.model.BatchPaymentResponse;
 import com.devsquad.payment_processing.model.Payment;
 import com.devsquad.payment_processing.model.Schedule;
 import com.devsquad.payment_processing.repository.AccountRepository;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -27,6 +31,9 @@ public class PaymentService {
 
     @Autowired
     AccountRepository accountRepo;
+    
+    @Autowired
+    CatalogService catalogService;
 
     // ── Existing operations 
 
@@ -48,9 +55,9 @@ public class PaymentService {
         request.setStatus(Payment.Status.CREATED);
         
         // scheduleId is optional - can be null for manual payments
-        
+        System.out.println("Creating payment: " + request);
         Payment savedPayment = paymentRepo.createPayment(request);
-
+        System.out.println("Payment created with ID: " + savedPayment.getPaymentId());
         return processPayment(savedPayment.getPaymentId());
     }
 
@@ -134,12 +141,12 @@ public class PaymentService {
                     + payment.getStatus());
         }
 
-        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.CANCELLED);
+        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("paymentId", paymentId);
         response.put("previousStatus", payment.getStatus());
-        response.put("targetStatus", Payment.Status.CANCELLED);
+        response.put("targetStatus", Payment.Status.FAILED);
         response.put("message", "Payment has been successfully cancelled");
         response.put("updatedAt", LocalDateTime.now().toString());
         return response;
@@ -174,11 +181,10 @@ public class PaymentService {
     // ── Transition rules
 
     private static final Map<Payment.Status, Set<Payment.Status>> VALID_TRANSITIONS = Map.of(
-            Payment.Status.CREATED,      Set.of(Payment.Status.VALIDATING, Payment.Status.CANCELLED),
-            Payment.Status.VALIDATING,   Set.of(Payment.Status.COMPLETED, Payment.Status.FAILED),
+            Payment.Status.CREATED,      Set.of(Payment.Status.VALIDATED, Payment.Status.FAILED),
+            Payment.Status.VALIDATED,   Set.of(Payment.Status.COMPLETED, Payment.Status.FAILED),
             Payment.Status.COMPLETED,    Set.of(),  // Terminal state
-            Payment.Status.FAILED,       Set.of(),  // Terminal state
-            Payment.Status.CANCELLED,    Set.of()   // Terminal state
+            Payment.Status.FAILED,       Set.of()  // Terminal state
     );
 
     private boolean isValidTransition(Payment.Status from, Payment.Status to) {
@@ -209,19 +215,24 @@ public class PaymentService {
         
         // Stage 1: CREATED → VALIDATING
         try {
-            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATING);
-            payment.setStatus(Payment.Status.VALIDATING);
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATED);
+            payment.setStatus(Payment.Status.VALIDATED);
 
+            System.out.println("ABover validate");
             // Run validation checks
             validatePayment(payment);
 
+            System.out.println("After validate");
+
             // Execute the actual payment transfer
+            System.out.println("Before execute");
             executePaymentTransfer(payment);
+            System.out.println("After execute");
 
             // Stage 2: VALIDATING → COMPLETED
             paymentRepo.updatePaymentStatus(paymentId, Payment.Status.COMPLETED);
             payment.setStatus(Payment.Status.COMPLETED);
-
+            System.out.println("Payment processed successfully: " + paymentId);
             return payment;
 
         } catch (ResponseStatusException e) {
@@ -243,27 +254,27 @@ public class PaymentService {
      */
     private void validatePayment(Payment payment) {
         // 1. Validate sender account exists and is active
-        Double senderBalance = accountRepo.getAccountBalance(payment.getSenderAccountNumber());
+        BigDecimal senderBalance = accountRepo.getAccountBalance(payment.getSenderAccountNumber());
         if (senderBalance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "ACCOUNT_NOT_FOUND: Sender account " + payment.getSenderAccountNumber() + " does not exist");
         }
 
         // 2. Validate receiver account exists
-        Double receiverBalance = accountRepo.getAccountBalance(payment.getReceiverAccountNumber());
+        BigDecimal receiverBalance = accountRepo.getAccountBalance(payment.getReceiverAccountNumber());
         if (receiverBalance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "ACCOUNT_NOT_FOUND: Receiver account " + payment.getReceiverAccountNumber() + " does not exist");
         }
 
         // 3. Validate sufficient balance
-        if (senderBalance < payment.getAmount()) {
+        if (senderBalance.compareTo(payment.getAmount()) < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "INSUFFICIENT_BALANCE: Required " + payment.getAmount() + ", available " + senderBalance);
         }
 
         // 4. Validate amount is positive
-        if (payment.getAmount() <= 0) {
+        if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "INVALID_AMOUNT: Amount must be positive");
         }
@@ -274,10 +285,14 @@ public class PaymentService {
      */
     private void executePaymentTransfer(Payment payment) {
         // Debit sender account
-        accountRepo.debitAccount(payment.getSenderAccountNumber(), payment.getAmount());
-        
+        System.out.println("Before debit");
+        BigDecimal amount = catalogService.convertCurrency(payment.getCurrencyId(), 1, payment.getAmount());
+        accountRepo.debitAccount(payment.getSenderAccountNumber(), amount);
+
+        System.out.println("After debit");
         // Credit receiver account
-        accountRepo.creditAccount(payment.getReceiverAccountNumber(), payment.getAmount());
+        accountRepo.creditAccount(payment.getReceiverAccountNumber(), amount);
+        System.out.println("After credit");
     }
 
     // ── Scheduled Payment Execution (Complete Transactional Flow)
@@ -298,8 +313,8 @@ public class PaymentService {
     @Transactional
     public Payment executeScheduledPayment(Schedule schedule) {
         // 1. Validate accounts exist and are active
-        Double senderBalance = accountRepo.getAccountBalance(schedule.getSenderAccountNumber());
-        Double receiverBalance = accountRepo.getAccountBalance(schedule.getReceiverAccountNumber());
+        BigDecimal senderBalance = accountRepo.getAccountBalance(schedule.getSenderAccountNumber());
+        BigDecimal receiverBalance = accountRepo.getAccountBalance(schedule.getReceiverAccountNumber());
 
         if (senderBalance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -311,7 +326,7 @@ public class PaymentService {
         }
 
         // 2. Validate sufficient balance
-        if (senderBalance < schedule.getAmount()) {
+        if (senderBalance.compareTo(schedule.getAmount()) < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "INSUFFICIENT_BALANCE: Required " + schedule.getAmount() + ", available " + senderBalance);
         }
@@ -335,6 +350,7 @@ public class PaymentService {
                 Time.valueOf(LocalTime.now()),
                 schedule.getDescription() != null ? schedule.getDescription() : "Scheduled Payment",
                 schedule.getScheduleId(),  // Link to originating schedule
+                null,  // batchId - not part of a batch
                 Payment.Status.CREATED
         );
 
@@ -345,5 +361,91 @@ public class PaymentService {
         savedPayment.setStatus(Payment.Status.COMPLETED);
 
         return savedPayment;
+    }
+
+    // ── Batch Payment Execution ──────────────────────────────────────────────
+
+    /**
+     * Processes a batch payment by creating individual payments for each recipient.
+     * REUSES createPayment() for each recipient - no duplicate logic.
+     * 
+     * Partial Success Strategy:
+     * - Each payment is independent
+     * - If one fails, others continue
+     * - Returns detailed results for each payment
+     * 
+     * @param request Batch payment request with sender and multiple recipients
+     * @return BatchPaymentResponse with summary and individual results
+     */
+    public BatchPaymentResponse createBatchPayment(BatchPaymentRequest request) {
+        // 1. Generate unique batch ID
+        String batchId = "BATCH-" + System.currentTimeMillis();
+        
+        // 2. Initialize response
+        BatchPaymentResponse response = new BatchPaymentResponse(batchId);
+        response.setTotalPayments(request.getRecipients().size());
+        
+        int successCount = 0;
+        int failedCount = 0;
+        System.out.println("in batch processing service");
+        
+        // 3. Process each recipient independently
+        for (BatchPaymentRecipient recipient : request.getRecipients()) {
+            BatchPaymentResponse.PaymentResult result = new BatchPaymentResponse.PaymentResult();
+            result.setReceiverAccountNumber(recipient.getReceiverAccountNumber());
+            result.setAmount(recipient.getAmount());
+            
+            try {
+                // 4. Build Payment object
+                Payment payment = new Payment(
+                        null,  // paymentId - auto-generated
+                        null,  // invoiceNumber - auto-generated
+                        request.getSenderAccountNumber(),
+                        recipient.getReceiverAccountNumber(),
+                        recipient.getAmount(),
+                        request.getCurrencyId(),
+                        request.getPaymentModeId(),
+                        null,  // paymentDate - auto-set
+                        null,  // paymentTime - auto-set
+                        recipient.getDescription() != null 
+                                ? recipient.getDescription() 
+                                : request.getDescription(),
+                        null,  // scheduleId - not from schedule
+                        batchId,  // batchId - link to this batch
+                        null   // status - will be set by createPayment
+                );
+                
+                // 5. REUSE existing createPayment() - follows full workflow
+                Payment savedPayment = createPayment(payment);
+                
+                // 6. Record success
+                result.setPaymentId(savedPayment.getPaymentId());
+                result.setStatus("SUCCESS");
+                result.setErrorMessage(null);
+                successCount++;
+                
+            } catch (ResponseStatusException e) {
+                // 7. Record failure but continue processing
+                result.setPaymentId(null);
+                result.setStatus("FAILED");
+                result.setErrorMessage(e.getReason());
+                failedCount++;
+                
+            } catch (Exception e) {
+                // Catch any unexpected errors
+                result.setPaymentId(null);
+                result.setStatus("FAILED");
+                result.setErrorMessage("UNEXPECTED_ERROR: " + e.getMessage());
+                failedCount++;
+            }
+            
+            response.getResults().add(result);
+        }
+        
+        // 8. Set summary
+        response.setSuccessfulPayments(successCount);
+        response.setFailedPayments(failedCount);
+        
+        return response;
     }
 }

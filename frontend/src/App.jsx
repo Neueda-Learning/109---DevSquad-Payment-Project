@@ -9,13 +9,16 @@ import ScheduledPaymentsPage from './pages/ScheduledPaymentsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import './styles/layout.css'
 import './styles/buttons.css'
+import './styles/app.css'
 
 function App() {
   const [users, setUsers] = useState([])
   const [selectedUser, setSelectedUser] = useState(null)
 
+  const apiUrl = import.meta.env.VITE_API_BASE_URL
+
   useEffect(() => {
-    fetch('http://localhost:8080/api/1.0/users/all')
+    fetch(`${apiUrl}/api/1.0/users/all`)
       .then((res) => res.json())
       .then((data) => {
         setUsers(data)
@@ -61,7 +64,7 @@ function App() {
           <Route
             path="/payments/new"
             element={
-              <NewPaymentPage defaultTiming="now" />
+              <NewPaymentPage defaultTiming="now" selectedUser={selectedUser} />
             }
           />
 
@@ -78,7 +81,7 @@ function App() {
           <Route
             path="/scheduled/new"
             element={
-              <NewPaymentPage defaultTiming="schedule" />
+              <NewPaymentPage defaultTiming="schedule" selectedUser={selectedUser} />
             }
           />
 

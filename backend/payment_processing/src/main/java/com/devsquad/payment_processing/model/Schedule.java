@@ -1,5 +1,6 @@
 package com.devsquad.payment_processing.model;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 public class Schedule {
@@ -7,7 +8,7 @@ public class Schedule {
     private Integer scheduleId;
     private Long senderAccountNumber;
     private Long receiverAccountNumber;
-    private Double amount;
+    private BigDecimal amount;
     private Integer currencyId;
     private Integer paymentModeId;
     private String description;
@@ -19,7 +20,7 @@ public class Schedule {
     private ScheduleStatus status;
 
     public Schedule(Integer scheduleId, Long senderAccountNumber, Long receiverAccountNumber,
-                    Double amount, Integer currencyId, Integer paymentModeId,
+                    BigDecimal amount, Integer currencyId, Integer paymentModeId,
                     String description, Frequency frequency,
                     Date startDate, Date endDate,
                     Date nextRunDate, Date lastRunDate,
@@ -63,11 +64,11 @@ public class Schedule {
         this.receiverAccountNumber = receiverAccountNumber;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
