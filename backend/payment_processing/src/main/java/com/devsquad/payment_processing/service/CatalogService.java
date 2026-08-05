@@ -4,16 +4,21 @@ import com.devsquad.payment_processing.model.Currency;
 import com.devsquad.payment_processing.model.PaymentMode;
 import com.devsquad.payment_processing.model.Tag;
 import com.devsquad.payment_processing.repository.CatalogRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
-
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CatalogService {
@@ -22,12 +27,41 @@ public class CatalogService {
     private CatalogRepository catalogRepo;
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String API_URL = "https://api.frankfurter.app/latest";
+
+    private List<Map<String, String>> currencies = new ArrayList<>();
+
+    @PostConstruct
+    public void loadCurrencies() {
+        try (InputStream is = new ClassPathResource("currencies.json").getInputStream()) {
+            ObjectMapper mapper = new ObjectMapper();
+            currencies = mapper.readValue(is, new TypeReference<List<Map<String, String>>>() {});
+        } catch (Exception ignored) {
+            // ignore - currencies will be empty
+        }
+    }
+
+    /**
+     * Get currency code by ID from loaded currencies.json (1-based index)
+     */
+    private String getCurrencyCodeById(Integer currencyId) {
+        System.out.println("getCurrencyCodeById: currencyId = " + currencyId);
+        if (currencyId == null || currencyId <= 0) return null;
+        int idx = currencyId;
+        System.out.println("getCurrencyCodeById: idx = " + idx);
+        if (idx < 0 || idx >= currencies.size()) return null;
+
+        Map<String, String> entry = currencies.get(idx);
+        for(Map<String, String> map : currencies) {
+            System.out.println("Currency: " + map.get("currency") );
+        }
+        if (entry == null) return null;
+        String code = entry.get("currency");
+        return code;
+    }
     // Get all supported currencies
     public List<Currency> getAllCurrencies() {
         return catalogRepo.getAllCurrencies();
     }
-
-
 
     // Get all payment modes
     public List<PaymentMode> getPaymentModes() {
@@ -62,14 +96,17 @@ public class CatalogService {
         }
     }
 
-    public BigDecimal convertCurrency(String fromCurrency, String toCurrency, BigDecimal amount) {
-
-        if (fromCurrency == null || fromCurrency.isBlank()) {
+    public BigDecimal convertCurrency(Integer fromCurrency, Integer toCurrency, BigDecimal amount) {
+        String fromCurrencyName = getCurrencyCodeById(fromCurrency);
+        String toCurrencyName = getCurrencyCodeById(toCurrency);
+        System.out.println(fromCurrency + "---------------------- " + toCurrency);
+        System.out.println("fromcurrency: " + fromCurrencyName + ", toCurrency: " + toCurrencyName + ", amount: " + amount);
+        if (fromCurrencyName == null || fromCurrencyName.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "VALIDATION_ERROR: 'from' currency is required");
         }
 
-        if (toCurrency == null || toCurrency.isBlank()) {
+        if (toCurrencyName == null || toCurrencyName.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "VALIDATION_ERROR: 'to' currency is required");
         }
@@ -79,11 +116,11 @@ public class CatalogService {
                     "VALIDATION_ERROR: amount must be positive");
         }
 
-        if (fromCurrency.equalsIgnoreCase(toCurrency)) {
+        if (fromCurrencyName.equalsIgnoreCase(toCurrencyName)) {
             return amount;
         }
 
-        String url = API_URL + "?from=" + fromCurrency.toUpperCase() + "&to=" + toCurrency.toUpperCase();
+        String url = API_URL + "?from=" + fromCurrencyName.toUpperCase() + "&to=" + toCurrencyName.toUpperCase();
 
         try {
             Map response = restTemplate.getForObject(url, Map.class);
@@ -94,11 +131,11 @@ public class CatalogService {
             }
 
             Map<String, Double> rates = (Map<String, Double>) response.get("rates");
-            Double rateValue = rates.get(toCurrency.toUpperCase());
+            Double rateValue = rates.get(toCurrencyName.toUpperCase());
 
             if (rateValue == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "UNSUPPORTED_CURRENCY: No rate found for " + toCurrency.toUpperCase());
+                        "UNSUPPORTED_CURRENCY: No rate found for " + toCurrencyName.toUpperCase());
             }
 
             BigDecimal rate = BigDecimal.valueOf(rateValue);

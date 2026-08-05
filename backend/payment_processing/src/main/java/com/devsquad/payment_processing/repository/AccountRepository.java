@@ -5,17 +5,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class AccountRepository {
+    private final JdbcTemplate jdbcTemplate;
+    private final AccountRowMapper accountRowMapper;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private AccountRowMapper accountRowMapper;
+    public AccountRepository(JdbcTemplate jdbcTemplate, AccountRowMapper accountRowMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.accountRowMapper = accountRowMapper;
+    }
 
     public ArrayList<Account> getAllAccountsR() {
 
@@ -44,7 +47,7 @@ public class AccountRepository {
     /**
      * Debit amount from an account. Throws exception if insufficient balance.
      */
-    public void debitAccount(Long accountNumber, Double amount) {
+    public void debitAccount(Long accountNumber, BigDecimal amount) {
         String sql = """
                 UPDATE accounts
                 SET balance = balance - ?
@@ -62,7 +65,7 @@ public class AccountRepository {
     /**
      * Credit amount to an account.
      */
-    public void creditAccount(Long accountNumber, Double amount) {
+    public void creditAccount(Long accountNumber, BigDecimal amount) {
         String sql = """
                 UPDATE accounts
                 SET balance = balance + ?
@@ -79,7 +82,7 @@ public class AccountRepository {
     /**
      * Get account balance. Returns null if account doesn't exist.
      */
-    public Double getAccountBalance(Long accountNumber) {
+    public BigDecimal getAccountBalance(Long accountNumber) {
         String sql = """
                 SELECT balance
                 FROM accounts
@@ -87,7 +90,7 @@ public class AccountRepository {
                 """;
 
         try {
-            return jdbcTemplate.queryForObject(sql, Double.class, accountNumber);
+            return jdbcTemplate.queryForObject(sql, BigDecimal.class, accountNumber);
         } catch (Exception e) {
             return null;
         }

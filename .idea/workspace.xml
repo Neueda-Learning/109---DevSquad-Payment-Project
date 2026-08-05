@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="848fc9d1-c15e-44c7-95a7-4d1608dbc212" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/BatchPaymentRecipient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/BatchPaymentRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/BatchPaymentResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/layout/ThemeToggle.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/layout/ThemeToggle.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/styles/app.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/AccountRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/AccountRestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/CatalogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/CatalogController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/InvoiceRestController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/PaymentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/PaymentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/ScheduleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/ScheduleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/UserRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/api/UserRestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Payment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/PaymentMode.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/PaymentMode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Schedule.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Schedule.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/AccountRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/AccountRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/CatalogRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/CatalogRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRowMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRowMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/ScheduleRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/ScheduleRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/ScheduleRowMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/ScheduleRowMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/CatalogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/CatalogService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/PaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/static/currencies.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/currencies.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/common/Spinner.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/common/Spinner.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/common/Spinner.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/common/Spinner.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PaymentDetailsPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentDetailsPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PaymentDetailsPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentDetailsPage.jsx" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/Administrator/Desktop/Payment_processing/109---DevSquad-Payment-Project" value="3HUSCfCDr9hmQVhGfKxDsHMjLRc" />
+    </persistenceIdMap>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="3HUSCfCDr9hmQVhGfKxDsHMjLRc" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.PaymentProcessingApplication.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Merging dhanya",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="848fc9d1-c15e-44c7-95a7-4d1608dbc212" name="Changes" comment="" />
+      <created>1785921032186</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1785921032186</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

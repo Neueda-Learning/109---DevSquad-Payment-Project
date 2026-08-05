@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CatalogController {
 
     @Autowired
@@ -25,8 +26,8 @@ public class CatalogController {
 
     @GetMapping("/convert")
     public BigDecimal convert(
-            @RequestParam String from,
-            @RequestParam String to,
+            @RequestParam Integer from,
+            @RequestParam Integer to,
             @RequestParam BigDecimal amount) {
         return catalogService.convertCurrency(from, to, amount);
     }

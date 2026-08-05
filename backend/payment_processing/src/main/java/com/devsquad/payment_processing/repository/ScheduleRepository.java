@@ -53,7 +53,7 @@ public class ScheduleRepository {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, schedule.getSenderAccountNumber());
             ps.setLong(2, schedule.getReceiverAccountNumber());
-            ps.setDouble(3, schedule.getAmount());
+            ps.setBigDecimal(3, schedule.getAmount());
             setNullableInt(ps, 4, schedule.getCurrencyId());
             ps.setInt(5, schedule.getPaymentModeId());
             ps.setString(6, schedule.getDescription());

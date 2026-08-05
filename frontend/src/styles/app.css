@@ -1,0 +1,27 @@
+/* App-wide theme handling for the light/dark mode toggle. */
+:root {
+  --theme-transition: background-color 0.4s ease, color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+body,
+#root {
+  transition: var(--theme-transition);
+}
+
+/* Light theme overrides — applied when <html data-theme="light"> */
+:root[data-theme='light'] {
+  --text: #4b5563;
+  --text-h: #111827;
+  --bg: #f5f6fa;
+  --border: #dfe1e8;
+  --code-bg: #eceef3;
+  --accent: #2563eb;
+  --accent-bg: rgba(37, 99, 235, 0.12);
+  --accent-border: rgba(37, 99, 235, 0.35);
+  --social-bg: rgba(0, 0, 0, 0.05);
+
+  --shadow:
+    rgba(0, 0, 0, 0.08) 0 10px 15px -3px,
+    rgba(0, 0, 0, 0.06) 0 4px 6px -2px;
+}
