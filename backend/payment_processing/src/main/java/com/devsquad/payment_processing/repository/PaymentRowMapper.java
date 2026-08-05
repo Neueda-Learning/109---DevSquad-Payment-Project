@@ -23,6 +23,7 @@ public class PaymentRowMapper implements RowMapper<Payment> {
                 rs.getTime("payment_time"),
                 rs.getString("description"),
                 rs.getObject("schedule_id", Integer.class),
+                rs.getString("batch_id"),
                 mapDatabaseStatus(rs.getString("status"))
         );
     }

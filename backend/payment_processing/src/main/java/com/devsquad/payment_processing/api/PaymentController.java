@@ -1,5 +1,7 @@
 package com.devsquad.payment_processing.api;
 
+import com.devsquad.payment_processing.model.BatchPaymentRequest;
+import com.devsquad.payment_processing.model.BatchPaymentResponse;
 import com.devsquad.payment_processing.model.Payment;
 import com.devsquad.payment_processing.service.PaymentService;
 import jakarta.validation.Valid;
@@ -32,6 +34,37 @@ public class PaymentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(request));
     }
 
+    /**
+     * POST /api/v1/payments/batch
+     * Creates multiple payments in a single batch.
+     * 
+     * Each payment is processed independently:
+     * - Success/failure is tracked per recipient
+     * - One failure does NOT stop others
+     * - All payments share the same batchId
+     * 
+     * Returns summary with individual results.
+     * Returns HTTP 207 Multi-Status if partial failures occur.
+     */
+    @PostMapping("/batch")
+    public ResponseEntity<BatchPaymentResponse> createBatchPayment(
+            @Valid @RequestBody BatchPaymentRequest request) {
+        
+        BatchPaymentResponse response = paymentService.createBatchPayment(request);
+        
+        // Return 207 Multi-Status if there are partial failures
+        if (response.getFailedPayments() > 0 && response.getSuccessfulPayments() > 0) {
+            return ResponseEntity.status(207).body(response);  // HTTP 207 Multi-Status
+        }
+        
+        // Return 201 if all succeeded
+        if (response.getFailedPayments() == 0) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
+        
+        // Return 400 if all failed
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
     // Get Payment By Id
     @GetMapping("/{id}")

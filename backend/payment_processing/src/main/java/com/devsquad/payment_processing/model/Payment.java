@@ -48,12 +48,15 @@ public class Payment {
     // Optional - only set when payment is executed from a schedule
     private Integer scheduleId;
     
+    // Optional - only set when payment is part of a batch
+    private String batchId;
+    
     // Auto-set to PENDING if not provided
     private Status status;
 
     public Payment(Integer paymentId, String invoiceNumber, Long senderAccountNumber, Long receiverAccountNumber,
                    Double amount, Integer currencyId, Integer paymentModeId, Date paymentDate, Time paymentTime,
-                   String description, Integer scheduleId, Status status) {
+                   String description, Integer scheduleId, String batchId, Status status) {
         this.paymentId = paymentId;
         this.invoiceNumber = invoiceNumber;
         this.senderAccountNumber = senderAccountNumber;
@@ -65,6 +68,7 @@ public class Payment {
         this.paymentTime = paymentTime;
         this.description = description;
         this.scheduleId = scheduleId;
+        this.batchId = batchId;
         this.status = status;
     }
 
@@ -154,6 +158,14 @@ public class Payment {
 
     public void setScheduleId(Integer scheduleId) {
         this.scheduleId = scheduleId;
+    }
+
+    public String getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(String batchId) {
+        this.batchId = batchId;
     }
 
     public Status getStatus() {

@@ -142,6 +142,7 @@ CREATE TABLE IF NOT EXISTS Payments (
                  NOT NULL,
 
     schedule_id BIGINT,
+    batch_id VARCHAR(50),
 
     payment_method_id BIGINT NOT NULL,
 
@@ -160,7 +161,9 @@ CREATE TABLE IF NOT EXISTS Payments (
     CONSTRAINT fk_payment_schedule
         FOREIGN KEY (schedule_id)
         REFERENCES Schedules(schedule_id)
-        ON DELETE SET NULL
+        ON DELETE SET NULL,
+
+    INDEX idx_batch_id (batch_id)
 );
 
 CREATE TABLE IF NOT EXISTS tags (
