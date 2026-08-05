@@ -14,11 +14,11 @@ export const ROUTES = {
   RETRY_PAYMENT: (id) => `${API_BASE_URL}/payments/${id}/retry`,
   BATCH_PAYMENT: `${API_BASE_URL}/api/v1/payments/batch`,
 
-  // Scheduled payments
-   SCHEDULED_PAYMENTS: `${API_BASE_URL}/v1/schedules/all`,
-   SCHEDULE_PAYMENT: `${API_BASE_URL}/v1/schedules`,
 
-   CANCEL_SCHEDULED_PAYMENT: (id) => `${API_BASE_URL}/v1/schedules/${id}`, // DELETE
+  // Scheduled payments
+  SCHEDULED_PAYMENTS: `${API_BASE_URL}/v1/schedules/all`,
+  SCHEDULE_PAYMENT: `${API_BASE_URL}/v1/schedules`,
+  CANCEL_SCHEDULED_PAYMENT: (id) => `${API_BASE_URL}/v1/schedules/${id}`,
 
   // Reference data
   VENDORS: `${API_BASE_URL}/vendors`,

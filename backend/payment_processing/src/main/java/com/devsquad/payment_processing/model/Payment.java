@@ -6,8 +6,13 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.List;
 
 public class Payment {
+    private List<String> tags;
+    public Payment() {
+
+    }
 
     public enum Status {
         CREATED,
@@ -176,6 +181,14 @@ public class Payment {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
 }

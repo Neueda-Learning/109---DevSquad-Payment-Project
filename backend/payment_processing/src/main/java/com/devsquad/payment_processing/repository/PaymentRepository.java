@@ -105,21 +105,26 @@ public class PaymentRepository {
 
     public List<Payment> getAllPayments() {
         String sql = """
-                SELECT payment_id,
-                       payment_invoice_number,
-                       sender_account_number,
-                       receiver_account_number,
-                       amount,
-                       currency_id,
-                       payment_date,
-                       payment_time,
-                       status,
-                       description,
-                       schedule_id,
-                       batch_id,
-                       payment_method_id
-                FROM Payments
-                ORDER BY payment_id
+                SELECT
+                  p.payment_id,
+                  p.payment_invoice_number,
+                  p.sender_account_number,
+                  p.receiver_account_number,
+                  p.amount,
+                  p.currency_id,
+                  p.payment_date,
+                  p.payment_time,
+                  p.status,
+                  p.description,
+                  p.schedule_id,
+                  p.batch_id,
+                  p.payment_method_id,
+                  GROUP_CONCAT(t.tag_name ORDER BY t.tag_name) AS tag_names
+                FROM Payments p
+                LEFT JOIN payment_tags pt ON pt.payment_id = p.payment_id
+                LEFT JOIN tags t ON t.tag_id = pt.tag_id
+                GROUP BY p.payment_id
+                ORDER BY p.payment_id;
                 """;
 
         return jdbcTemplate.query(sql, paymentRowMapper);
