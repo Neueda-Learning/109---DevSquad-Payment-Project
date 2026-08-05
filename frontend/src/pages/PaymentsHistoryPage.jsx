@@ -7,6 +7,7 @@ import Spinner from '../components/common/Spinner'
 function PaymentsHistoryPage({ selectedUser }) {
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
+  const [tags, setTags] = useState([])
 
   const [statusFilter, setStatusFilter] =
     useState('ALL')
@@ -19,6 +20,10 @@ function PaymentsHistoryPage({ selectedUser }) {
 
   useEffect(() => {
     if (!selectedUser) return
+
+    const tagsResponse = await fetch('http://localhost:8080/api/v1/tags/all')
+    const tagsData = await tagsResponse.json()
+    setTags(tagsData)
 
     async function loadPayments() {
       try {
@@ -76,6 +81,12 @@ function PaymentsHistoryPage({ selectedUser }) {
           isIncoming) ||
         (typeFilter === 'SENT' &&
           !isIncoming)
+
+     const matchesTag =
+       tagFilter === 'ALL' ||
+       payment.tag === tagFilter ||
+       payment.tagName === tagFilter ||
+       payment.tags?.includes(tagFilter)
 
       const search =
         searchTerm.toLowerCase()
