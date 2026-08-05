@@ -163,4 +163,13 @@ CREATE TABLE IF NOT EXISTS tags (
     description VARCHAR(255)
 );
 
+CREATE TABLE IF NOT EXISTS payment_tags (
+  payment_id BIGINT NOT NULL,
+  tag_id INT NOT NULL,
+  PRIMARY KEY (payment_id, tag_id),
+  CONSTRAINT fk_payment_tags_payment
+    FOREIGN KEY (payment_id) REFERENCES Payments(payment_id) ON DELETE CASCADE,
+  CONSTRAINT fk_payment_tags_tag
+    FOREIGN KEY (tag_id) REFERENCES tags(tag_id) ON DELETE CASCADE
+);
 

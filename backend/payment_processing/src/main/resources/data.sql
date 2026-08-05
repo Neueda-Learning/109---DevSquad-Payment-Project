@@ -193,3 +193,10 @@ VALUES
 (5, 'Travel',   'Travel and transport'),
 (6, 'Others',   'Miscellaneous');
 
+
+INSERT IGNORE INTO payment_tags (payment_id, tag_id) VALUES
+(1, 1), -- Bills
+(1, 2), -- Personal
+(2, 1), -- Bills
+(3, 3); -- Business
+
