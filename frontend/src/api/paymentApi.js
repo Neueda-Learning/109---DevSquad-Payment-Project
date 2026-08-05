@@ -274,12 +274,8 @@ export async function fetchDashboardSummary() {
     upcomingScheduled: upcoming,
     recentPayments: demoPayments.slice(0, 5),
   })
-  /**
-   * GET ROUTES.VENDORS
-   * Fetch available vendors for payment creation.
-   */
-
 }
- export async function fetchVendors() {
+
+export async function fetchVendors() {
    return simulateRequest([...demoVendors])
- }
+}
