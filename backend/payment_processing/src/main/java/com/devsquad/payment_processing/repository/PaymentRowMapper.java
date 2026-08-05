@@ -22,17 +22,18 @@ public class PaymentRowMapper implements RowMapper<Payment> {
                 rs.getDate("payment_date"),
                 rs.getTime("payment_time"),
                 rs.getString("description"),
-                rs.getBoolean("is_scheduled_payment"),
-                rs.getString("schedule_period"),
+                rs.getObject("schedule_id", Integer.class),
                 mapDatabaseStatus(rs.getString("status"))
         );
     }
 
     private Payment.Status mapDatabaseStatus(String databaseStatus) {
         return switch (databaseStatus) {
+            case "CREATED" -> Payment.Status.CREATED;
+            case "VALIDATED" -> Payment.Status.VALIDATING;
             case "COMPLETED" -> Payment.Status.COMPLETED;
             case "FAILED" -> Payment.Status.FAILED;
-            case "CREATED", "VALIDATED", "SENT" -> Payment.Status.PENDING;
+            case "SENT" -> Payment.Status.VALIDATING;  // Map old SENT to VALIDATING
             default -> throw new IllegalArgumentException("Unsupported payment status: " + databaseStatus);
         };
     }

@@ -24,6 +24,10 @@ public class PaymentRepository {
     }
 
     public Payment createPayment(Payment request) {
+        request.setInvoiceNumber("INV-" + System.currentTimeMillis());
+        
+        final String finalInvoiceNumber = request.getInvoiceNumber();
+
         String sql = """
                 INSERT INTO Payments (
                     payment_invoice_number,
@@ -36,20 +40,19 @@ public class PaymentRepository {
                     status,
                     description,
                     payment_mode,
-                    is_scheduled_payment,
-                    schedule_period,
+                    schedule_id,
                     payment_method_id
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
                         (SELECT method_type FROM PaymentMethods WHERE payment_method_id = ?),
-                        ?, ?, ?)
+                        ?, ?)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, request.getInvoiceNumber());
+            preparedStatement.setString(1, finalInvoiceNumber);
             preparedStatement.setLong(2, request.getSenderAccountNumber());
             preparedStatement.setLong(3, request.getReceiverAccountNumber());
             preparedStatement.setDouble(4, request.getAmount());
@@ -59,9 +62,8 @@ public class PaymentRepository {
             preparedStatement.setString(8, mapModelStatus(request.getStatus()));
             preparedStatement.setString(9, request.getDescription());
             preparedStatement.setInt(10, request.getPaymentModeId());
-            preparedStatement.setBoolean(11, request.isScheduled());
-            preparedStatement.setString(12, request.getSchedulePeriod());
-            preparedStatement.setInt(13, request.getPaymentModeId());
+            setNullableInt(preparedStatement, 11, request.getScheduleId());
+            preparedStatement.setInt(12, request.getPaymentModeId());
             return preparedStatement;
         }, keyHolder);
 
@@ -85,8 +87,7 @@ public class PaymentRepository {
                        payment_time,
                        status,
                        description,
-                       is_scheduled_payment,
-                       schedule_period,
+                       schedule_id,
                        payment_method_id
                 FROM Payments
                 WHERE payment_id = ?
@@ -111,8 +112,7 @@ public class PaymentRepository {
                        payment_time,
                        status,
                        description,
-                       is_scheduled_payment,
-                       schedule_period,
+                       schedule_id,
                        payment_method_id
                 FROM Payments
                 ORDER BY payment_id
@@ -148,8 +148,7 @@ public class PaymentRepository {
                        payment_time,
                        status,
                        description,
-                       is_scheduled_payment,
-                       schedule_period,
+                       schedule_id,
                        payment_method_id
                 FROM Payments
                 WHERE 1=1
@@ -159,9 +158,12 @@ public class PaymentRepository {
 
         if (status != null && !status.isBlank()) {
             switch (status.toUpperCase()) {
-                case "PENDING" -> sql.append(" AND status IN ('CREATED','VALIDATED','SENT')");
+                case "CREATED" -> sql.append(" AND status = 'CREATED'");
+                case "VALIDATING" -> sql.append(" AND status = 'VALIDATED'");
                 case "COMPLETED" -> sql.append(" AND status = 'COMPLETED'");
-                case "FAILED", "CANCELLED" -> sql.append(" AND status = 'FAILED'");
+                case "FAILED" -> sql.append(" AND status = 'FAILED'");
+                case "CANCELLED" -> sql.append(" AND status = 'FAILED'");
+                case "IN_PROGRESS" -> sql.append(" AND status IN ('CREATED','VALIDATED')");  // All active statuses
             }
         }
 
@@ -214,9 +216,11 @@ public class PaymentRepository {
         }
 
         return switch (status) {
-            case PENDING -> "CREATED";
+            case CREATED -> "CREATED";
+            case VALIDATING -> "VALIDATED";
             case COMPLETED -> "COMPLETED";
-            case FAILED, CANCELLED -> "FAILED";
+            case FAILED -> "FAILED";
+            case CANCELLED -> "FAILED";  // Map CANCELLED to FAILED in DB
         };
     }
 

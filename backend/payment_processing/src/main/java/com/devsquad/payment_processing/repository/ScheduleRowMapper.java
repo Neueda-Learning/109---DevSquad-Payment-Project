@@ -1,5 +1,6 @@
 package com.devsquad.payment_processing.repository;
 
+import com.devsquad.payment_processing.model.Frequency;
 import com.devsquad.payment_processing.model.Schedule;
 import com.devsquad.payment_processing.model.ScheduleStatus;
 import org.springframework.jdbc.core.RowMapper;
@@ -12,6 +13,8 @@ public class ScheduleRowMapper implements RowMapper<Schedule> {
     @Override
     public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException {
         Long rawId = rs.getObject("schedule_id", Long.class);
+        String frequencyStr = rs.getString("frequency");
+        
         return new Schedule(
                 rawId != null ? rawId.intValue() : null,
                 rs.getLong("sender_account_number"),
@@ -20,7 +23,7 @@ public class ScheduleRowMapper implements RowMapper<Schedule> {
                 rs.getObject("currency_id", Integer.class),
                 rs.getObject("payment_method_id", Integer.class),
                 rs.getString("description"),
-                rs.getString("frequency"),
+                frequencyStr != null ? Frequency.valueOf(frequencyStr) : null,
                 rs.getDate("start_date"),
                 rs.getDate("end_date"),
                 rs.getDate("next_run_date"),
