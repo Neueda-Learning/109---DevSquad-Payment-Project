@@ -5,9 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="535889a5-6c7d-4f38-99f9-a31b477a4876" name="Changes" comment="">
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+=======
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+>>>>>>> fcd9cb2d77ad1e1bca6ab9a4f61957996065ed1b
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/common/StatusBadge.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/common/StatusBadge.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/utils/currency.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/utils/currency.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/utils/format.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/utils/format.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

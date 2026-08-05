@@ -1,30 +1,51 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  justify-content: center;
+
+  min-width: 90px;
+  padding: 6px 12px;
+
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+
   white-space: nowrap;
 }
 
+/* COMPLETED */
+
 .status-badge-success {
-  background: rgba(26, 156, 92, 0.12);
-  color: #1a9c5c;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
 }
+
+/* FAILED */
+
 .status-badge-danger {
-  background: rgba(224, 69, 63, 0.12);
-  color: #e0453f;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
+
+/* PENDING */
+
 .status-badge-warning {
-  background: rgba(199, 129, 0, 0.12);
-  color: #c78100;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
 }
+
+/* PROCESSING */
+
 .status-badge-info {
-  background: var(--accent-bg);
-  color: var(--accent);
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
 }
+
+/* OTHER */
+
 .status-badge-neutral {
-  background: var(--code-bg);
-  color: var(--text);
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
 }
