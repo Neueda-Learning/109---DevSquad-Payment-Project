@@ -1,21 +1,150 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
 .detail-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
-  align-items: start;
+  grid-template-columns: 1fr;
+  gap: 24px;
 }
 
 .detail-card {
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .detail-card h2 {
-  margin: 0;
-  font-size: 17px;
+  margin-bottom: 20px;
   color: var(--text-h);
+}
+
+.detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-list div {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-list div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-list dt {
+  font-weight: 600;
+  color: var(--text-m);
+  min-width: 160px;
+}
+
+.detail-list dd {
+  margin: 0;
+  color: var(--text-h);
+  text-align: right;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .detail-card {
+    padding: 18px;
+  }
+
+  .detail-list div {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .detail-list dd {
+    text-align: left;
+  }
+}
+
+
+.invoice-download-btn {
+  margin-top: 24px;
+}
+
+.invoice-template {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 800px;
+  background: #ffffff;
+  color: #111827;
+  padding: 40px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.invoice-header {
+  text-align: center;
+  border-bottom: 2px solid #d1d5db;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.invoice-header h1 {
+  margin: 0;
+  font-size: 30px;
+  color: #111827;
+}
+
+.invoice-header p {
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+.invoice-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.invoice-row strong {
+  color: #111827;
+}
+
+.invoice-row span {
+  color: #374151;
+}
+
+.invoice-description {
+  margin-top: 24px;
+}
+
+.invoice-description strong {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.invoice-description p {
+  margin: 0;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.invoice-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #d1d5db;
+  text-align: center;
+  color: #6b7280;
+}
+
+.invoice-footer p {
+  margin: 6px 0;
 }

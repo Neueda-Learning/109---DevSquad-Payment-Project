@@ -222,10 +222,10 @@ public class PaymentRepository {
 
         return switch (status) {
             case CREATED -> "CREATED";
-            case VALIDATING -> "VALIDATED";
+            case VALIDATED -> "VALIDATED";
+            case SENT -> "SENT";
             case COMPLETED -> "COMPLETED";
             case FAILED -> "FAILED";
-            case CANCELLED -> "FAILED";  // Map CANCELLED to FAILED in DB
         };
     }
 

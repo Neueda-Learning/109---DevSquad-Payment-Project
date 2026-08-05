@@ -1,6 +1,7 @@
 import StatusBadge from '../common/StatusBadge'
 import { formatCurrency } from '../../utils/currency'
 import { formatDate } from '../../utils/format'
+import { Link } from 'react-router-dom'
 import './PaymentList.css'
 
 function PaymentList({
@@ -15,12 +16,11 @@ function PaymentList({
         <thead>
           <tr>
             <th>Invoice</th>
-            <th>Sender</th>
-            <th>Receiver</th>
             <th>Amount</th>
             <th>Date</th>
             <th>Status</th>
             <th>Description</th>
+            <th>Action</th>
           </tr>
         </thead>
 
@@ -35,14 +35,6 @@ function PaymentList({
               <tr key={payment.paymentId}>
                 <td data-label="Invoice">
                   {payment.invoiceNumber}
-                </td>
-
-                <td data-label="Sender">
-                  {payment.senderAccountNumber}
-                </td>
-
-                <td data-label="Receiver">
-                  {payment.receiverAccountNumber}
                 </td>
 
                 <td
@@ -73,6 +65,16 @@ function PaymentList({
                 <td data-label="Description">
                   {payment.description}
                 </td>
+
+                <td data-label="Action">
+                    <Link
+                      to={`/payments/${payment.paymentId}`}
+                      className="view-btn"
+                    >
+                      View
+                    </Link>
+                </td>
+
               </tr>
             )
           })}
