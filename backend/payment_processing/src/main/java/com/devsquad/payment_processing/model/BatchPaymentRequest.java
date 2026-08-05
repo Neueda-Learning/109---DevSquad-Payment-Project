@@ -14,8 +14,6 @@ public class BatchPaymentRequest {
     @NotNull(message = "Payment mode ID is required")
     private Integer paymentModeId;
 
-    private Integer currencyId;
-
     private String description;
 
     @NotEmpty(message = "Recipients list cannot be empty")
@@ -28,7 +26,6 @@ public class BatchPaymentRequest {
                                String description, List<BatchPaymentRecipient> recipients) {
         this.senderAccountNumber = senderAccountNumber;
         this.paymentModeId = paymentModeId;
-        this.currencyId = currencyId;
         this.description = description;
         this.recipients = recipients;
     }
@@ -38,9 +35,6 @@ public class BatchPaymentRequest {
 
     public Integer getPaymentModeId() { return paymentModeId; }
     public void setPaymentModeId(Integer paymentModeId) { this.paymentModeId = paymentModeId; }
-
-    public Integer getCurrencyId() { return currencyId; }
-    public void setCurrencyId(Integer currencyId) { this.currencyId = currencyId; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

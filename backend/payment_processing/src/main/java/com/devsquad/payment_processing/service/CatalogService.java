@@ -45,7 +45,7 @@ public class CatalogService {
      */
     private String getCurrencyCodeById(Integer currencyId) {
         System.out.println("getCurrencyCodeById: currencyId = " + currencyId);
-        if (currencyId == null || currencyId <= 0) return null;
+        if (currencyId == null || currencyId < 0) return null;
         int idx = currencyId;
         System.out.println("getCurrencyCodeById: idx = " + idx);
         if (idx < 0 || idx >= currencies.size()) return null;

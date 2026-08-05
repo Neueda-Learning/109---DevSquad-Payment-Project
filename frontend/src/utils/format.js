@@ -20,6 +20,7 @@ export const STATUS_LABELS = {
   SCHEDULED: 'Scheduled',
   PAUSED: 'Paused',
   CANCELLED: 'Cancelled',
+  SUCCESS: 'Success',
 }
 
 export const STATUS_TONES = {
@@ -31,6 +32,7 @@ export const STATUS_TONES = {
   SCHEDULED: 'info',
   PAUSED: 'warning',
   CANCELLED: 'neutral',
+  SUCCESS: 'success',
 }
 
 export function getStatusLabel(status) {

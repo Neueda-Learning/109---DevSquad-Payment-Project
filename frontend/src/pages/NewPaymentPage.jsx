@@ -1,11 +1,13 @@
 import { useState , useEffect } from 'react'
 import { CURRENCIES } from '../utils/currency'
+import BatchPaymentFlow from '../components/payments/BatchPaymentFlow'
 import './NewPaymentPage.css'
 
 function NewPaymentPage({
                           defaultTiming = 'now',
                           selectedUser,
                         }) {
+  const [paymentMode, setPaymentMode] = useState('single')
   const [paymentType, setPaymentType] = useState('now')
 
   const [payment, setPayment] = useState({
@@ -146,7 +148,107 @@ function NewPaymentPage({
         </div>
       </div>
 
-      <form className="form-card" onSubmit={handleSubmit}>
+      <div className="form-card">
+
+        {/* Payment Type */}
+
+        <fieldset className="form-field">
+          <legend>Payment Type</legend>
+
+          <div className="radio-row">
+
+            <label>
+              <input
+                type="radio"
+                checked={paymentMode === 'single'}
+                onChange={() => setPaymentMode('single')}
+              />
+
+              Single Payment
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                checked={paymentMode === 'batch'}
+                onChange={() => setPaymentMode('batch')}
+              />
+
+              Batch Payment
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                checked={paymentMode === 'scheduled'}
+                onChange={() => setPaymentMode('scheduled')}
+              />
+
+              Scheduled Payment
+            </label>
+
+          </div>
+        </fieldset>
+
+        {paymentMode === 'batch' ? (
+          <>
+            <label className="form-field">
+              <span>From Account</span>
+
+              <select
+                className="input"
+                value={payment.senderAccountNumber}
+                onChange={(e) =>
+                  updatePayment(
+                    'senderAccountNumber',
+                    Number(e.target.value)
+                  )
+                }
+              >
+                {selectedUser?.accounts?.map((account) => (
+                  <option key={account} value={account}>
+                    {account}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <fieldset className="form-field">
+              <legend>Payment Timing</legend>
+
+              <div className="radio-row">
+
+                <label>
+                  <input
+                    type="radio"
+                    checked={paymentType === 'now'}
+                    onChange={() => setPaymentType('now')}
+                  />
+
+                  Pay Now
+                </label>
+
+                <label>
+                  <input
+                    type="radio"
+                    checked={paymentType === 'schedule'}
+                    onChange={() => setPaymentType('schedule')}
+                  />
+
+                  Schedule Payment
+                </label>
+
+              </div>
+            </fieldset>
+
+            <BatchPaymentFlow
+              senderAccountNumber={payment.senderAccountNumber}
+              paymentTiming={paymentType}
+            />
+          </>
+        ) : (
+
+      <form onSubmit={handleSubmit}>
 
         {/* Sender Account */}
 
@@ -356,6 +458,8 @@ function NewPaymentPage({
         </div>
 
       </form>
+        )}
+      </div>
     </div>
   )
 }

@@ -12,6 +12,7 @@ export const ROUTES = {
   PAYMENT_RECEIPT: (id) => `${API_BASE_URL}/payments/${id}/receipt`,
   CREATE_PAYMENT: `${API_BASE_URL}/payments`,
   RETRY_PAYMENT: (id) => `${API_BASE_URL}/payments/${id}/retry`,
+  BATCH_PAYMENT: `${API_BASE_URL}/api/v1/payments/batch`,
 
   // Scheduled payments
    SCHEDULED_PAYMENTS: `${API_BASE_URL}/v1/schedules/all`,
