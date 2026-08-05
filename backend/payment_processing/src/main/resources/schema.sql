@@ -142,7 +142,6 @@ CREATE TABLE IF NOT EXISTS Payments (
                  NOT NULL,
 
     schedule_id BIGINT,
-    batch_id VARCHAR(50),
 
     payment_method_id BIGINT NOT NULL,
 
@@ -171,3 +170,6 @@ CREATE TABLE IF NOT EXISTS tags (
     tag_name    VARCHAR(100) NOT NULL UNIQUE,
     description VARCHAR(255)
 );
+
+ALTER TABLE Payments
+ADD COLUMN batch_id VARCHAR(50);
