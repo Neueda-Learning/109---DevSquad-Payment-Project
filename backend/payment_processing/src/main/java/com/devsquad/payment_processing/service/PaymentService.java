@@ -55,9 +55,9 @@ public class PaymentService {
         request.setStatus(Payment.Status.CREATED);
         
         // scheduleId is optional - can be null for manual payments
-        
+        System.out.println("Creating payment: " + request);
         Payment savedPayment = paymentRepo.createPayment(request);
-
+        System.out.println("Payment created with ID: " + savedPayment.getPaymentId());
         return processPayment(savedPayment.getPaymentId());
     }
 
@@ -141,12 +141,12 @@ public class PaymentService {
                     + payment.getStatus());
         }
 
-        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.CANCELLED);
+        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("paymentId", paymentId);
         response.put("previousStatus", payment.getStatus());
-        response.put("targetStatus", Payment.Status.CANCELLED);
+        response.put("targetStatus", Payment.Status.FAILED);
         response.put("message", "Payment has been successfully cancelled");
         response.put("updatedAt", LocalDateTime.now().toString());
         return response;
@@ -181,11 +181,10 @@ public class PaymentService {
     // ── Transition rules
 
     private static final Map<Payment.Status, Set<Payment.Status>> VALID_TRANSITIONS = Map.of(
-            Payment.Status.CREATED,      Set.of(Payment.Status.VALIDATING, Payment.Status.CANCELLED),
-            Payment.Status.VALIDATING,   Set.of(Payment.Status.COMPLETED, Payment.Status.FAILED),
+            Payment.Status.CREATED,      Set.of(Payment.Status.VALIDATED, Payment.Status.FAILED),
+            Payment.Status.VALIDATED,   Set.of(Payment.Status.COMPLETED, Payment.Status.FAILED),
             Payment.Status.COMPLETED,    Set.of(),  // Terminal state
-            Payment.Status.FAILED,       Set.of(),  // Terminal state
-            Payment.Status.CANCELLED,    Set.of()   // Terminal state
+            Payment.Status.FAILED,       Set.of()  // Terminal state
     );
 
     private boolean isValidTransition(Payment.Status from, Payment.Status to) {
@@ -216,19 +215,24 @@ public class PaymentService {
         
         // Stage 1: CREATED → VALIDATING
         try {
-            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATING);
-            payment.setStatus(Payment.Status.VALIDATING);
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATED);
+            payment.setStatus(Payment.Status.VALIDATED);
 
+            System.out.println("ABover validate");
             // Run validation checks
             validatePayment(payment);
 
+            System.out.println("After validate");
+
             // Execute the actual payment transfer
+            System.out.println("Before execute");
             executePaymentTransfer(payment);
+            System.out.println("After execute");
 
             // Stage 2: VALIDATING → COMPLETED
             paymentRepo.updatePaymentStatus(paymentId, Payment.Status.COMPLETED);
             payment.setStatus(Payment.Status.COMPLETED);
-
+            System.out.println("Payment processed successfully: " + paymentId);
             return payment;
 
         } catch (ResponseStatusException e) {
@@ -281,11 +285,14 @@ public class PaymentService {
      */
     private void executePaymentTransfer(Payment payment) {
         // Debit sender account
+        System.out.println("Before debit");
         BigDecimal amount = catalogService.convertCurrency(payment.getCurrencyId(), 1, payment.getAmount());
         accountRepo.debitAccount(payment.getSenderAccountNumber(), amount);
-        
+
+        System.out.println("After debit");
         // Credit receiver account
         accountRepo.creditAccount(payment.getReceiverAccountNumber(), amount);
+        System.out.println("After credit");
     }
 
     // ── Scheduled Payment Execution (Complete Transactional Flow)

@@ -32,7 +32,7 @@ public class CatalogService {
 
     @PostConstruct
     public void loadCurrencies() {
-        try (InputStream is = new ClassPathResource("static/currencies.json").getInputStream()) {
+        try (InputStream is = new ClassPathResource("currencies.json").getInputStream()) {
             ObjectMapper mapper = new ObjectMapper();
             currencies = mapper.readValue(is, new TypeReference<List<Map<String, String>>>() {});
         } catch (Exception ignored) {
@@ -44,13 +44,18 @@ public class CatalogService {
      * Get currency code by ID from loaded currencies.json (1-based index)
      */
     private String getCurrencyCodeById(Integer currencyId) {
+        System.out.println("getCurrencyCodeById: currencyId = " + currencyId);
         if (currencyId == null || currencyId <= 0) return null;
-        int idx = currencyId - 1;
+        int idx = currencyId;
+        System.out.println("getCurrencyCodeById: idx = " + idx);
         if (idx < 0 || idx >= currencies.size()) return null;
+
         Map<String, String> entry = currencies.get(idx);
+        for(Map<String, String> map : currencies) {
+            System.out.println("Currency: " + map.get("currency") );
+        }
         if (entry == null) return null;
         String code = entry.get("currency");
-        if (code == null) code = entry.get("code");
         return code;
     }
     // Get all supported currencies
@@ -94,7 +99,8 @@ public class CatalogService {
     public BigDecimal convertCurrency(Integer fromCurrency, Integer toCurrency, BigDecimal amount) {
         String fromCurrencyName = getCurrencyCodeById(fromCurrency);
         String toCurrencyName = getCurrencyCodeById(toCurrency);
-
+        System.out.println(fromCurrency + "---------------------- " + toCurrency);
+        System.out.println("fromcurrency: " + fromCurrencyName + ", toCurrency: " + toCurrencyName + ", amount: " + amount);
         if (fromCurrencyName == null || fromCurrencyName.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "VALIDATION_ERROR: 'from' currency is required");

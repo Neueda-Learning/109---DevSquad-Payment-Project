@@ -31,10 +31,10 @@ public class PaymentRowMapper implements RowMapper<Payment> {
     private Payment.Status mapDatabaseStatus(String databaseStatus) {
         return switch (databaseStatus) {
             case "CREATED" -> Payment.Status.CREATED;
-            case "VALIDATED" -> Payment.Status.VALIDATING;
+            case "VALIDATED" -> Payment.Status.VALIDATED;
             case "COMPLETED" -> Payment.Status.COMPLETED;
             case "FAILED" -> Payment.Status.FAILED;
-            case "SENT" -> Payment.Status.VALIDATING;  // Map old SENT to VALIDATING
+            case "SENT" -> Payment.Status.VALIDATED;  // Map old SENT to VALIDATING
             default -> throw new IllegalArgumentException("Unsupported payment status: " + databaseStatus);
         };
     }
