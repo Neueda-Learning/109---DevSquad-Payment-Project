@@ -2,7 +2,7 @@
 // These paths are the contract the frontend expects the backend to implement.
 // Update the base URL via VITE_API_BASE_URL once a real backend is available.
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
 export const ROUTES = {
   // Payments
@@ -14,10 +14,10 @@ export const ROUTES = {
   RETRY_PAYMENT: (id) => `${API_BASE_URL}/payments/${id}/retry`,
 
   // Scheduled payments
-  SCHEDULED_PAYMENTS: `${API_BASE_URL}/payments/scheduled`,
-  SCHEDULE_PAYMENT: `${API_BASE_URL}/payments/scheduled`,
-  SCHEDULED_PAYMENT_BY_ID: (id) => `${API_BASE_URL}/payments/scheduled/${id}`,
-  CANCEL_SCHEDULED_PAYMENT: (id) => `${API_BASE_URL}/payments/scheduled/${id}/cancel`,
+   SCHEDULED_PAYMENTS: `${API_BASE_URL}/v1/schedules/all`,
+   SCHEDULE_PAYMENT: `${API_BASE_URL}/v1/schedules`,
+
+   CANCEL_SCHEDULED_PAYMENT: (id) => `${API_BASE_URL}/v1/schedules/${id}`, // DELETE
 
   // Reference data
   VENDORS: `${API_BASE_URL}/vendors`,
