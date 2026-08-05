@@ -30,14 +30,14 @@ public class PaymentRowMapper implements RowMapper<Payment> {
                 mapDatabaseStatus(rs.getString("status"))
         );
 
-        String tagNames = rs.getString("tag_names");
-        List<String> tags = (tagNames == null || tagNames.isBlank())
-                ? List.of()
-                : Arrays.stream(tagNames.split(","))
-                .map(String::trim)
-                .toList();
-
-        payment.setTags(tags);
+//        String tagNames = rs.getString("tag_names");
+//        List<String> tags = (tagNames == null || tagNames.isBlank())
+//                ? List.of()
+//                : Arrays.stream(tagNames.split(","))
+//                .map(String::trim)
+//                .toList();
+//
+//        payment.setTags(tags);
         return payment;
     }
 

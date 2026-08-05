@@ -1,6 +1,7 @@
 import { useState , useEffect } from 'react'
 import { CURRENCIES } from '../utils/currency'
 import BatchPaymentFlow from '../components/payments/BatchPaymentFlow'
+import PaymentLoader from '../components/payments/PaymentLoader'
 import './NewPaymentPage.css'
 
 function NewPaymentPage({
@@ -28,12 +29,9 @@ function NewPaymentPage({
     CURRENCIES[1].currency
   )
 
-  const [popup, setPopup] = useState({
-    show: false,
-    success: true,
-    title: '',
-    message: '',
-  })
+  // Drives the payment loading animation: null | 'processing' | 'success' | 'error'
+  const [loaderStatus, setLoaderStatus] = useState(null)
+  const [loaderDone, setLoaderDone] = useState(false)
 
 
   useEffect(() => {
@@ -55,6 +53,13 @@ function NewPaymentPage({
     const handleSubmit = async (e) => {
       e.preventDefault()
 
+      // Guarantee the loader plays through its full
+      // creating -> processing -> validating -> processing stages
+      // even if the API responds (or fails) quickly.
+      const minAnimationDelay = new Promise((resolve) =>
+        setTimeout(resolve, 5200)
+      )
+
       try {
 
         // Schedule payment will be handled separately
@@ -69,6 +74,9 @@ function NewPaymentPage({
 
 
         // PAY NOW FLOW
+
+        setLoaderDone(false)
+        setLoaderStatus('processing')
 
         const now = new Date()
 
@@ -92,8 +100,7 @@ function NewPaymentPage({
           paymentRequest
         )
 
-
-        const response = await fetch(
+        const requestPayment = fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/v1/payments/create`,
           {
             method: "POST",
@@ -104,18 +111,20 @@ function NewPaymentPage({
 
             body: JSON.stringify(paymentRequest),
           }
-        )
+        ).then(async (response) => {
+          if (!response.ok) {
+            throw new Error(
+              "Payment creation failed"
+            )
+          }
 
+          return response.json()
+        })
 
-        if (!response.ok) {
-          throw new Error(
-            "Payment creation failed"
-          )
-        }
-
-
-        const createdPayment =
-          await response.json()
+        const [createdPayment] = await Promise.all([
+          requestPayment,
+          minAnimationDelay,
+        ])
 
 
         console.log(
@@ -123,13 +132,7 @@ function NewPaymentPage({
           createdPayment
         )
 
-
-        setPopup({
-          show: true,
-          success: true,
-          title: 'Payment Successful',
-          message: 'Your payment has been created successfully.',
-        })
+        setLoaderStatus('success')
 
 
       } catch (error) {
@@ -139,14 +142,17 @@ function NewPaymentPage({
           error
         )
 
-        setPopup({
-          show: true,
-          success: false,
-          title: 'Payment Failed',
-          message: 'Unable to create payment. Please try again.',
-        })
+        // Wait for the same minimum delay so the animation isn't cut short.
+        await minAnimationDelay
+
+        setLoaderStatus('error')
 
       }
+    }
+
+    const closeLoader = () => {
+      setLoaderStatus(null)
+      setLoaderDone(false)
     }
 
 
@@ -471,35 +477,27 @@ function NewPaymentPage({
         </div>
 
       </form>
+        )}
+      </div>
 
-      {popup.show && (
+      {loaderStatus && (
         <div className="popup-overlay">
-          <div className="popup-card">
-            <div
-              className={
-                popup.success
-                  ? 'popup-icon success'
-                  : 'popup-icon error'
-              }
-            >
-              {popup.success ? '✓' : '✕'}
-            </div>
+          <div className="popup-card loader-card">
+            <PaymentLoader
+              status={loaderStatus}
+              amount={`${
+                CURRENCIES.find((c) => c.currency === selectedCurrency)?.symbol ?? ''
+              }${payment.amount || '0'}`}
+              senderName={payment.senderAccountNumber ? `Acct ${payment.senderAccountNumber}` : 'Sender'}
+              receiverName={payment.receiverAccountNumber ? `Acct ${payment.receiverAccountNumber}` : 'Receiver'}
+              onSettled={() => setLoaderDone(true)}
+            />
 
-            <h2>{popup.title}</h2>
-
-            <p>{popup.message}</p>
-
-            <button
-              className="btn btn-primary"
-              onClick={() =>
-                setPopup({
-                  ...popup,
-                  show: false,
-                })
-              }
-            >
-              OK
-            </button>
+            {loaderDone && (
+              <button className="btn btn-primary" onClick={closeLoader}>
+                {loaderStatus === 'success' ? 'Done' : 'Try Again'}
+              </button>
+            )}
           </div>
         </div>
       )}
