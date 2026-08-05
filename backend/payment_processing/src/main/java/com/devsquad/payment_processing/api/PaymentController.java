@@ -18,11 +18,21 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
-    // Create Payment
+    /**
+     * POST /api/v1/payments/create
+     * Creates and automatically processes a payment in one step.
+     * 
+     * Workflow: CREATED → VALIDATING → COMPLETED or FAILED
+     * 
+     * Returns payment with final status (COMPLETED or FAILED)
+     * and proper error messages if validation fails.
+     */
     @PostMapping("/create")
     public ResponseEntity<Payment> createPayment(@Valid @RequestBody Payment request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(request));
     }
+
+
     // Get Payment By Id
     @GetMapping("/{id}")
     public ResponseEntity<Payment> getPaymentById(@PathVariable Integer id) {

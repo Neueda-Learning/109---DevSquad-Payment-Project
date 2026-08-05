@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class Tag {
+
     private Integer tagId;
 
     @NotBlank(message = "Tag name is required")

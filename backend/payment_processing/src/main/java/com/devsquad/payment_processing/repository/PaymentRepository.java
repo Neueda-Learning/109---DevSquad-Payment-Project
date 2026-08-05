@@ -24,6 +24,10 @@ public class PaymentRepository {
     }
 
     public Payment createPayment(Payment request) {
+        request.setInvoiceNumber("INV-" + System.currentTimeMillis());
+        
+        final String finalInvoiceNumber = request.getInvoiceNumber();
+
         String sql = """
                 INSERT INTO Payments (
                     payment_invoice_number,
@@ -48,7 +52,7 @@ public class PaymentRepository {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, request.getInvoiceNumber());
+            preparedStatement.setString(1, finalInvoiceNumber);
             preparedStatement.setLong(2, request.getSenderAccountNumber());
             preparedStatement.setLong(3, request.getReceiverAccountNumber());
             preparedStatement.setDouble(4, request.getAmount());
@@ -154,9 +158,12 @@ public class PaymentRepository {
 
         if (status != null && !status.isBlank()) {
             switch (status.toUpperCase()) {
-                case "PENDING" -> sql.append(" AND status IN ('CREATED','VALIDATED','SENT')");
+                case "CREATED" -> sql.append(" AND status = 'CREATED'");
+                case "VALIDATING" -> sql.append(" AND status = 'VALIDATED'");
                 case "COMPLETED" -> sql.append(" AND status = 'COMPLETED'");
-                case "FAILED", "CANCELLED" -> sql.append(" AND status = 'FAILED'");
+                case "FAILED" -> sql.append(" AND status = 'FAILED'");
+                case "CANCELLED" -> sql.append(" AND status = 'FAILED'");
+                case "IN_PROGRESS" -> sql.append(" AND status IN ('CREATED','VALIDATED')");  // All active statuses
             }
         }
 
@@ -209,9 +216,11 @@ public class PaymentRepository {
         }
 
         return switch (status) {
-            case PENDING -> "CREATED";
+            case CREATED -> "CREATED";
+            case VALIDATING -> "VALIDATED";
             case COMPLETED -> "COMPLETED";
-            case FAILED, CANCELLED -> "FAILED";
+            case FAILED -> "FAILED";
+            case CANCELLED -> "FAILED";  // Map CANCELLED to FAILED in DB
         };
     }
 

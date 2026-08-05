@@ -1,12 +1,12 @@
-import { Link } from 'react-router-dom'
 import StatusBadge from '../common/StatusBadge'
-import TagChips from './TagChips'
 import { formatCurrency } from '../../utils/currency'
 import { formatDate } from '../../utils/format'
 import './PaymentList.css'
 
-/** Table of past payments, linking each row to its detail page. */
-function PaymentList({ payments = [] }) {
+function PaymentList({
+  payments = [],
+  selectedUser,
+}) {
   if (!payments.length) return null
 
   return (
@@ -14,40 +14,68 @@ function PaymentList({ payments = [] }) {
       <table className="payment-table">
         <thead>
           <tr>
-            <th>Reference</th>
-            <th>Vendor</th>
-            <th>Tags</th>
+            <th>Invoice</th>
+            <th>Sender</th>
+            <th>Receiver</th>
             <th>Amount</th>
             <th>Date</th>
             <th>Status</th>
-            <th aria-label="actions" />
+            <th>Description</th>
           </tr>
         </thead>
+
         <tbody>
-          {payments.map((payment) => (
-            <tr key={payment.id}>
-              <td data-label="Reference">
-                <Link to={`/payments/${payment.id}`} className="payment-table-ref">
-                  {payment.reference}
-                </Link>
-                <span className="payment-table-desc">{payment.description}</span>
-              </td>
-              <td data-label="Vendor">{payment.vendor}</td>
-              <td data-label="Tags">
-                <TagChips tags={payment.tags} />
-              </td>
-              <td data-label="Amount">{formatCurrency(payment.amount, payment.currency)}</td>
-              <td data-label="Date">{formatDate(payment.createdAt)}</td>
-              <td data-label="Status">
-                <StatusBadge status={payment.status} />
-              </td>
-              <td data-label="">
-                <Link to={`/payments/${payment.id}`} className="btn btn-ghost btn-sm">
-                  View
-                </Link>
-              </td>
-            </tr>
-          ))}
+          {payments.map((payment) => {
+            const isIncoming =
+              selectedUser?.accounts?.includes(
+                payment.receiverAccountNumber
+              )
+
+            return (
+              <tr key={payment.paymentId}>
+                <td data-label="Invoice">
+                  {payment.invoiceNumber}
+                </td>
+
+                <td data-label="Sender">
+                  {payment.senderAccountNumber}
+                </td>
+
+                <td data-label="Receiver">
+                  {payment.receiverAccountNumber}
+                </td>
+
+                <td
+                  data-label="Amount"
+                  className={
+                    isIncoming
+                      ? 'amount-credit'
+                      : 'amount-debit'
+                  }
+                >
+                  {isIncoming ? '+' : '-'}{' '}
+                  {formatCurrency(
+                    payment.amount,
+                    payment.currencyCode || 'INR'
+                  )}
+                </td>
+
+                <td data-label="Date">
+                  {formatDate(payment.paymentDate)}
+                </td>
+
+                <td data-label="Status">
+                  <StatusBadge
+                    status={payment.status}
+                  />
+                </td>
+
+                <td data-label="Description">
+                  {payment.description}
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
