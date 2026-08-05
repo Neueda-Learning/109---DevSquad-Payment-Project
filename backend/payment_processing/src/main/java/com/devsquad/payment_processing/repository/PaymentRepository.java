@@ -209,9 +209,11 @@ public class PaymentRepository {
         }
 
         return switch (status) {
-            case PENDING -> "CREATED";
+            case CREATED -> "CREATED";
+            case VALIDATED -> "VALIDATED";
+            case SENT -> "SENT";
             case COMPLETED -> "COMPLETED";
-            case FAILED, CANCELLED -> "FAILED";
+            case FAILED -> "FAILED";
         };
     }
 

@@ -4,7 +4,7 @@ import './Navbar.css'
 
 const links = [
   { to: '/', label: 'Home', end: true },
-  { to: '/payments', label: 'Payments' },
+  { to: '/payments', label: 'Payments' , end: true},
   { to: '/payments/new', label: 'New Payment' },
   { to: '/scheduled', label: 'Scheduled' },
 ]

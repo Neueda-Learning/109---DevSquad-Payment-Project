@@ -3,8 +3,8 @@
   top: 0;
   z-index: 1000;
 
-  background: #111827;
-  border-bottom: 1px solid #1f2937;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
 
 .navbar-inner {
@@ -25,7 +25,7 @@
   gap: 10px;
 
   text-decoration: none;
-  color: #f9fafb;
+  color: var(--text-h);
 
   font-size: 1.2rem;
   font-weight: 700;
@@ -55,7 +55,7 @@
 
 .navbar-link {
   text-decoration: none;
-  color: #9ca3af;
+  color: var(--text-m);
 
   padding: 10px 14px;
   border-radius: 8px;
@@ -65,13 +65,13 @@
 }
 
 .navbar-link:hover {
-  background: #1f2937;
-  color: #ffffff;
+  background: var(--border);
+  color: var(--text-h);
 }
 
 .navbar-link-active {
-  background: #1e3a8a;
-  color: #ffffff;
+  background: #2563eb;
+  color: white;
 }
 
 .navbar-right {
@@ -101,6 +101,11 @@
   font-weight: 700;
 
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.user-avatar:hover {
+  opacity: 0.9;
 }
 
 .user-dropdown {
@@ -110,12 +115,12 @@
 
   width: 240px;
 
-  background: #1f2937;
-  border: 1px solid #374151;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
 
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 
   z-index: 1001;
 }
@@ -123,28 +128,29 @@
 .user-dropdown-header {
   padding: 14px 16px;
 
-  color: #f9fafb;
+  color: var(--text-h);
   font-weight: 600;
 
-  background: #111827;
-  border-bottom: 1px solid #374151;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
 }
 
 .user-dropdown-item {
   padding: 12px 16px;
 
-  color: #d1d5db;
+  color: var(--text-h);
   cursor: pointer;
+
+  transition: 0.2s ease;
 }
 
 .user-dropdown-item:hover {
-  background: #374151;
-  color: #ffffff;
+  background: var(--border);
 }
 
 .active-user {
-  background: #1e3a8a;
-  color: #ffffff;
+  background: #2563eb;
+  color: white;
   font-weight: 600;
 }
 
@@ -159,6 +165,11 @@
     order: 3;
     width: 100%;
     overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .navbar-links::-webkit-scrollbar {
+    display: none;
   }
 
   .navbar-right {

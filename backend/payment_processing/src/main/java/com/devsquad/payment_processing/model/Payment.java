@@ -6,10 +6,11 @@ import java.sql.Time;
 public class Payment {
 
     public enum Status {
-        PENDING,
+        CREATED,
+        VALIDATED,
+        SENT,
         COMPLETED,
-        FAILED,
-        CANCELLED
+        FAILED
     }
 
     private Integer paymentId;
