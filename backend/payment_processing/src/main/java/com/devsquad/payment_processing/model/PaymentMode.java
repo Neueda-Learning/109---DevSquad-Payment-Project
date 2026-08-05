@@ -4,6 +4,6 @@ public enum PaymentMode {
 
     UPI,
     CREDIT_CARD,
-    BANK_TRANSFER,
+    BANK_TRANSFER
 
 }

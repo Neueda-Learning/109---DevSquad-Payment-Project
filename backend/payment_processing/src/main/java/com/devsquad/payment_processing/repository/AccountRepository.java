@@ -11,12 +11,14 @@ import java.util.List;
 
 @Repository
 public class AccountRepository {
+    private final JdbcTemplate jdbcTemplate;
+    private final AccountRowMapper accountRowMapper;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private AccountRowMapper accountRowMapper;
+    public AccountRepository(JdbcTemplate jdbcTemplate, AccountRowMapper accountRowMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.accountRowMapper = accountRowMapper;
+    }
 
     public ArrayList<Account> getAllAccountsR() {
 

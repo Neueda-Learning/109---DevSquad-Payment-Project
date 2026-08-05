@@ -18,7 +18,7 @@ function App() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL
 
   useEffect(() => {
-    fetch(`${apiUrl}/api/1.0/users/all`)
+    fetch(`${apiUrl}/1.0/users/all`)
       .then((res) => res.json())
       .then((data) => {
         setUsers(data)

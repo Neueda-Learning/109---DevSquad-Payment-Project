@@ -21,22 +21,15 @@ function HomePage({ selectedUser }) {
           'http://localhost:8080/api/v1/payments/all'
         )
 
-        const allPayments =
-          await response.json()
+        const allPayments = await response.json()
+         const paymentsArray = Array.isArray(allPayments) ? allPayments : []
 
-        const userAccounts =
-          selectedUser.accounts || []
-
-        const userPayments =
-          allPayments.filter(
-            (payment) =>
-              userAccounts.includes(
-                payment.senderAccountNumber
-              ) ||
-              userAccounts.includes(
-                payment.receiverAccountNumber
-              )
-          )
+         const userAccounts = selectedUser.accounts || []
+         const userPayments = paymentsArray.filter(
+           (payment) =>
+             userAccounts.includes(payment.senderAccountNumber) ||
+             userAccounts.includes(payment.receiverAccountNumber)
+         )
 
         const totalPaid = userPayments
           .filter(

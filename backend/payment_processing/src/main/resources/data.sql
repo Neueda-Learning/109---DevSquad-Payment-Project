@@ -132,10 +132,7 @@ VALUES
     'BANK_TRANSFER',
     NULL,
     4
-
 );
-
-
 
 -- SCHEDULES
 INSERT IGNORE INTO Schedules (
@@ -186,6 +183,7 @@ VALUES
 );
 
 
+-- TAGS
 INSERT IGNORE INTO tags (tag_id, tag_name, description)
 VALUES
 (1, 'Bills',    'Utility and recurring bills'),
@@ -194,3 +192,4 @@ VALUES
 (4, 'Shopping', 'Shopping expenses'),
 (5, 'Travel',   'Travel and transport'),
 (6, 'Others',   'Miscellaneous');
+
