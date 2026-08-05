@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -27,6 +28,9 @@ public class PaymentService {
 
     @Autowired
     AccountRepository accountRepo;
+    
+    @Autowired
+    CatalogService catalogService;
 
     // ── Existing operations 
 
@@ -243,27 +247,27 @@ public class PaymentService {
      */
     private void validatePayment(Payment payment) {
         // 1. Validate sender account exists and is active
-        Double senderBalance = accountRepo.getAccountBalance(payment.getSenderAccountNumber());
+        BigDecimal senderBalance = accountRepo.getAccountBalance(payment.getSenderAccountNumber());
         if (senderBalance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "ACCOUNT_NOT_FOUND: Sender account " + payment.getSenderAccountNumber() + " does not exist");
         }
 
         // 2. Validate receiver account exists
-        Double receiverBalance = accountRepo.getAccountBalance(payment.getReceiverAccountNumber());
+        BigDecimal receiverBalance = accountRepo.getAccountBalance(payment.getReceiverAccountNumber());
         if (receiverBalance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "ACCOUNT_NOT_FOUND: Receiver account " + payment.getReceiverAccountNumber() + " does not exist");
         }
 
         // 3. Validate sufficient balance
-        if (senderBalance < payment.getAmount()) {
+        if (senderBalance.compareTo(payment.getAmount()) < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "INSUFFICIENT_BALANCE: Required " + payment.getAmount() + ", available " + senderBalance);
         }
 
         // 4. Validate amount is positive
-        if (payment.getAmount() <= 0) {
+        if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "INVALID_AMOUNT: Amount must be positive");
         }
@@ -274,10 +278,11 @@ public class PaymentService {
      */
     private void executePaymentTransfer(Payment payment) {
         // Debit sender account
-        accountRepo.debitAccount(payment.getSenderAccountNumber(), payment.getAmount());
+        BigDecimal amount = catalogService.convertCurrency(payment.getCurrencyId(), 1, payment.getAmount());
+        accountRepo.debitAccount(payment.getSenderAccountNumber(), amount);
         
         // Credit receiver account
-        accountRepo.creditAccount(payment.getReceiverAccountNumber(), payment.getAmount());
+        accountRepo.creditAccount(payment.getReceiverAccountNumber(), amount);
     }
 
     // ── Scheduled Payment Execution (Complete Transactional Flow)
@@ -298,8 +303,8 @@ public class PaymentService {
     @Transactional
     public Payment executeScheduledPayment(Schedule schedule) {
         // 1. Validate accounts exist and are active
-        Double senderBalance = accountRepo.getAccountBalance(schedule.getSenderAccountNumber());
-        Double receiverBalance = accountRepo.getAccountBalance(schedule.getReceiverAccountNumber());
+        BigDecimal senderBalance = accountRepo.getAccountBalance(schedule.getSenderAccountNumber());
+        BigDecimal receiverBalance = accountRepo.getAccountBalance(schedule.getReceiverAccountNumber());
 
         if (senderBalance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -311,7 +316,7 @@ public class PaymentService {
         }
 
         // 2. Validate sufficient balance
-        if (senderBalance < schedule.getAmount()) {
+        if (senderBalance.compareTo(schedule.getAmount()) < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "INSUFFICIENT_BALANCE: Required " + schedule.getAmount() + ", available " + senderBalance);
         }

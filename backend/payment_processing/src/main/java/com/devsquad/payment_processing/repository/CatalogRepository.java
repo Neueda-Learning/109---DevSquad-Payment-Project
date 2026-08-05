@@ -37,7 +37,7 @@ public class CatalogRepository {
 
     public List<Currency> getAllCurrencies() {
         try {
-            InputStream is = new ClassPathResource("static/currencies.json").getInputStream();
+            InputStream is = new ClassPathResource("currencies.json").getInputStream();
             ObjectMapper mapper = new ObjectMapper();
 
             // JSON shape: [{ "country": "...", "currency": "USD", "symbol": "$" }, ...]
