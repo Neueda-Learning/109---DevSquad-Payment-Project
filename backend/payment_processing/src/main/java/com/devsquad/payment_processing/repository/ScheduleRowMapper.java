@@ -19,7 +19,7 @@ public class ScheduleRowMapper implements RowMapper<Schedule> {
                 rawId != null ? rawId.intValue() : null,
                 rs.getLong("sender_account_number"),
                 rs.getLong("receiver_account_number"),
-                rs.getDouble("amount"),
+                rs.getBigDecimal("amount"),
                 rs.getObject("currency_id", Integer.class),
                 rs.getObject("payment_method_id", Integer.class),
                 rs.getString("description"),

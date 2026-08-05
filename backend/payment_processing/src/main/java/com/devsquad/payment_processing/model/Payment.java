@@ -3,6 +3,7 @@ package com.devsquad.payment_processing.model;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 
@@ -30,7 +31,7 @@ public class Payment {
     
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be positive")
-    private Double amount;
+    private BigDecimal amount;
     
     // Optional - if null, uses default currency
     private Integer currencyId;
@@ -50,13 +51,14 @@ public class Payment {
     
     // Optional - only set when payment is part of a batch
     private String batchId;
-    
+
     // Auto-set to PENDING if not provided
     private Status status;
 
     public Payment(Integer paymentId, String invoiceNumber, Long senderAccountNumber, Long receiverAccountNumber,
-                   Double amount, Integer currencyId, Integer paymentModeId, Date paymentDate, Time paymentTime,
-                   String description, Integer scheduleId, String batchId, Status status) {
+                   BigDecimal amount, Integer currencyId, Integer paymentModeId, Date paymentDate, Time paymentTime,
+                   String description, Integer scheduleId,
+                   String batchId, Status status) {
         this.paymentId = paymentId;
         this.invoiceNumber = invoiceNumber;
         this.senderAccountNumber = senderAccountNumber;
@@ -104,11 +106,11 @@ public class Payment {
         this.receiverAccountNumber = receiverAccountNumber;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

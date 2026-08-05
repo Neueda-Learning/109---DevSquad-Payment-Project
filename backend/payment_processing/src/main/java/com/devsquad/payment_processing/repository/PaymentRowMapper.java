@@ -16,7 +16,7 @@ public class PaymentRowMapper implements RowMapper<Payment> {
                 rs.getString("payment_invoice_number"),
                 rs.getLong("sender_account_number"),
                 rs.getLong("receiver_account_number"),
-                rs.getDouble("amount"),
+                rs.getBigDecimal("amount"),
                 rs.getObject("currency_id", Integer.class),
                 rs.getInt("payment_method_id"),
                 rs.getDate("payment_date"),

@@ -56,7 +56,7 @@ public class PaymentRepository {
             preparedStatement.setString(1, finalInvoiceNumber);
             preparedStatement.setLong(2, request.getSenderAccountNumber());
             preparedStatement.setLong(3, request.getReceiverAccountNumber());
-            preparedStatement.setDouble(4, request.getAmount());
+            preparedStatement.setBigDecimal(4, request.getAmount());
             setNullableInt(preparedStatement, 5, request.getCurrencyId());
             preparedStatement.setDate(6, request.getPaymentDate());
             preparedStatement.setTime(7, request.getPaymentTime());
