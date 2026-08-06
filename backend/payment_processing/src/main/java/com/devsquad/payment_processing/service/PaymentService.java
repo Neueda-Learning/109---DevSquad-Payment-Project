@@ -51,45 +51,22 @@ public class PaymentService {
             request.setPaymentTime(Time.valueOf(LocalTime.now()));
         }
         
-        // PRE-VALIDATION: Check accounts exist BEFORE database insert to avoid FK constraint violation
+        // Set initial status to CREATED (first stage of workflow)
+        request.setStatus(Payment.Status.CREATED);
+        
         try {
-            BigDecimal senderBalance = accountRepo.getAccountBalance(request.getSenderAccountNumber());
-            if (senderBalance == null) {
-                // Sender account doesn't exist - cannot insert payment due to FK constraint
-                // Return a failed payment response without database insert
-                request.setPaymentId(-1);  // Temporary ID to indicate no DB record
-                request.setInvoiceNumber("FAILED-" + System.currentTimeMillis());
-                request.setStatus(Payment.Status.FAILED);
-                request.setPaymentLog("ACCOUNT_NOT_FOUND: Sender account " + request.getSenderAccountNumber() + " does not exist");
-                return request;
-            }
-            
-            BigDecimal receiverBalance = accountRepo.getAccountBalance(request.getReceiverAccountNumber());
-            if (receiverBalance == null) {
-                // Receiver account doesn't exist - cannot insert payment due to FK constraint
-                // Return a failed payment response without database insert
-                request.setPaymentId(-1);  // Temporary ID to indicate no DB record
-                request.setInvoiceNumber("FAILED-" + System.currentTimeMillis());
-                request.setStatus(Payment.Status.FAILED);
-                request.setPaymentLog("ACCOUNT_NOT_FOUND: Receiver account " + request.getReceiverAccountNumber() + " does not exist");
-                return request;
-            }
-            
-            // Set initial status to CREATED (first stage of workflow)
-            request.setStatus(Payment.Status.CREATED);
-            
-            // scheduleId is optional - can be null for manual payments
+            // Insert payment into database
             Payment savedPayment = paymentRepo.createPayment(request);
             
             // Process payment - returns COMPLETED or FAILED payment
             return processPayment(savedPayment.getPaymentId());
             
         } catch (Exception e) {
-            // Unexpected error - return failed payment without DB insert
+            // If database insert fails, return failed payment without DB record
             request.setPaymentId(-1);
             request.setInvoiceNumber("FAILED-" + System.currentTimeMillis());
             request.setStatus(Payment.Status.FAILED);
-            request.setPaymentLog("UNEXPECTED_ERROR: " + e.getMessage());
+            request.setPaymentLog("DATABASE_ERROR: " + e.getMessage());
             return request;
         }
     }
@@ -248,83 +225,89 @@ public class PaymentService {
         }
         
         // Stage 1: CREATED → VALIDATING
-        try {
-            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATED);
-            payment.setStatus(Payment.Status.VALIDATED);
+        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.VALIDATED);
+        payment.setStatus(Payment.Status.VALIDATED);
 
-            // Run validation checks
-            validatePayment(payment);
-
-            // Execute the actual payment transfer
-            executePaymentTransfer(payment);
-
-            // Stage 2: VALIDATING → COMPLETED
-            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.COMPLETED);
-            paymentRepo.updatePaymentLog(paymentId, "Payment completed successfully");
-            payment.setStatus(Payment.Status.COMPLETED);
-            payment.setPaymentLog("Payment completed successfully");
+        // Run validation checks - returns error message or null if valid
+        String validationError = validatePayment(payment);
+        System.out.println("Validation result for payment " + paymentId + ": " + validationError);
+        if (validationError != null) {
+            // Validation failed - mark as FAILED
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
+            paymentRepo.updatePaymentLog(paymentId, validationError);
+            payment.setStatus(Payment.Status.FAILED);
+            payment.setPaymentLog(validationError);
             return payment;
-
-        } catch (ResponseStatusException e) {
-            // Mark as FAILED if any validation or transfer fails
-            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
-            paymentRepo.updatePaymentLog(paymentId, e.getReason());
-            payment.setStatus(Payment.Status.FAILED);
-            payment.setPaymentLog(e.getReason());
-            return payment;  // Return failed payment instead of throwing
-            
-        } catch (Exception e) {
-            // Catch any unexpected errors
-            String errorMsg = "PAYMENT_PROCESSING_ERROR: " + e.getMessage();
-            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
-            paymentRepo.updatePaymentLog(paymentId, errorMsg);
-            payment.setStatus(Payment.Status.FAILED);
-            payment.setPaymentLog(errorMsg);
-            return payment;  // Return failed payment instead of throwing
         }
+
+        // Execute the actual payment transfer
+        String transferError = executePaymentTransfer(payment);
+        if (transferError != null) {
+            // Transfer failed - mark as FAILED
+            paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
+            paymentRepo.updatePaymentLog(paymentId, transferError);
+            payment.setStatus(Payment.Status.FAILED);
+            payment.setPaymentLog(transferError);
+            return payment;
+        }
+
+        // Stage 2: VALIDATING → COMPLETED
+        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.COMPLETED);
+        paymentRepo.updatePaymentLog(paymentId, "Payment completed successfully");
+        payment.setStatus(Payment.Status.COMPLETED);
+        payment.setPaymentLog("Payment completed successfully");
+        return payment;
     }
 
     /**
      * Validates payment details and account balances
+     * Returns error message if validation fails, null if valid
      */
-    private void validatePayment(Payment payment) {
+    private String validatePayment(Payment payment) {
         // 1. Validate sender account exists and is active
+        System.out.println("Punjabi aagye oye");
         BigDecimal senderBalance = accountRepo.getAccountBalance(payment.getSenderAccountNumber());
         if (senderBalance == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "ACCOUNT_NOT_FOUND: Sender account " + payment.getSenderAccountNumber() + " does not exist");
+            return "ACCOUNT_NOT_FOUND: Sender account " + payment.getSenderAccountNumber() + " does not exist";
         }
 
         // 2. Validate receiver account exists
         BigDecimal receiverBalance = accountRepo.getAccountBalance(payment.getReceiverAccountNumber());
         if (receiverBalance == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "ACCOUNT_NOT_FOUND: Receiver account " + payment.getReceiverAccountNumber() + " does not exist");
+            System.out.println("Bhaag bsdk");
+            return "ACCOUNT_NOT_FOUND: Receiver account " + payment.getReceiverAccountNumber() + " does not exist";
         }
 
         // 3. Validate sufficient balance
         if (senderBalance.compareTo(payment.getAmount()) < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "INSUFFICIENT_BALANCE: Required " + payment.getAmount() + ", available " + senderBalance);
+            return "INSUFFICIENT_BALANCE: Required " + payment.getAmount() + ", available " + senderBalance;
         }
 
         // 4. Validate amount is positive
         if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "INVALID_AMOUNT: Amount must be positive");
+            return "INVALID_AMOUNT: Amount must be positive";
         }
+        
+        return null;  // All validations passed
     }
 
     /**
      * Executes the actual money transfer between accounts
+     * Returns error message if transfer fails, null if successful
      */
-    private void executePaymentTransfer(Payment payment) {
-        // Debit sender account
-        BigDecimal amount = catalogService.convertCurrency(payment.getCurrencyId(), 1, payment.getAmount());
-        accountRepo.debitAccount(payment.getSenderAccountNumber(), amount);
+    private String executePaymentTransfer(Payment payment) {
+        try {
+            // Debit sender account
+            BigDecimal amount = catalogService.convertCurrency(payment.getCurrencyId(), 1, payment.getAmount());
+            accountRepo.debitAccount(payment.getSenderAccountNumber(), amount);
 
-        // Credit receiver account
-        accountRepo.creditAccount(payment.getReceiverAccountNumber(), amount);
+            // Credit receiver account
+            accountRepo.creditAccount(payment.getReceiverAccountNumber(), amount);
+            
+            return null;  // Transfer successful
+        } catch (Exception e) {
+            return "TRANSFER_ERROR: " + e.getMessage();
+        }
     }
 
     // ── Scheduled Payment Execution (Complete Transactional Flow)
