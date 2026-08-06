@@ -4,21 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="848fc9d1-c15e-44c7-95a7-4d1608dbc212" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/layout/ThemeToggle.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/layout/ThemeToggle.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/styles/app.css" afterDir="false" />
+    <list default="true" id="0a7fd173-a06e-45b1-9409-d0ae223a586f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/common/Spinner.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/common/Spinner.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/common/Spinner.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/common/Spinner.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/payments/PaymentList.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,16 +19,17 @@
   </component>
   <component name="CopilotPersistence">
     <persistenceIdMap>
-      <entry key="_C:/Users/Administrator/Desktop/Payment_processing/109---DevSquad-Payment-Project" value="3HUSCfCDr9hmQVhGfKxDsHMjLRc" />
+      <entry key="_C:/Users/Administrator/Desktop/Payment_processing/109---DevSquad-Payment-Project" value="3HVOkJYErfK1du2zb18bYRDFIcz" />
     </persistenceIdMap>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 1
-}</component>
-  <component name="ProjectId" id="3HUSCfCDr9hmQVhGfKxDsHMjLRc" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 1
+}]]></component>
+  <component name="ProjectId" id="3HVOkJYErfK1du2zb18bYRDFIcz" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -48,17 +41,17 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Merging aman",
+    "git-widget-placeholder": "aman",
     "kotlin-language-version-configured": "true"
   }
 }]]></component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="848fc9d1-c15e-44c7-95a7-4d1608dbc212" name="Changes" comment="" />
-      <created>1785921032186</created>
+      <changelist id="0a7fd173-a06e-45b1-9409-d0ae223a586f" name="Changes" comment="" />
+      <created>1785949913910</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1785921032186</updated>
+      <updated>1785949913910</updated>
     </task>
     <servers />
   </component>

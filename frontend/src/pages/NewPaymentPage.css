@@ -69,6 +69,12 @@
   border-color: var(--accent);
 }
 
+.form-error {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 
 /* Textarea */
 
@@ -145,6 +151,100 @@ fieldset {
 
 .btn-primary:hover {
   opacity: 0.9;
+}
+
+.records-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.records-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.records-tab {
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  color: var(--text-h);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.records-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.records-message {
+  margin: 0;
+  color: var(--text);
+}
+
+.records-error {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.record-row {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1.1fr 1.6fr 1fr 0.8fr;
+  gap: 8px;
+  align-items: center;
+  background: var(--code-bg);
+}
+
+.record-title {
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.record-meta,
+.record-status {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.group-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--bg-soft, var(--bg));
+}
+
+.group-title {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 16px;
+}
+
+.group-count {
+  margin: 4px 0 12px;
+  color: var(--text);
+  font-size: 13px;
 }
 
 /* ===========================
@@ -259,37 +359,16 @@ fieldset {
   font-weight: 600;
 }
 
-/* Payment failure summary (no retry action, exit-only) */
+.confirmation-card {
+  width: 520px;
+}
 
-.payment-failure-summary {
+.popup-actions {
   width: 100%;
-
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.payment-failure-summary h3 {
-  margin: 0 0 8px;
-  color: white;
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.payment-failure-summary p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 15px;
-}
-
-.payment-failure-summary p span {
-  font-weight: 600;
-  color: white;
-}
-
-.payment-failure-summary .btn {
-  margin-top: 16px;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .loader-card {
@@ -336,6 +415,10 @@ fieldset {
   .radio-row {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .record-row {
+    grid-template-columns: 1fr;
   }
 
 }

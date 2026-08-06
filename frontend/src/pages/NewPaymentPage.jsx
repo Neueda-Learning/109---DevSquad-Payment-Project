@@ -1,5 +1,4 @@
 import { useState , useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { CURRENCIES } from '../utils/currency'
 import BatchPaymentFlow from '../components/payments/BatchPaymentFlow'
 import PaymentLoader from '../components/payments/PaymentLoader'
@@ -9,11 +8,15 @@ function NewPaymentPage({
                           defaultTiming = 'now',
                           selectedUser,
                         }) {
-  const navigate = useNavigate()
+  const MAX_PAYMENT_AMOUNT = 1000000
+  const HIGH_VALUE_CONFIRMATION_AMOUNT = 50000
   const [paymentMode, setPaymentMode] = useState('single')
   const [paymentType, setPaymentType] = useState('now')
+  const [formResetKey, setFormResetKey] = useState(0)
+  const [amountError, setAmountError] = useState('')
+  const [showHighValueConfirmation, setShowHighValueConfirmation] = useState(false)
 
-  const [payment, setPayment] = useState({
+  const initialPaymentState = {
     senderAccountNumber: '',
     receiverAccountNumber: '',
     amount: '',
@@ -25,7 +28,9 @@ function NewPaymentPage({
     scheduleId: null,
     batchId: null,
     status: 'CREATED',
-  })
+  }
+
+  const [payment, setPayment] = useState(initialPaymentState)
 
   const [selectedCurrency, setSelectedCurrency] = useState(
     CURRENCIES[1].currency
@@ -34,7 +39,6 @@ function NewPaymentPage({
   // Drives the payment loading animation: null | 'processing' | 'success' | 'error'
   const [loaderStatus, setLoaderStatus] = useState(null)
   const [loaderDone, setLoaderDone] = useState(false)
-  const [failureDetails, setFailureDetails] = useState(null)
 
 
   useEffect(() => {
@@ -47,25 +51,38 @@ function NewPaymentPage({
   }, [selectedUser])
 
   const updatePayment = (field, value) => {
+    if (field === 'amount') {
+      setAmountError('')
+    }
+
     setPayment((prev) => ({
       ...prev,
       [field]: value,
     }))
   }
 
-    const handleSubmit = async (e) => {
-      e.preventDefault()
+  const resetPaymentForm = () => {
+    setPaymentMode('single')
+    setPaymentType('now')
+    setSelectedCurrency(CURRENCIES[1].currency)
+    setPayment({
+      ...initialPaymentState,
+      senderAccountNumber: selectedUser?.accounts?.[0] ?? '',
+    })
+    setAmountError('')
+    setShowHighValueConfirmation(false)
+    setFormResetKey((prev) => prev + 1)
+    setLoaderStatus(null)
+    setLoaderDone(false)
+  }
 
+    const submitPayment = async () => {
       // Guarantee the loader plays through its full
       // creating -> processing -> validating -> processing stages
       // even if the API responds (or fails) quickly.
       const minAnimationDelay = new Promise((resolve) =>
         setTimeout(resolve, 5200)
       )
-
-      // Declared here so the catch block can still access it if the
-      // request fails after it has been built.
-      let paymentRequest = null
 
       try {
 
@@ -83,12 +100,11 @@ function NewPaymentPage({
         // PAY NOW FLOW
 
         setLoaderDone(false)
-        setFailureDetails(null)
         setLoaderStatus('processing')
 
         const now = new Date()
 
-        paymentRequest = {
+        const paymentRequest = {
           ...payment,
 
           paymentDate:
@@ -120,25 +136,13 @@ function NewPaymentPage({
             body: JSON.stringify(paymentRequest),
           }
         ).then(async (response) => {
-          const contentType = response.headers.get('content-type') || ''
-          const body = contentType.includes('application/json')
-            ? await response.json().catch(() => null)
-            : null
-
-          if (!response.ok || body?.status === 'FAILED') {
-            const failureError = new Error(
-              body?.paymentLog ||
-                body?.payment_log ||
-                body?.failureReason ||
-                body?.message ||
-                "Payment creation failed"
+          if (!response.ok) {
+            throw new Error(
+              "Payment creation failed"
             )
-            const rawId = body?.paymentId ?? body?.id ?? null
-            failureError.paymentId = rawId != null && rawId !== -1 ? rawId : null
-            throw failureError
           }
 
-          return body
+          return response.json()
         })
 
         const [createdPayment] = await Promise.all([
@@ -152,7 +156,7 @@ function NewPaymentPage({
           createdPayment
         )
 
-        setFailureDetails(null)
+
         setLoaderStatus('success')
 
 
@@ -163,34 +167,48 @@ function NewPaymentPage({
           error
         )
 
-        const failureReason = error?.message || 'System error'
-
-        // Show the failure as reported by the single CREATED request's
-        // response — no additional request is sent.
-        setFailureDetails({
-          paymentId: error?.paymentId ?? null,
-          status: 'FAILED',
-          reason: failureReason,
-        })
-
         // Wait for the same minimum delay so the animation isn't cut short.
         await minAnimationDelay
-
         setLoaderStatus('error')
 
       }
     }
 
-    const closeLoader = () => {
-      const wasError = loaderStatus === 'error'
+    const handleSubmit = async (e) => {
+      e.preventDefault()
 
-      setLoaderStatus(null)
-      setLoaderDone(false)
-      setFailureDetails(null)
-
-      if (wasError) {
-        navigate('/')
+      if (Number(payment.amount) > MAX_PAYMENT_AMOUNT) {
+        setAmountError(
+          `Maximum payment allowed is ${MAX_PAYMENT_AMOUNT.toLocaleString()}.`
+        )
+        return
       }
+
+      setAmountError('')
+
+      if (Number(payment.amount) > HIGH_VALUE_CONFIRMATION_AMOUNT) {
+        setShowHighValueConfirmation(true)
+        return
+      }
+
+      await submitPayment()
+    }
+
+    const confirmHighValuePayment = async () => {
+      setShowHighValueConfirmation(false)
+      await submitPayment()
+    }
+
+    const cancelHighValuePayment = () => {
+      setShowHighValueConfirmation(false)
+    }
+
+    const formattedConfirmationAmount = `${
+      CURRENCIES.find((c) => c.currency === selectedCurrency)?.symbol ?? ''
+    }${Number(payment.amount || 0).toLocaleString()}`
+
+    const closeLoader = () => {
+      resetPaymentForm()
     }
 
 
@@ -205,7 +223,7 @@ function NewPaymentPage({
         </div>
       </div>
 
-      <div className="form-card">
+      <div className="form-card" key={formResetKey}>
 
         {/* Payment Type */}
 
@@ -359,6 +377,7 @@ function NewPaymentPage({
             <input
               className="input"
               type="number"
+              max={MAX_PAYMENT_AMOUNT}
               value={payment.amount}
               onChange={(e) =>
                 updatePayment(
@@ -367,6 +386,7 @@ function NewPaymentPage({
                 )
               }
             />
+            {amountError && <small className="form-error">{amountError}</small>}
           </label>
 
           <label className="form-field">
@@ -518,6 +538,36 @@ function NewPaymentPage({
         )}
       </div>
 
+      {showHighValueConfirmation && (
+        <div className="popup-overlay">
+          <div className="popup-card confirmation-card">
+            <h2>Confirm Payment</h2>
+            <p>
+              This payment amount is {formattedConfirmationAmount}. Are you sure you want
+              to continue?
+            </p>
+
+            <div className="popup-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={cancelHighValuePayment}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={confirmHighValuePayment}
+              >
+                Yes, Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loaderStatus && (
         <div className="popup-overlay">
           <div className="popup-card loader-card">
@@ -531,33 +581,9 @@ function NewPaymentPage({
               onSettled={() => setLoaderDone(true)}
             />
 
-            {loaderDone && loaderStatus === 'error' && (
-              <div className="payment-failure-summary">
-                <h3>Payment Failed</h3>
-
-                <p>
-                  <span>Payment ID:</span>{' '}
-                  {failureDetails?.paymentId || 'N/A'}
-                </p>
-
-                <p>
-                  <span>Status:</span> FAILED
-                </p>
-
-                <p>
-                  <span>Reason:</span>{' '}
-                  {failureDetails?.reason || 'System error'}
-                </p>
-
-                <button className="btn btn-primary" onClick={closeLoader}>
-                  Done
-                </button>
-              </div>
-            )}
-
-            {loaderDone && loaderStatus === 'success' && (
+            {loaderDone && (
               <button className="btn btn-primary" onClick={closeLoader}>
-                Done
+                {loaderStatus === 'success' ? 'Done' : 'Try Again'}
               </button>
             )}
           </div>
