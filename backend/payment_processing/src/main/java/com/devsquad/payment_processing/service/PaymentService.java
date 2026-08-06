@@ -57,10 +57,10 @@ public class PaymentService {
         try {
             // Insert payment into database
             Payment savedPayment = paymentRepo.createPayment(request);
-            
+
             // Process payment - returns COMPLETED or FAILED payment
             return processPayment(savedPayment.getPaymentId());
-            
+
         } catch (Exception e) {
             // If database insert fails, return failed payment without DB record
             request.setPaymentId(-1);
@@ -287,7 +287,7 @@ public class PaymentService {
         if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             return "INVALID_AMOUNT: Amount must be positive";
         }
-        
+
         return null;  // All validations passed
     }
 
@@ -303,7 +303,7 @@ public class PaymentService {
 
             // Credit receiver account
             accountRepo.creditAccount(payment.getReceiverAccountNumber(), amount);
-            
+
             return null;  // Transfer successful
         } catch (Exception e) {
             return "TRANSFER_ERROR: " + e.getMessage();
@@ -396,24 +396,26 @@ public class PaymentService {
      * @return BatchPaymentResponse with summary and individual results
      */
     public BatchPaymentResponse createBatchPayment(BatchPaymentRequest request) {
-        // 1. Generate unique batch ID
         String batchId = "BATCH-" + System.currentTimeMillis();
-        
-        // 2. Initialize response
+        return createBatchPaymentWithBatchId(request, batchId);
+    }
+
+    public BatchPaymentResponse createBatchPaymentWithBatchId(BatchPaymentRequest request, String batchId) {
+        // 1. Initialize response
         BatchPaymentResponse response = new BatchPaymentResponse(batchId);
         response.setTotalPayments(request.getRecipients().size());
         
         int successCount = 0;
         int failedCount = 0;
         
-        // 3. Process each recipient independently
+        // 2. Process each recipient independently
         for (BatchPaymentRecipient recipient : request.getRecipients()) {
             BatchPaymentResponse.PaymentResult result = new BatchPaymentResponse.PaymentResult();
             result.setReceiverAccountNumber(recipient.getReceiverAccountNumber());
             result.setAmount(recipient.getAmount());
             
             try {
-                // 4. Build Payment object
+                // 3. Build Payment object
                 Payment payment = new Payment(
                         null,  // paymentId - auto-generated
                         null,  // invoiceNumber - auto-generated
@@ -433,7 +435,7 @@ public class PaymentService {
                         null
                 );
                 
-                // 5. REUSE existing createPayment() - follows full workflow
+                // 4. REUSE existing createPayment() - follows full workflow
                 Payment savedPayment = createPayment(payment);
                 
                 // 6. Check payment status to determine success/failure
@@ -449,7 +451,19 @@ public class PaymentService {
                     result.setErrorMessage(savedPayment.getPaymentLog());
                     failedCount++;
                 }
-                
+                // 5. Record success
+                result.setPaymentId(savedPayment.getPaymentId());
+                result.setStatus("SUCCESS");
+                result.setErrorMessage(null);
+                successCount++;
+
+            } catch (ResponseStatusException e) {
+                // 6. Record failure but continue processing
+                result.setPaymentId(null);
+                result.setStatus("FAILED");
+                result.setErrorMessage(e.getReason());
+                failedCount++;
+
             } catch (Exception e) {
                 // Catch any unexpected errors
                 result.setPaymentId(null);

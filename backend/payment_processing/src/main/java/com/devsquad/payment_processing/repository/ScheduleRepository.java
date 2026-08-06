@@ -240,5 +240,16 @@ public class ScheduleRepository {
 
         return jdbcTemplate.query(sql, scheduleRowMapper);
     }
+
+    public boolean paymentMethodExists(Integer paymentMethodId) {
+        String sql = """
+                SELECT COUNT(*)
+                FROM PaymentMethods
+                WHERE payment_method_id = ?
+                """;
+
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, paymentMethodId);
+        return count != null && count > 0;
+    }
 }
 
