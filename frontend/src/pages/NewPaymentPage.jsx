@@ -1,8 +1,58 @@
 import { useState , useEffect } from 'react'
 import { CURRENCIES } from '../utils/currency'
+import { createSchedule } from '../api/paymentApi'
 import BatchPaymentFlow from '../components/payments/BatchPaymentFlow'
 import PaymentLoader from '../components/payments/PaymentLoader'
 import './NewPaymentPage.css'
+
+const PAYMENT_METHOD_OPTIONS = [
+  { id: 1, label: '1 — UPI' },
+  { id: 2, label: '2 — UPI' },
+  { id: 3, label: '3 — Credit Card' },
+  { id: 4, label: '4 — Bank Transfer' },
+]
+
+const SCHEDULE_FREQUENCY_OPTIONS = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']
+
+function validateScheduleDraft(scheduleDraft) {
+  if (!scheduleDraft.senderAccountNumber) {
+    return 'Sender account number is required.'
+  }
+
+  if (!scheduleDraft.receiverAccountNumber) {
+    return 'Receiver account number is required.'
+  }
+
+  if (scheduleDraft.senderAccountNumber === scheduleDraft.receiverAccountNumber) {
+    return 'Sender and receiver account numbers must be different.'
+  }
+
+  if (!Number.isFinite(scheduleDraft.amount) || scheduleDraft.amount <= 0) {
+    return 'Amount must be greater than zero.'
+  }
+
+  if (!scheduleDraft.currencyId) {
+    return 'Currency is required.'
+  }
+
+  if (!scheduleDraft.paymentModeId) {
+    return 'Payment mode is required.'
+  }
+
+  if (!scheduleDraft.frequency) {
+    return 'Frequency is required.'
+  }
+
+  if (!scheduleDraft.startDate) {
+    return 'Start date is required.'
+  }
+
+  if (scheduleDraft.endDate && scheduleDraft.endDate <= scheduleDraft.startDate) {
+    return 'End date must be after the start date.'
+  }
+
+  return null
+}
 
 function NewPaymentPage({
                           defaultTiming = 'now',
@@ -15,6 +65,12 @@ function NewPaymentPage({
   const [formResetKey, setFormResetKey] = useState(0)
   const [amountError, setAmountError] = useState('')
   const [showHighValueConfirmation, setShowHighValueConfirmation] = useState(false)
+  const today = new Date().toISOString().split('T')[0]
+
+  const [paymentMode, setPaymentMode] = useState(
+    defaultTiming === 'schedule' ? 'scheduled' : 'single'
+  )
+  const [paymentType, setPaymentType] = useState(defaultTiming)
 
   const initialPaymentState = {
     senderAccountNumber: '',
@@ -31,14 +87,19 @@ function NewPaymentPage({
   }
 
   const [payment, setPayment] = useState(initialPaymentState)
+    frequency: 'DAILY',
+    startDate: defaultTiming === 'schedule' ? today : '',
+    endDate: '',
+  })
 
   const [selectedCurrency, setSelectedCurrency] = useState(
-    CURRENCIES[1].currency
+    CURRENCIES[0].currency
   )
 
   // Drives the payment loading animation: null | 'processing' | 'success' | 'error'
   const [loaderStatus, setLoaderStatus] = useState(null)
   const [loaderDone, setLoaderDone] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
 
   useEffect(() => {
@@ -61,6 +122,9 @@ function NewPaymentPage({
     }))
   }
 
+    const handleSubmit = async (e) => {
+      e.preventDefault()
+      setSubmitError('')
   const resetPaymentForm = () => {
     setPaymentMode('single')
     setPaymentType('now')
@@ -89,9 +153,37 @@ function NewPaymentPage({
         // Schedule payment will be handled separately
         if (paymentType === 'schedule') {
 
-          console.log(
-            "TODO: Implement schedule payment API"
-          )
+          const scheduleRequest = {
+            senderAccountNumber: Number(payment.senderAccountNumber),
+            receiverAccountNumber: Number(payment.receiverAccountNumber),
+            amount: Number(payment.amount),
+            currencyId: Number(payment.currencyId),
+            paymentModeId: Number(payment.paymentModeId),
+            description: payment.description.trim(),
+            frequency: payment.frequency,
+            startDate: payment.startDate,
+            endDate: payment.endDate || null,
+          }
+
+          const validationError = validateScheduleDraft(scheduleRequest)
+          if (validationError) {
+            setSubmitError(validationError)
+            return
+          }
+
+          setLoaderDone(false)
+          setLoaderStatus('processing')
+
+          const requestSchedule = createSchedule(scheduleRequest)
+
+          const [createdSchedule] = await Promise.all([
+            requestSchedule,
+            minAnimationDelay,
+          ])
+
+          console.log('Schedule created:', createdSchedule)
+
+          setLoaderStatus('success')
 
           return
         }
@@ -167,6 +259,10 @@ function NewPaymentPage({
           error
         )
 
+        setSubmitError(
+          error?.message || 'Unable to submit the payment. Please try again.'
+        )
+
         // Wait for the same minimum delay so the animation isn't cut short.
         await minAnimationDelay
         setLoaderStatus('error')
@@ -236,7 +332,10 @@ function NewPaymentPage({
               <input
                 type="radio"
                 checked={paymentMode === 'single'}
-                onChange={() => setPaymentMode('single')}
+                onChange={() => {
+                  setPaymentMode('single')
+                  setSubmitError('')
+                }}
               />
 
               Single Payment
@@ -246,7 +345,10 @@ function NewPaymentPage({
               <input
                 type="radio"
                 checked={paymentMode === 'batch'}
-                onChange={() => setPaymentMode('batch')}
+                onChange={() => {
+                  setPaymentMode('batch')
+                  setSubmitError('')
+                }}
               />
 
               Batch Payment
@@ -256,7 +358,15 @@ function NewPaymentPage({
               <input
                 type="radio"
                 checked={paymentMode === 'scheduled'}
-                onChange={() => setPaymentMode('scheduled')}
+                onChange={() => {
+                  setPaymentMode('scheduled')
+                  setPaymentType('schedule')
+                  setSubmitError('')
+                  setPayment((prev) => ({
+                    ...prev,
+                    startDate: prev.startDate || today,
+                  }))
+                }}
               />
 
               Scheduled Payment
@@ -324,6 +434,12 @@ function NewPaymentPage({
         ) : (
 
       <form onSubmit={handleSubmit}>
+
+        {submitError && (
+          <div className="form-alert" role="alert">
+            {submitError}
+          </div>
+        )}
 
         {/* Sender Account */}
 
@@ -423,6 +539,27 @@ function NewPaymentPage({
 
         </div>
 
+        <label className="form-field">
+          <span>Payment Mode</span>
+
+          <select
+            className="input"
+            value={payment.paymentModeId}
+            onChange={(e) =>
+              updatePayment(
+                'paymentModeId',
+                Number(e.target.value)
+              )
+            }
+          >
+            {PAYMENT_METHOD_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
         {/* Description */}
 
         <label className="form-field">
@@ -451,7 +588,10 @@ function NewPaymentPage({
               <input
                 type="radio"
                 checked={paymentType === 'now'}
-                onChange={() => setPaymentType('now')}
+                    onChange={() => {
+                      setPaymentType('now')
+                      setSubmitError('')
+                    }}
               />
 
               Pay Now
@@ -461,7 +601,14 @@ function NewPaymentPage({
               <input
                 type="radio"
                 checked={paymentType === 'schedule'}
-                onChange={() => setPaymentType('schedule')}
+                    onChange={() => {
+                      setPaymentType('schedule')
+                      setSubmitError('')
+                      setPayment((prev) => ({
+                        ...prev,
+                        startDate: prev.startDate || today,
+                      }))
+                    }}
               />
 
               Schedule Payment
@@ -480,12 +627,16 @@ function NewPaymentPage({
               <label className="form-field">
                 <span>Frequency</span>
 
-                <select className="input">
-                  <option>One Time</option>
-                  <option>Daily</option>
-                  <option>Weekly</option>
-                  <option>Monthly</option>
-                  <option>Yearly</option>
+                <select
+                  className="input"
+                  value={payment.frequency}
+                  onChange={(e) => updatePayment('frequency', e.target.value)}
+                >
+                  {SCHEDULE_FREQUENCY_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -495,28 +646,24 @@ function NewPaymentPage({
                 <input
                   type="date"
                   className="input"
+                  value={payment.startDate}
+                  min={today}
+                  onChange={(e) => updatePayment('startDate', e.target.value)}
                 />
               </label>
 
             </div>
 
             <div className="form-row">
-
-              <label className="form-field">
-                <span>Time</span>
-
-                <input
-                  type="time"
-                  className="input"
-                />
-              </label>
-
               <label className="form-field">
                 <span>End Date (Optional)</span>
 
                 <input
                   type="date"
                   className="input"
+                  value={payment.endDate}
+                  min={payment.startDate || today}
+                  onChange={(e) => updatePayment('endDate', e.target.value)}
                 />
               </label>
 
@@ -530,7 +677,7 @@ function NewPaymentPage({
             type="submit"
             className="btn btn-primary"
           >
-            Create Payment
+            {paymentType === 'schedule' ? 'Create Scheduled Payment' : 'Create Payment'}
           </button>
         </div>
 

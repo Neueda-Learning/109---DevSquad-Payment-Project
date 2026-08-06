@@ -1,23 +1,49 @@
 package com.devsquad.payment_processing.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 import java.sql.Date;
 
 public class Schedule {
 
     private Integer scheduleId;
+
+    @NotNull(message = "Sender account number is required")
     private Long senderAccountNumber;
+
+    @NotNull(message = "Receiver account number is required")
     private Long receiverAccountNumber;
+
+    @NotNull(message = "Amount is required")
+    @Positive(message = "Amount must be greater than zero")
     private BigDecimal amount;
+
+    @NotNull(message = "Currency is required")
+    @Positive(message = "Currency ID must be positive")
     private Integer currencyId;
+
+    @NotNull(message = "Payment mode is required")
+    @Positive(message = "Payment mode ID must be positive")
     private Integer paymentModeId;
+
+    @Size(max = 500, message = "Description must be 500 characters or fewer")
     private String description;
+
+    @NotNull(message = "Frequency is required")
     private Frequency frequency;
+
+    @NotNull(message = "Start date is required")
     private Date startDate;
     private Date endDate;           // nullable
     private Date nextRunDate;
     private Date lastRunDate;       // nullable — null until first trigger
     private ScheduleStatus status;
+
+    public Schedule() {
+    }
 
     public Schedule(Integer scheduleId, Long senderAccountNumber, Long receiverAccountNumber,
                     BigDecimal amount, Integer currencyId, Integer paymentModeId,

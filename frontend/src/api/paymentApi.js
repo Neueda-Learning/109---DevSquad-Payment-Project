@@ -45,6 +45,35 @@ function mapScheduleFromBackend(schedule) {
   }
 }
 
+function mapBatchScheduleSummaryFromBackend(batchSchedule) {
+  return {
+    batchScheduleId: batchSchedule.batchScheduleId,
+    batchId: batchSchedule.batchId,
+    totalRecipients: Number(batchSchedule.totalRecipients || 0),
+    totalAmount: Number(batchSchedule.totalAmount || 0),
+    scheduledDate: batchSchedule.scheduledDate,
+    createdAt: batchSchedule.createdAt,
+    status: (batchSchedule.status || '').toLowerCase(),
+  }
+}
+
+function mapBatchScheduleDetailsFromBackend(details) {
+  return {
+    ...mapBatchScheduleSummaryFromBackend(details),
+    executedAt: details.executedAt,
+    description: details.description || '',
+    payments: Array.isArray(details.payments)
+      ? details.payments.map((payment) => ({
+          receiverAccountNumber: payment.receiverAccountNumber,
+          amount: Number(payment.amount || 0),
+          currencyId: payment.currencyId,
+          currency: CURRENCY_BY_ID[payment.currencyId] || 'USD',
+          description: payment.description || '',
+        }))
+      : [],
+  }
+}
+
 // Simulates network latency so loading states can be exercised in the UI.
 const simulateRequest = (data, delay = 500) =>
   new Promise((resolve) => setTimeout(() => resolve(data), delay))
@@ -72,6 +101,22 @@ async function tryFetch(url, options) {
     return data
   } catch {
     return null
+  }
+}
+
+async function readErrorMessage(response) {
+  const contentType = response.headers.get('content-type') || ''
+
+  try {
+    if (contentType.includes('application/json')) {
+      const payload = await response.json()
+      return payload.detail || payload.message || payload.error || `Request failed with status ${response.status}`
+    }
+
+    const text = await response.text()
+    return text || `Request failed with status ${response.status}`
+  } catch {
+    return `Request failed with status ${response.status}`
   }
 }
 
@@ -207,6 +252,20 @@ export async function createBatchPayment(batchDraft) {
   return simulateRequest(batchResult, 800)
 }
 
+export async function createBatchScheduledPayment(batchDraft) {
+  const response = await fetch(ROUTES.BATCH_SCHEDULE_PAYMENT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(batchDraft),
+  })
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+
+  return response.json()
+}
+
 /**
  * GET ROUTES.PAYMENT_RECEIPT(id)
  * Download the invoice/receipt document for a completed payment.
@@ -233,30 +292,70 @@ export async function downloadReceipt(id) {
  * Schedule a new future/recurring payment.
  */
 export async function fetchScheduledPayments() {
-  const backendData = await tryFetch(ROUTES.SCHEDULED_PAYMENTS)
+  try {
+    const response = await fetch(ROUTES.SCHEDULED_PAYMENTS)
 
-  if (backendData) {
-    return Array.isArray(backendData)
-      ? backendData.map(mapScheduleFromBackend)
-      : [mapScheduleFromBackend(backendData)]
+    if (!response.ok) {
+      throw new Error(await readErrorMessage(response))
+    }
+
+    const backendData = await response.json()
+    if (!Array.isArray(backendData)) {
+      return backendData ? [mapScheduleFromBackend(backendData)] : []
+    }
+
+    return backendData.map(mapScheduleFromBackend)
+  } catch {
+    // Fall back to demo data if backend fails
+    return simulateRequest(demoScheduledPayments)
   }
-
-  // Fall back to demo data if backend fails
-  return simulateRequest(demoScheduledPayments)
 }
 
-export async function schedulePayment(scheduleDraft) {
-  const backendData = await tryFetch(ROUTES.SCHEDULE_PAYMENT, {
+export async function fetchNormalScheduledPayments() {
+  return fetchScheduledPayments()
+}
+
+export async function fetchBatchScheduledPayments() {
+  const response = await fetch(ROUTES.BATCH_SCHEDULED_PAYMENTS)
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+
+  const backendData = await response.json()
+  if (!Array.isArray(backendData)) {
+    return backendData ? [mapBatchScheduleSummaryFromBackend(backendData)] : []
+  }
+
+  return backendData.map(mapBatchScheduleSummaryFromBackend)
+}
+
+export async function fetchBatchScheduleDetails(batchId) {
+  const response = await fetch(ROUTES.BATCH_SCHEDULED_PAYMENT_BY_ID(batchId))
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+
+  const backendData = await response.json()
+  return mapBatchScheduleDetailsFromBackend(backendData)
+}
+
+export async function createSchedule(scheduleDraft) {
+  const response = await fetch(ROUTES.SCHEDULE_PAYMENT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(scheduleDraft),
   })
 
-  if (!backendData) {
-    throw new Error(`Failed to create schedule via ${ROUTES.SCHEDULE_PAYMENT}`)
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
   }
 
+  const backendData = await response.json()
   return mapScheduleFromBackend(backendData)
+}
+
+export async function schedulePayment(scheduleDraft) {
+  return createSchedule(scheduleDraft)
 }
 
 export async function cancelScheduledPayment(id) {

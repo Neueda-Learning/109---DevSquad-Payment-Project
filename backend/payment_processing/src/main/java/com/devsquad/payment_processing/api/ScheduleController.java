@@ -19,6 +19,11 @@ public class ScheduleController {
     /**
      * Create a new scheduled payment
      */
+    @GetMapping
+    public List<Schedule> getSchedules() {
+        return scheduleService.getAllSchedules();
+    }
+
     @GetMapping("/all")
     public List<Schedule> getAllSchedules() {
         return scheduleService.getAllSchedules();
@@ -57,9 +62,7 @@ public class ScheduleController {
         return "Scheduled payment triggered successfully";
     }
 
-    /**
-     * Get execution history/status of a schedule
-     */
+//    // Get execution history/status of a schedule
 //    @GetMapping("/{scheduleId}/execution")
 //    public Object getScheduleExecution(
 //            @PathVariable Long scheduleId) {

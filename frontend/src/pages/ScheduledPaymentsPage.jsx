@@ -1,45 +1,136 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import StatusBadge from '../components/common/StatusBadge'
-import TagChips from '../components/payments/TagChips'
-import EmptyState from '../components/common/EmptyState'
-import Spinner from '../components/common/Spinner'
-import { fetchScheduledPayments, cancelScheduledPayment } from '../api/paymentApi'
-import { formatCurrency } from '../utils/currency'
-import { formatDate } from '../utils/format'
-import { RECURRENCE_OPTIONS } from '../data/demoScheduledPayments'
+import ScheduledPaymentsTabs from '../components/payments/ScheduledPaymentsTabs'
+import NormalScheduledPayments from '../components/payments/NormalScheduledPayments'
+import BatchScheduledPayments from '../components/payments/BatchScheduledPayments'
+import {
+  fetchNormalScheduledPayments,
+  fetchBatchScheduledPayments,
+  fetchBatchScheduleDetails,
+  cancelScheduledPayment,
+} from '../api/paymentApi'
 import '../components/payments/PaymentList.css'
 
-function recurrenceLabel(value) {
-  return RECURRENCE_OPTIONS.find((o) => o.value === value)?.label || value
-}
-
 function ScheduledPaymentsPage() {
-  const [scheduled, setScheduled] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('normal')
+
+  const [normalSchedules, setNormalSchedules] = useState([])
+  const [normalLoading, setNormalLoading] = useState(false)
+  const [normalError, setNormalError] = useState('')
   const [cancellingId, setCancellingId] = useState(null)
+
+  const [batchSchedules, setBatchSchedules] = useState([])
+  const [batchLoading, setBatchLoading] = useState(false)
+  const [batchError, setBatchError] = useState('')
+  const [batchLoaded, setBatchLoaded] = useState(false)
+
+  const [expandedBatchId, setExpandedBatchId] = useState(null)
+  const [batchDetailsById, setBatchDetailsById] = useState({})
+  const [batchDetailsLoadingById, setBatchDetailsLoadingById] = useState({})
+  const [batchDetailsErrorById, setBatchDetailsErrorById] = useState({})
 
   useEffect(() => {
     let active = true
+
     async function load() {
-      setLoading(true)
-      const data = await fetchScheduledPayments()
-      if (active) {
-        setScheduled(data)
-        setLoading(false)
+      setNormalLoading(true)
+      setNormalError('')
+
+      try {
+        const data = await fetchNormalScheduledPayments()
+        if (!active) return
+        setNormalSchedules(data)
+      } catch (error) {
+        if (!active) return
+        setNormalError(error?.message || 'Failed to load normal scheduled payments.')
+      } finally {
+        if (active) {
+          setNormalLoading(false)
+        }
       }
     }
+
     load()
+
     return () => {
       active = false
     }
   }, [])
 
+  useEffect(() => {
+    let active = true
+
+    if (activeTab !== 'batch' || batchLoaded) {
+      return () => {
+        active = false
+      }
+    }
+
+    async function loadBatch() {
+      setBatchLoading(true)
+      setBatchError('')
+
+      try {
+        const data = await fetchBatchScheduledPayments()
+        if (!active) return
+        setBatchSchedules(data)
+        setBatchLoaded(true)
+      } catch (error) {
+        if (!active) return
+        setBatchError(error?.message || 'Failed to load batch scheduled payments.')
+      } finally {
+        if (active) {
+          setBatchLoading(false)
+        }
+      }
+    }
+
+    loadBatch()
+
+    return () => {
+      active = false
+    }
+  }, [activeTab, batchLoaded])
+
   const handleCancel = async (id) => {
     setCancellingId(id)
-    await cancelScheduledPayment(id)
-    setScheduled((prev) => prev.filter((s) => s.id !== id))
-    setCancellingId(null)
+
+    try {
+      await cancelScheduledPayment(id)
+      setNormalSchedules((prev) => prev.filter((schedule) => schedule.scheduleId !== id))
+    } catch (error) {
+      setNormalError(error?.message || 'Failed to cancel scheduled payment.')
+    } finally {
+      setCancellingId(null)
+    }
+  }
+
+  const handleToggleBatch = async (batchId) => {
+    if (expandedBatchId === batchId) {
+      setExpandedBatchId(null)
+      return
+    }
+
+    setExpandedBatchId(batchId)
+
+    if (batchDetailsById[batchId] || batchDetailsLoadingById[batchId]) {
+      return
+    }
+
+    setBatchDetailsLoadingById((prev) => ({ ...prev, [batchId]: true }))
+    setBatchDetailsErrorById((prev) => ({ ...prev, [batchId]: '' }))
+
+    try {
+      const details = await fetchBatchScheduleDetails(batchId)
+      setBatchDetailsById((prev) => ({ ...prev, [batchId]: details }))
+    } catch (error) {
+      setBatchDetailsErrorById((prev) => ({
+        ...prev,
+        [batchId]: error?.message || 'Failed to load batch schedule details.',
+      }))
+    } finally {
+      setBatchDetailsLoadingById((prev) => ({ ...prev, [batchId]: false }))
+    }
   }
 
   return (
@@ -47,69 +138,33 @@ function ScheduledPaymentsPage() {
       <div className="page-header">
         <div>
           <h1>Scheduled payments</h1>
-          <p className="page-subtitle">Upcoming and recurring payments waiting to run.</p>
+          <p className="page-subtitle">View normal and batch scheduled payments separately.</p>
         </div>
         <Link to="/scheduled/new" className="btn btn-primary">
           + Schedule Payment
         </Link>
       </div>
 
-      {loading ? (
-        <Spinner label="Loading scheduled payments…" />
-      ) : scheduled.length ? (
-        <div className="payment-table-wrap">
-          <table className="payment-table">
-            <thead>
-              <tr>
-                <th>Vendor</th>
-                <th>Tags</th>
-                <th>Amount</th>
-                <th>Scheduled for</th>
-                <th>Repeats</th>
-                <th>Status</th>
-                <th aria-label="actions" />
-              </tr>
-            </thead>
-            <tbody>
-              {scheduled.map((s) => (
-                <tr key={s.id}>
-                  <td data-label="Vendor">
-                    <span className="payment-table-ref">{s.vendor}</span>
-                    <span className="payment-table-desc">{s.description}</span>
-                  </td>
-                  <td data-label="Tags">
-                    <TagChips tags={s.tags} />
-                  </td>
-                  <td data-label="Amount">{formatCurrency(s.amount, s.currency)}</td>
-                  <td data-label="Scheduled for">{formatDate(s.scheduledFor, { withTime: true })}</td>
-                  <td data-label="Repeats">{recurrenceLabel(s.recurrence)}</td>
-                  <td data-label="Status">
-                    <StatusBadge status={s.status} />
-                  </td>
-                  <td data-label="">
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => handleCancel(s.id)}
-                      disabled={cancellingId === s.id}
-                    >
-                      {cancellingId === s.id ? 'Cancelling…' : 'Cancel'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <ScheduledPaymentsTabs activeTab={activeTab} onChange={setActiveTab} />
+
+      {activeTab === 'normal' ? (
+        <NormalScheduledPayments
+          loading={normalLoading}
+          error={normalError}
+          schedules={normalSchedules}
+          cancellingId={cancellingId}
+          onCancel={handleCancel}
+        />
       ) : (
-        <EmptyState
-          title="No scheduled payments"
-          message="Schedule a payment to see it listed here."
-          action={
-            <Link to="/scheduled/new" className="btn btn-primary">
-              Schedule a payment
-            </Link>
-          }
+        <BatchScheduledPayments
+          loading={batchLoading}
+          error={batchError}
+          batches={batchSchedules}
+          expandedBatchId={expandedBatchId}
+          detailsByBatchId={batchDetailsById}
+          detailsLoadingByBatchId={batchDetailsLoadingById}
+          detailsErrorByBatchId={batchDetailsErrorById}
+          onToggleExpand={handleToggleBatch}
         />
       )}
     </div>
