@@ -25,6 +25,7 @@ public class ScheduleRowMapper implements RowMapper<Schedule> {
                 rs.getString("description"),
                 frequencyStr != null ? Frequency.valueOf(frequencyStr) : null,
                 rs.getDate("start_date"),
+                rs.getTime("execution_time"),
                 rs.getDate("end_date"),
                 rs.getDate("next_run_date"),
                 rs.getDate("last_run_date"),

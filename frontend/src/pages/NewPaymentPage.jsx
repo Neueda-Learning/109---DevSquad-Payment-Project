@@ -1,4 +1,5 @@
 import { useState , useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { CURRENCIES } from '../utils/currency'
 import { createSchedule } from '../api/paymentApi'
 import BatchPaymentFlow from '../components/payments/BatchPaymentFlow'
@@ -13,6 +14,13 @@ const PAYMENT_METHOD_OPTIONS = [
 ]
 
 const SCHEDULE_FREQUENCY_OPTIONS = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']
+
+function getCurrentTimeValue() {
+  const now = new Date()
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
+}
 
 function validateScheduleDraft(scheduleDraft) {
   if (!scheduleDraft.senderAccountNumber) {
@@ -47,6 +55,10 @@ function validateScheduleDraft(scheduleDraft) {
     return 'Start date is required.'
   }
 
+  if (!scheduleDraft.scheduledTime) {
+    return 'Scheduled time is required.'
+  }
+
   if (scheduleDraft.endDate && scheduleDraft.endDate <= scheduleDraft.startDate) {
     return 'End date must be after the start date.'
   }
@@ -58,19 +70,17 @@ function NewPaymentPage({
                           defaultTiming = 'now',
                           selectedUser,
                         }) {
+  const navigate = useNavigate()
   const MAX_PAYMENT_AMOUNT = 1000000
   const HIGH_VALUE_CONFIRMATION_AMOUNT = 50000
-  const [paymentMode, setPaymentMode] = useState('single')
-  const [paymentType, setPaymentType] = useState('now')
-  const [formResetKey, setFormResetKey] = useState(0)
-  const [amountError, setAmountError] = useState('')
-  const [showHighValueConfirmation, setShowHighValueConfirmation] = useState(false)
-  const today = new Date().toISOString().split('T')[0]
-
   const [paymentMode, setPaymentMode] = useState(
     defaultTiming === 'schedule' ? 'scheduled' : 'single'
   )
   const [paymentType, setPaymentType] = useState(defaultTiming)
+  const [formResetKey, setFormResetKey] = useState(0)
+  const [amountError, setAmountError] = useState('')
+  const [showHighValueConfirmation, setShowHighValueConfirmation] = useState(false)
+  const today = new Date().toISOString().split('T')[0]
 
   const initialPaymentState = {
     senderAccountNumber: '',
@@ -83,14 +93,14 @@ function NewPaymentPage({
     description: '',
     scheduleId: null,
     batchId: null,
+    frequency: 'DAILY',
+    startDate: defaultTiming === 'schedule' ? today : '',
+    scheduledTime: getCurrentTimeValue(),
+    endDate: '',
     status: 'CREATED',
   }
 
   const [payment, setPayment] = useState(initialPaymentState)
-    frequency: 'DAILY',
-    startDate: defaultTiming === 'schedule' ? today : '',
-    endDate: '',
-  })
 
   const [selectedCurrency, setSelectedCurrency] = useState(
     CURRENCIES[0].currency
@@ -122,13 +132,10 @@ function NewPaymentPage({
     }))
   }
 
-    const handleSubmit = async (e) => {
-      e.preventDefault()
-      setSubmitError('')
   const resetPaymentForm = () => {
     setPaymentMode('single')
     setPaymentType('now')
-    setSelectedCurrency(CURRENCIES[1].currency)
+    setSelectedCurrency(CURRENCIES[0].currency)
     setPayment({
       ...initialPaymentState,
       senderAccountNumber: selectedUser?.accounts?.[0] ?? '',
@@ -140,7 +147,7 @@ function NewPaymentPage({
     setLoaderDone(false)
   }
 
-    const submitPayment = async () => {
+  const submitPayment = async () => {
       // Guarantee the loader plays through its full
       // creating -> processing -> validating -> processing stages
       // even if the API responds (or fails) quickly.
@@ -162,6 +169,9 @@ function NewPaymentPage({
             description: payment.description.trim(),
             frequency: payment.frequency,
             startDate: payment.startDate,
+            scheduledTime: payment.scheduledTime
+              ? `${payment.scheduledTime}:00`
+              : '',
             endDate: payment.endDate || null,
           }
 
@@ -248,8 +258,18 @@ function NewPaymentPage({
           createdPayment
         )
 
+        const backendStatus = String(createdPayment?.status || '').toUpperCase()
+        const isSuccessfulPayment = backendStatus === 'COMPLETED' || backendStatus === 'SUCCESS'
 
-        setLoaderStatus('success')
+        if (isSuccessfulPayment) {
+          setLoaderStatus('success')
+        } else {
+          setSubmitError(
+            createdPayment?.paymentLog ||
+            `Payment failed with status: ${backendStatus || 'UNKNOWN'}`
+          )
+          setLoaderStatus('error')
+        }
 
 
       } catch (error) {
@@ -305,6 +325,7 @@ function NewPaymentPage({
 
     const closeLoader = () => {
       resetPaymentForm()
+      navigate('/')
     }
 
 
@@ -652,6 +673,17 @@ function NewPaymentPage({
                 />
               </label>
 
+              <label className="form-field">
+                <span>Scheduled Time</span>
+
+                <input
+                  type="time"
+                  className="input"
+                  value={payment.scheduledTime}
+                  onChange={(e) => updatePayment('scheduledTime', e.target.value)}
+                />
+              </label>
+
             </div>
 
             <div className="form-row">
@@ -728,9 +760,15 @@ function NewPaymentPage({
               onSettled={() => setLoaderDone(true)}
             />
 
+            {loaderStatus === 'error' && submitError && (
+              <p className="loader-error-reason">
+                <strong>Failure reason:</strong> {submitError}
+              </p>
+            )}
+
             {loaderDone && (
               <button className="btn btn-primary" onClick={closeLoader}>
-                {loaderStatus === 'success' ? 'Done' : 'Try Again'}
+                Done
               </button>
             )}
           </div>

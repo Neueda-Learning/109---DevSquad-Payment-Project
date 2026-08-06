@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * Core scheduled payment execution service.
@@ -42,8 +43,37 @@ public class ScheduleExecutionService {
                 return;
             }
 
-            // 2. Execute payment via PaymentService (validates accounts, balances, debits/credits)
-            Payment payment = paymentService.executeScheduledPayment(schedule);
+            if (!isDueNow(schedule)) {
+                System.out.println("[ScheduleExecutionService] Skipping schedule " + schedule.getScheduleId()
+                        + " - next execution time not reached");
+                return;
+            }
+
+            // 2. Execute payment via the same flow as normal payments.
+            Payment paymentRequest = new Payment(
+                    null,
+                    null,
+                    schedule.getSenderAccountNumber(),
+                    schedule.getReceiverAccountNumber(),
+                    schedule.getAmount(),
+                    schedule.getCurrencyId(),
+                    schedule.getPaymentModeId(),
+                    null,
+                    null,
+                    schedule.getDescription() != null ? schedule.getDescription() : "Scheduled Payment",
+                    schedule.getScheduleId(),
+                    null,
+                    null,
+                    null
+            );
+
+            Payment payment = paymentService.createPayment(paymentRequest);
+            if (payment.getStatus() != Payment.Status.COMPLETED) {
+                System.err.println("[ScheduleExecutionService] Schedule " + schedule.getScheduleId()
+                        + " execution failed: " + payment.getPaymentLog());
+                return;
+            }
+
             System.out.println("[ScheduleExecutionService] Payment " + payment.getPaymentId()
                     + " executed successfully for schedule " + schedule.getScheduleId());
 
@@ -89,5 +119,25 @@ public class ScheduleExecutionService {
             case MONTHLY -> from.plusMonths(1);
         };
         return Date.valueOf(next);
+    }
+
+    private boolean isDueNow(Schedule schedule) {
+        if (schedule.getNextRunDate() == null) {
+            return false;
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate nextRunDate = schedule.getNextRunDate().toLocalDate();
+        if (nextRunDate.isBefore(today)) {
+            return true;
+        }
+        if (nextRunDate.isAfter(today)) {
+            return false;
+        }
+
+        LocalTime scheduledTime = schedule.getScheduledTime() != null
+                ? schedule.getScheduledTime().toLocalTime()
+                : LocalTime.MIDNIGHT;
+        return !scheduledTime.isAfter(LocalTime.now());
     }
 }

@@ -1,6 +1,5 @@
 package com.devsquad.payment_processing.repository;
 
-import com.devsquad.payment_processing.model.Frequency;
 import com.devsquad.payment_processing.model.Schedule;
 import com.devsquad.payment_processing.model.ScheduleStatus;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -39,12 +38,13 @@ public class ScheduleRepository {
                     description,
                     frequency,
                     start_date,
+                    execution_time,
                     end_date,
                     next_run_date,
                     last_run_date,
                     status
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -59,13 +59,14 @@ public class ScheduleRepository {
             ps.setString(6, schedule.getDescription());
             ps.setString(7, schedule.getFrequency() != null ? schedule.getFrequency().name() : null);
             ps.setDate(8, schedule.getStartDate());
-            ps.setDate(9, schedule.getEndDate());
+            ps.setTime(9, schedule.getScheduledTime());
+            ps.setDate(10, schedule.getEndDate());
             // default next_run_date to start_date if not provided
-            ps.setDate(10, schedule.getNextRunDate() != null
+            ps.setDate(11, schedule.getNextRunDate() != null
                     ? schedule.getNextRunDate()
                     : schedule.getStartDate());
-            ps.setDate(11, schedule.getLastRunDate());
-            ps.setString(12, schedule.getStatus() != null
+            ps.setDate(12, schedule.getLastRunDate());
+            ps.setString(13, schedule.getStatus() != null
                     ? schedule.getStatus().name()
                     : ScheduleStatus.ACTIVE.name());
             return ps;
@@ -91,6 +92,7 @@ public class ScheduleRepository {
                        description,
                        frequency,
                        start_date,
+                       execution_time,
                        end_date,
                        next_run_date,
                        last_run_date,
@@ -116,6 +118,7 @@ public class ScheduleRepository {
                     description       = ?,
                     frequency         = ?,
                     start_date        = ?,
+                    execution_time    = ?,
                     end_date          = ?,
                     next_run_date     = ?,
                     status            = ?
@@ -129,6 +132,7 @@ public class ScheduleRepository {
                 schedule.getDescription(),
                 schedule.getFrequency() != null ? schedule.getFrequency().name() : null,
                 schedule.getStartDate(),
+                schedule.getScheduledTime(),
                 schedule.getEndDate(),
                 schedule.getNextRunDate(),
                 schedule.getStatus() != null ? schedule.getStatus().name() : null,
@@ -192,13 +196,20 @@ public class ScheduleRepository {
                        description,
                        frequency,
                        start_date,
+                       execution_time,
                        end_date,
                        next_run_date,
                        last_run_date,
                        status
                 FROM Schedules
                 WHERE status = 'ACTIVE'
-                  AND next_run_date <= CURDATE()
+                  AND (
+                        next_run_date < CURDATE()
+                        OR (
+                            next_run_date = CURDATE()
+                            AND execution_time <= CURTIME()
+                        )
+                  )
                 """;
 
         return jdbcTemplate.query(sql, scheduleRowMapper);

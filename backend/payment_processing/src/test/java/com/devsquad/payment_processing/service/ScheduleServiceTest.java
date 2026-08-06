@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -184,6 +185,7 @@ class ScheduleServiceTest {
                 "Rent",
                 Frequency.MONTHLY,
                 Date.valueOf(LocalDate.now().plusDays(1)),
+                Time.valueOf("09:30:00"),
                 Date.valueOf(LocalDate.now().plusMonths(6)),
                 null,
                 null,

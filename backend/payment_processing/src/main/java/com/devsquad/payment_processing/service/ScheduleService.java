@@ -112,6 +112,11 @@ public class ScheduleService {
                     "VALIDATION_ERROR: start date is required");
         }
 
+        if (schedule.getScheduledTime() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "VALIDATION_ERROR: scheduled time is required");
+        }
+
         LocalDate startDate = schedule.getStartDate().toLocalDate();
         if (startDate.isBefore(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
