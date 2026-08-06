@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.Time;
 
 public class Schedule {
 
@@ -37,6 +38,8 @@ public class Schedule {
 
     @NotNull(message = "Start date is required")
     private Date startDate;
+    @NotNull(message = "Scheduled time is required")
+    private Time scheduledTime;
     private Date endDate;           // nullable
     private Date nextRunDate;
     private Date lastRunDate;       // nullable — null until first trigger
@@ -48,7 +51,7 @@ public class Schedule {
     public Schedule(Integer scheduleId, Long senderAccountNumber, Long receiverAccountNumber,
                     BigDecimal amount, Integer currencyId, Integer paymentModeId,
                     String description, Frequency frequency,
-                    Date startDate, Date endDate,
+                    Date startDate, Time scheduledTime, Date endDate,
                     Date nextRunDate, Date lastRunDate,
                     ScheduleStatus status) {
         this.scheduleId = scheduleId;
@@ -60,6 +63,7 @@ public class Schedule {
         this.description = description;
         this.frequency = frequency;
         this.startDate = startDate;
+        this.scheduledTime = scheduledTime;
         this.endDate = endDate;
         this.nextRunDate = nextRunDate;
         this.lastRunDate = lastRunDate;
@@ -140,6 +144,14 @@ public class Schedule {
 
     public Date getEndDate() {
         return endDate;
+    }
+
+    public Time getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(Time scheduledTime) {
+        this.scheduledTime = scheduledTime;
     }
 
     public void setEndDate(Date endDate) {

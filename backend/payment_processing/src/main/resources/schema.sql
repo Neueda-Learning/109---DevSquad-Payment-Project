@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS Schedules (
     frequency          ENUM('DAILY','WEEKLY','MONTHLY','YEARLY') NOT NULL,
 
     start_date         DATE NOT NULL,
+    execution_time     TIME NOT NULL DEFAULT '00:00:00',
     end_date           DATE,
     next_run_date      DATE,
     last_run_date      DATE,
@@ -161,6 +162,9 @@ CREATE TABLE IF NOT EXISTS tags (
     tag_name    VARCHAR(100) NOT NULL UNIQUE,
     description VARCHAR(255)
 );
+
+--ALTER TABLE Schedules
+--ADD COLUMN IF NOT EXISTS execution_time TIME NOT NULL DEFAULT '00:00:00';
 
 -- Make account numbers nullable to allow failed payments to be inserted
 ALTER TABLE Payments MODIFY COLUMN sender_account_number BIGINT NULL;
