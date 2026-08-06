@@ -27,7 +27,8 @@ public class PaymentRowMapper implements RowMapper<Payment> {
                 rs.getString("description"),
                 rs.getObject("schedule_id", Integer.class),
                 rs.getString("batch_id"),
-                mapDatabaseStatus(rs.getString("status"))
+                mapDatabaseStatus(rs.getString("status")),
+                rs.getString("payment_log")
         );
 
 //        String tagNames = rs.getString("tag_names");

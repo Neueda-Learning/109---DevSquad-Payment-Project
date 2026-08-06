@@ -42,11 +42,12 @@ public class PaymentRepository {
                     payment_mode,
                     schedule_id,
                     batch_id,
-                    payment_method_id
+                    payment_method_id,
+                    payment_log
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
                         (SELECT method_type FROM PaymentMethods WHERE payment_method_id = ?),
-                        ?, ?, ?)
+                        ?, ?, ?, ?)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -66,6 +67,7 @@ public class PaymentRepository {
             setNullableInt(preparedStatement, 11, request.getScheduleId());
             setNullableString(preparedStatement, 12, request.getBatchId());
             preparedStatement.setInt(13, request.getPaymentModeId());
+            setNullableString(preparedStatement, 14, request.getPaymentLog());
             return preparedStatement;
         }, keyHolder);
 
@@ -91,7 +93,8 @@ public class PaymentRepository {
                        description,
                        schedule_id,
                        batch_id,
-                       payment_method_id
+                       payment_method_id,
+                       payment_log
                 FROM Payments
                 WHERE payment_id = ?
                 """;
@@ -119,6 +122,7 @@ public class PaymentRepository {
                   p.schedule_id,
                   p.batch_id,
                   p.payment_method_id,
+                  p.payment_log,
                   GROUP_CONCAT(t.tag_name ORDER BY t.tag_name) AS tag_names
                 FROM Payments p
                 LEFT JOIN payment_tags pt ON pt.payment_id = p.payment_id
@@ -159,7 +163,8 @@ public class PaymentRepository {
                        description,
                        schedule_id,
                        batch_id,
-                       payment_method_id
+                       payment_method_id,
+                       payment_log
                 FROM Payments
                 WHERE 1=1
                 """);
@@ -215,6 +220,11 @@ public class PaymentRepository {
         String dbStatus = mapModelStatus(targetStatus);
         String sql = "UPDATE Payments SET status = ? WHERE payment_id = ?";
         jdbcTemplate.update(sql, dbStatus, paymentId);
+    }
+
+    public void updatePaymentLog(Integer paymentId, String paymentLog) {
+        String sql = "UPDATE Payments SET payment_log = ? WHERE payment_id = ?";
+        jdbcTemplate.update(sql, paymentLog, paymentId);
     }
 
 

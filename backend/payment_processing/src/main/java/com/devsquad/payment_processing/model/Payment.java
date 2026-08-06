@@ -59,11 +59,14 @@ public class Payment {
 
     // Auto-set to PENDING if not provided
     private Status status;
+    
+    // Payment log - stores success/failure messages
+    private String paymentLog;
 
     public Payment(Integer paymentId, String invoiceNumber, Long senderAccountNumber, Long receiverAccountNumber,
                    BigDecimal amount, Integer currencyId, Integer paymentModeId, Date paymentDate, Time paymentTime,
                    String description, Integer scheduleId,
-                   String batchId, Status status) {
+                   String batchId, Status status, String paymentLog) {
         this.paymentId = paymentId;
         this.invoiceNumber = invoiceNumber;
         this.senderAccountNumber = senderAccountNumber;
@@ -77,6 +80,7 @@ public class Payment {
         this.scheduleId = scheduleId;
         this.batchId = batchId;
         this.status = status;
+        this.paymentLog = paymentLog;
     }
 
     public Integer getPaymentId() {
@@ -189,6 +193,14 @@ public class Payment {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public String getPaymentLog() {
+        return paymentLog;
+    }
+
+    public void setPaymentLog(String paymentLog) {
+        this.paymentLog = paymentLog;
     }
 
 }
