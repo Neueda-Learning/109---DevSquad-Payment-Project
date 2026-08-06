@@ -451,11 +451,6 @@ public class PaymentService {
                     result.setErrorMessage(savedPayment.getPaymentLog());
                     failedCount++;
                 }
-                // 5. Record success
-                result.setPaymentId(savedPayment.getPaymentId());
-                result.setStatus("SUCCESS");
-                result.setErrorMessage(null);
-                successCount++;
 
             } catch (ResponseStatusException e) {
                 // 6. Record failure but continue processing
@@ -478,6 +473,20 @@ public class PaymentService {
         // 7. Set summary
         response.setSuccessfulPayments(successCount);
         response.setFailedPayments(failedCount);
+        
+        // 8. Validate consistency
+        int totalExpected = response.getTotalPayments();
+        int totalCounted = successCount + failedCount;
+        int resultCount = response.getResults().size();
+        
+        if (totalCounted != totalExpected || resultCount != totalExpected) {
+            System.err.println("BATCH RESPONSE INCONSISTENCY DETECTED:");
+            System.err.println("  Total Recipients: " + totalExpected);
+            System.err.println("  Counted (success + failed): " + totalCounted + " (success=" + successCount + ", failed=" + failedCount + ")");
+            System.err.println("  Result Objects: " + resultCount);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "BATCH_CALCULATION_ERROR: Response counts are inconsistent");
+        }
         
         return response;
     }

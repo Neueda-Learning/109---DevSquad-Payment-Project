@@ -5,18 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0a7fd173-a06e-45b1-9409-d0ae223a586f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/test/java/com/devsquad/payment_processing/service/ScheduleExecutionServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BATCH_PAYMENT_FIX_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/test/java/com/devsquad/payment_processing/service/BatchPaymentResponseValidationTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Schedule.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/model/Schedule.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/ScheduleRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/ScheduleRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/ScheduleRowMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/ScheduleRowMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/ScheduleExecutionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/ScheduleExecutionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/ScheduleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/ScheduleService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/resources/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/test/java/com/devsquad/payment_processing/service/ScheduleServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/test/java/com/devsquad/payment_processing/service/ScheduleServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/service/PaymentService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
