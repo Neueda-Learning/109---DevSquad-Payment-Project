@@ -168,6 +168,46 @@ export async function retryPayment(id) {
 }
 
 /**
+ * POST ROUTES.BATCH_PAYMENT
+ * Submit a batch of payments (multiple recipients) in a single request.
+ */
+export async function createBatchPayment(batchDraft) {
+  console.log('[paymentApi] createBatchPayment request:', batchDraft)
+
+  const backendData = await tryFetch(ROUTES.BATCH_PAYMENT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(batchDraft),
+  })
+
+  if (backendData) {
+    console.log('[paymentApi] createBatchPayment response (backend):', backendData)
+    return backendData
+  }
+
+  // Demo fallback: simulate a batch result so the UI stays usable without a backend.
+  const results = batchDraft.recipients.map((recipient) => ({
+    receiverAccountNumber: recipient.receiverAccountNumber,
+    amount: recipient.amount,
+    currency: CURRENCY_BY_ID[recipient.currencyId] || 'USD',
+    status: 'SUCCESS',
+    error: null,
+  }))
+
+  const batchResult = {
+    batchId: `BATCH-${Date.now()}`,
+    totalPayments: results.length,
+    successful: results.filter((r) => r.status === 'SUCCESS').length,
+    failed: results.filter((r) => r.status === 'FAILED').length,
+    results,
+  }
+
+  console.log('[paymentApi] createBatchPayment response (demo fallback):', batchResult)
+
+  return simulateRequest(batchResult, 800)
+}
+
+/**
  * GET ROUTES.PAYMENT_RECEIPT(id)
  * Download the invoice/receipt document for a completed payment.
  * Backend is expected to respond with a PDF (application/pdf) blob.

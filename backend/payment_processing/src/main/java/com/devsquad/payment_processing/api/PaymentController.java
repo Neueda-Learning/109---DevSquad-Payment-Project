@@ -50,9 +50,9 @@ public class PaymentController {
     @PostMapping("/batch")
     public ResponseEntity<BatchPaymentResponse> createBatchPayment(
             @Valid @RequestBody BatchPaymentRequest request) {
-        
+        System.out.println("Received batch payment request: " + request.getRecipients().size() + " recipients");
         BatchPaymentResponse response = paymentService.createBatchPayment(request);
-        
+
         // Return 207 Multi-Status if there are partial failures
         if (response.getFailedPayments() > 0 && response.getSuccessfulPayments() > 0) {
             return ResponseEntity.status(207).body(response);  // HTTP 207 Multi-Status
