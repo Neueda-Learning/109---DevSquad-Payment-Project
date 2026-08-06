@@ -1,4 +1,5 @@
 import { useState , useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { CURRENCIES } from '../utils/currency'
 import BatchPaymentFlow from '../components/payments/BatchPaymentFlow'
 import PaymentLoader from '../components/payments/PaymentLoader'
@@ -8,6 +9,7 @@ function NewPaymentPage({
                           defaultTiming = 'now',
                           selectedUser,
                         }) {
+  const navigate = useNavigate()
   const [paymentMode, setPaymentMode] = useState('single')
   const [paymentType, setPaymentType] = useState('now')
 
@@ -32,6 +34,7 @@ function NewPaymentPage({
   // Drives the payment loading animation: null | 'processing' | 'success' | 'error'
   const [loaderStatus, setLoaderStatus] = useState(null)
   const [loaderDone, setLoaderDone] = useState(false)
+  const [failureDetails, setFailureDetails] = useState(null)
 
 
   useEffect(() => {
@@ -60,6 +63,10 @@ function NewPaymentPage({
         setTimeout(resolve, 5200)
       )
 
+      // Declared here so the catch block can still access it if the
+      // request fails after it has been built.
+      let paymentRequest = null
+
       try {
 
         // Schedule payment will be handled separately
@@ -76,11 +83,12 @@ function NewPaymentPage({
         // PAY NOW FLOW
 
         setLoaderDone(false)
+        setFailureDetails(null)
         setLoaderStatus('processing')
 
         const now = new Date()
 
-        const paymentRequest = {
+        paymentRequest = {
           ...payment,
 
           paymentDate:
@@ -112,13 +120,25 @@ function NewPaymentPage({
             body: JSON.stringify(paymentRequest),
           }
         ).then(async (response) => {
-          if (!response.ok) {
-            throw new Error(
-              "Payment creation failed"
+          const contentType = response.headers.get('content-type') || ''
+          const body = contentType.includes('application/json')
+            ? await response.json().catch(() => null)
+            : null
+
+          if (!response.ok || body?.status === 'FAILED') {
+            const failureError = new Error(
+              body?.paymentLog ||
+                body?.payment_log ||
+                body?.failureReason ||
+                body?.message ||
+                "Payment creation failed"
             )
+            const rawId = body?.paymentId ?? body?.id ?? null
+            failureError.paymentId = rawId != null && rawId !== -1 ? rawId : null
+            throw failureError
           }
 
-          return response.json()
+          return body
         })
 
         const [createdPayment] = await Promise.all([
@@ -132,6 +152,7 @@ function NewPaymentPage({
           createdPayment
         )
 
+        setFailureDetails(null)
         setLoaderStatus('success')
 
 
@@ -142,6 +163,16 @@ function NewPaymentPage({
           error
         )
 
+        const failureReason = error?.message || 'System error'
+
+        // Show the failure as reported by the single CREATED request's
+        // response — no additional request is sent.
+        setFailureDetails({
+          paymentId: error?.paymentId ?? null,
+          status: 'FAILED',
+          reason: failureReason,
+        })
+
         // Wait for the same minimum delay so the animation isn't cut short.
         await minAnimationDelay
 
@@ -151,8 +182,15 @@ function NewPaymentPage({
     }
 
     const closeLoader = () => {
+      const wasError = loaderStatus === 'error'
+
       setLoaderStatus(null)
       setLoaderDone(false)
+      setFailureDetails(null)
+
+      if (wasError) {
+        navigate('/')
+      }
     }
 
 
@@ -493,9 +531,33 @@ function NewPaymentPage({
               onSettled={() => setLoaderDone(true)}
             />
 
-            {loaderDone && (
+            {loaderDone && loaderStatus === 'error' && (
+              <div className="payment-failure-summary">
+                <h3>Payment Failed</h3>
+
+                <p>
+                  <span>Payment ID:</span>{' '}
+                  {failureDetails?.paymentId || 'N/A'}
+                </p>
+
+                <p>
+                  <span>Status:</span> FAILED
+                </p>
+
+                <p>
+                  <span>Reason:</span>{' '}
+                  {failureDetails?.reason || 'System error'}
+                </p>
+
+                <button className="btn btn-primary" onClick={closeLoader}>
+                  Done
+                </button>
+              </div>
+            )}
+
+            {loaderDone && loaderStatus === 'success' && (
               <button className="btn btn-primary" onClick={closeLoader}>
-                {loaderStatus === 'success' ? 'Done' : 'Try Again'}
+                Done
               </button>
             )}
           </div>

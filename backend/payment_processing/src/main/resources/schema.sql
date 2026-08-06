@@ -137,6 +137,8 @@ CREATE TABLE IF NOT EXISTS Payments (
 
     payment_method_id BIGINT NOT NULL,
 
+    payment_log VARCHAR(500),
+
     CONSTRAINT fk_payment_sender
         FOREIGN KEY (sender_account_number)
         REFERENCES Accounts(account_number),
@@ -162,6 +164,8 @@ CREATE TABLE IF NOT EXISTS tags (
     tag_name    VARCHAR(100) NOT NULL UNIQUE,
     description VARCHAR(255)
 );
+
+--ALTER TABLE Payments ADD COLUMN payment_log VARCHAR(500);
 
 CREATE TABLE IF NOT EXISTS payment_tags (
   payment_id BIGINT NOT NULL,
