@@ -1,0 +1,44 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: devsquad-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: n3u3da!
+      MYSQL_DATABASE: payment_processing
+    ports:
+      - "3306:3306"
+    volumes:
+      - devsquad-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pn3u3da!"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: ghcr.io/neueda-learning/devsquad-api:latest
+    container_name: devsquad-api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/payment_processing
+      DB_USERNAME: root
+      DB_PASSWORD: n3u3da!
+    ports:
+      - "8082:8080"
+
+  ui:
+    image: ghcr.io/neueda-learning/devsquad-ui:latest
+    container_name: devsquad-ui
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8081:80"
+    pull_policy: always
+
+volumes:
+  devsquad-mysql-data:
