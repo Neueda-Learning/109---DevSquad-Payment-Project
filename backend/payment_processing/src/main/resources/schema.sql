@@ -173,3 +173,47 @@ CREATE TABLE IF NOT EXISTS payment_tags (
     FOREIGN KEY (tag_id) REFERENCES tags(tag_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS BatchSchedules (
+    batch_schedule_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    batch_id VARCHAR(50) NOT NULL UNIQUE,
+    sender_account_number BIGINT NOT NULL,
+    payment_method_id BIGINT NOT NULL,
+    description VARCHAR(500),
+    scheduled_date DATE NOT NULL,
+    status ENUM('SCHEDULED','PROCESSING','COMPLETED','PARTIAL_FAILED','FAILED','CANCELLED')
+           NOT NULL DEFAULT 'SCHEDULED',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    executed_at TIMESTAMP NULL,
+    last_error VARCHAR(500),
+
+    CONSTRAINT fk_batch_schedule_sender
+        FOREIGN KEY (sender_account_number)
+        REFERENCES Accounts(account_number),
+
+    CONSTRAINT fk_batch_schedule_method
+        FOREIGN KEY (payment_method_id)
+        REFERENCES PaymentMethods(payment_method_id),
+
+    INDEX idx_batch_schedules_due (status, scheduled_date)
+);
+
+CREATE TABLE IF NOT EXISTS BatchScheduleRecipients (
+    batch_schedule_recipient_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    batch_schedule_id BIGINT NOT NULL,
+    receiver_account_number BIGINT NOT NULL,
+    amount DECIMAL(15,2) NOT NULL,
+    currency_id INT,
+    description VARCHAR(500),
+
+    CONSTRAINT fk_batch_schedule_recipient_batch
+        FOREIGN KEY (batch_schedule_id)
+        REFERENCES BatchSchedules(batch_schedule_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_batch_schedule_recipient_receiver
+        FOREIGN KEY (receiver_account_number)
+        REFERENCES Accounts(account_number),
+
+    INDEX idx_batch_schedule_recipients_batch (batch_schedule_id)
+);
+

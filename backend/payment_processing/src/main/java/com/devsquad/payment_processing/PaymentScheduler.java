@@ -2,6 +2,7 @@ package com.devsquad.payment_processing;
 
 import com.devsquad.payment_processing.model.Schedule;
 import com.devsquad.payment_processing.repository.ScheduleRepository;
+import com.devsquad.payment_processing.service.BatchScheduleService;
 import com.devsquad.payment_processing.service.ScheduleExecutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,9 @@ public class PaymentScheduler {
 
     @Autowired
     private ScheduleExecutionService executionService;
+
+    @Autowired
+    private BatchScheduleService batchScheduleService;
 
     /**
      * Runs every minute by default.
@@ -35,6 +39,8 @@ public class PaymentScheduler {
         for (Schedule schedule : dueSchedules) {
             executionService.executeSchedule(schedule);
         }
+
+        batchScheduleService.processDueBatchSchedules();
     }
 }
 

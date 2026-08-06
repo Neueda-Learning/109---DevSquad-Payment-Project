@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createBatchPayment } from '../../api/paymentApi'
+import { createBatchPayment, createBatchScheduledPayment } from '../../api/paymentApi'
 import { formatCurrency, CURRENCIES } from '../../utils/currency'
 import StatusBadge from '../common/StatusBadge'
 import Spinner from '../common/Spinner'
@@ -18,9 +18,11 @@ const createEmptyRow = () => ({
  * Multi-step Batch Payment flow: input recipients -> review summary -> submit -> result.
  */
 function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTiming = 'now' }) {
+  const today = new Date().toISOString().split('T')[0]
   const [step, setStep] = useState('input') // 'input' | 'summary' | 'result'
   const [rows, setRows] = useState([createEmptyRow()])
   const [description, setDescription] = useState('')
+  const [scheduledDate, setScheduledDate] = useState(today)
   const [validationError, setValidationError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
@@ -47,6 +49,16 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
     if (rows.some((row) => Number(row.amount) <= 0)) {
       return 'Amount must be greater than zero for every recipient.'
     }
+
+    if (paymentTiming === 'schedule') {
+      if (!scheduledDate) {
+        return 'Scheduled date is required for batch scheduled payments.'
+      }
+      if (scheduledDate < today) {
+        return 'Scheduled date cannot be in the past.'
+      }
+    }
+
     return ''
   }
 
@@ -84,6 +96,7 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
       senderAccountNumber,
       paymentModeId,
       description,
+      ...(paymentTiming === 'schedule' ? { scheduledDate } : {}),
       recipients: rows.map((row) => ({
         receiverAccountNumber: Number(row.receiverAccountNumber),
         amount: Number(row.amount),
@@ -95,13 +108,29 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
     console.log('[BatchPaymentFlow] Confirming batch payment. Request:', batchRequest)
 
     try {
-      const result = await createBatchPayment(batchRequest)
-      console.log('[BatchPaymentFlow] Batch payment succeeded. Result:', result)
-      setBatchResult(result)
+      if (paymentTiming === 'schedule') {
+        const result = await createBatchScheduledPayment(batchRequest)
+        console.log('[BatchPaymentFlow] Batch scheduled payment created. Result:', result)
+        setBatchResult({
+          batchId: result.batchId,
+          totalPayments: result.totalPayments,
+          successfulPayments: 0,
+          failedPayments: 0,
+          results: [],
+          scheduledDate: result.scheduledDate,
+          status: result.status,
+          isScheduled: true,
+        })
+      } else {
+        const result = await createBatchPayment(batchRequest)
+        console.log('[BatchPaymentFlow] Batch payment succeeded. Result:', result)
+        setBatchResult(result)
+      }
+
       setStep('result')
     } catch (error) {
       console.error('[BatchPaymentFlow] Batch payment submission error:', error)
-      setSubmitError('Failed to submit batch payment. Please try again.')
+      setSubmitError(error?.message || 'Failed to submit batch payment. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -112,7 +141,9 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
 
     return (
       <div className="batch-flow">
-        <h2 className="batch-heading">Batch Payment Completed</h2>
+        <h2 className="batch-heading">
+          {batchResult.isScheduled ? 'Batch Scheduled Payment Created' : 'Batch Payment Completed'}
+        </h2>
 
         <div className="batch-summary-grid">
           <div>
@@ -125,18 +156,36 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
             <div className="batch-value">{batchResult.totalPayments}</div>
           </div>
 
-          <div>
-            <span className="batch-label">Successful</span>
-            <div className="batch-value batch-value-success">{batchResult.successful}</div>
-          </div>
+          {batchResult.isScheduled && (
+            <div>
+              <span className="batch-label">Scheduled Date</span>
+              <div className="batch-value">{batchResult.scheduledDate}</div>
+            </div>
+          )}
 
-          <div>
+          {batchResult.isScheduled && (
+            <div>
+              <span className="batch-label">Status</span>
+              <div className="batch-value">{batchResult.status}</div>
+            </div>
+          )}
+
+          {!batchResult.isScheduled && <div>
+            <span className="batch-label">Successful</span>
+            <div className="batch-value batch-value-success">
+              {batchResult.successfulPayments ?? batchResult.successful ?? 0}
+            </div>
+          </div>}
+
+          {!batchResult.isScheduled && <div>
             <span className="batch-label">Failed</span>
-            <div className="batch-value batch-value-failed">{batchResult.failed}</div>
-          </div>
+            <div className="batch-value batch-value-failed">
+              {batchResult.failedPayments ?? batchResult.failed ?? 0}
+            </div>
+          </div>}
         </div>
 
-        <table className="batch-table">
+        {!batchResult.isScheduled && <table className="batch-table">
           <thead>
             <tr>
               <th>Account</th>
@@ -151,12 +200,14 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
                 <td>{formatCurrency(result.amount ?? 0, result.currency || CURRENCIES[0].currency)}</td>
                 <td>
                   <StatusBadge status={result.status === 'SUCCESS' ? 'COMPLETED' : 'FAILED'} />
-                  {result.error && <div className="batch-error">Error: {result.error}</div>}
+                  {(result.error || result.errorMessage) && (
+                    <div className="batch-error">Error: {result.error || result.errorMessage}</div>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </table>}
       </div>
     )
   }
@@ -244,6 +295,19 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
           placeholder="Optional note for this batch"
         />
       </label>
+
+      {paymentTiming === 'schedule' && (
+        <label className="form-field">
+          <span>Scheduled Date</span>
+          <input
+            type="date"
+            className="input"
+            value={scheduledDate}
+            min={today}
+            onChange={(e) => setScheduledDate(e.target.value)}
+          />
+        </label>
+      )}
 
       <table className="batch-table">
         <thead>

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class BatchPaymentRequest {
@@ -15,6 +16,9 @@ public class BatchPaymentRequest {
     private Integer paymentModeId;
 
     private String description;
+
+    // Optional. When present, batch should be executed by scheduler on this date.
+    private LocalDate scheduledDate;
 
     @NotEmpty(message = "Recipients list cannot be empty")
     @Valid
@@ -38,6 +42,9 @@ public class BatchPaymentRequest {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public LocalDate getScheduledDate() { return scheduledDate; }
+    public void setScheduledDate(LocalDate scheduledDate) { this.scheduledDate = scheduledDate; }
 
     public List<BatchPaymentRecipient> getRecipients() { return recipients; }
     public void setRecipients(List<BatchPaymentRecipient> recipients) { this.recipients = recipients; }

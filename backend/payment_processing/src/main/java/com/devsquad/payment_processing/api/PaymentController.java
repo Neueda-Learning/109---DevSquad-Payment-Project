@@ -3,6 +3,7 @@ package com.devsquad.payment_processing.api;
 import com.devsquad.payment_processing.model.BatchPaymentRequest;
 import com.devsquad.payment_processing.model.BatchPaymentResponse;
 import com.devsquad.payment_processing.model.Payment;
+import com.devsquad.payment_processing.service.BatchScheduleService;
 import com.devsquad.payment_processing.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private BatchScheduleService batchScheduleService;
 
     /**
      * POST /api/v1/payments/create
@@ -65,6 +69,17 @@ public class PaymentController {
         
         // Return 400 if all failed
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * POST /api/v1/payments/batch/scheduled
+     * Creates a scheduled batch payment that executes on scheduledDate.
+     */
+    @PostMapping("/batch/scheduled")
+    public ResponseEntity<Map<String, Object>> createScheduledBatchPayment(
+            @Valid @RequestBody BatchPaymentRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(batchScheduleService.createBatchSchedule(request));
     }
 
     // Get Payment By Id
