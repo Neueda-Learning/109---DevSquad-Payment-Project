@@ -259,6 +259,39 @@ fieldset {
   font-weight: 600;
 }
 
+/* Payment failure summary (no retry action, exit-only) */
+
+.payment-failure-summary {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.payment-failure-summary h3 {
+  margin: 0 0 8px;
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.payment-failure-summary p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+}
+
+.payment-failure-summary p span {
+  font-weight: 600;
+  color: white;
+}
+
+.payment-failure-summary .btn {
+  margin-top: 16px;
+}
+
 .loader-card {
   width: 600px;
 }
