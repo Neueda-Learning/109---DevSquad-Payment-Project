@@ -5,6 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5e98f467-72c3-41f4-a96b-8893926e5e8d" name="Changes" comment="">
+    <list default="true" id="0a7fd173-a06e-45b1-9409-d0ae223a586f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/BATCH_PAYMENT_FIX_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/payment_processing/src/test/java/com/devsquad/payment_processing/service/BatchPaymentResponseValidationTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
