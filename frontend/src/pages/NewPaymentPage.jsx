@@ -58,6 +58,13 @@ function NewPaymentPage({
                           defaultTiming = 'now',
                           selectedUser,
                         }) {
+  const MAX_PAYMENT_AMOUNT = 1000000
+  const HIGH_VALUE_CONFIRMATION_AMOUNT = 50000
+  const [paymentMode, setPaymentMode] = useState('single')
+  const [paymentType, setPaymentType] = useState('now')
+  const [formResetKey, setFormResetKey] = useState(0)
+  const [amountError, setAmountError] = useState('')
+  const [showHighValueConfirmation, setShowHighValueConfirmation] = useState(false)
   const today = new Date().toISOString().split('T')[0]
 
   const [paymentMode, setPaymentMode] = useState(
@@ -65,7 +72,7 @@ function NewPaymentPage({
   )
   const [paymentType, setPaymentType] = useState(defaultTiming)
 
-  const [payment, setPayment] = useState({
+  const initialPaymentState = {
     senderAccountNumber: '',
     receiverAccountNumber: '',
     amount: '',
@@ -77,6 +84,9 @@ function NewPaymentPage({
     scheduleId: null,
     batchId: null,
     status: 'CREATED',
+  }
+
+  const [payment, setPayment] = useState(initialPaymentState)
     frequency: 'DAILY',
     startDate: defaultTiming === 'schedule' ? today : '',
     endDate: '',
@@ -102,6 +112,10 @@ function NewPaymentPage({
   }, [selectedUser])
 
   const updatePayment = (field, value) => {
+    if (field === 'amount') {
+      setAmountError('')
+    }
+
     setPayment((prev) => ({
       ...prev,
       [field]: value,
@@ -111,7 +125,22 @@ function NewPaymentPage({
     const handleSubmit = async (e) => {
       e.preventDefault()
       setSubmitError('')
+  const resetPaymentForm = () => {
+    setPaymentMode('single')
+    setPaymentType('now')
+    setSelectedCurrency(CURRENCIES[1].currency)
+    setPayment({
+      ...initialPaymentState,
+      senderAccountNumber: selectedUser?.accounts?.[0] ?? '',
+    })
+    setAmountError('')
+    setShowHighValueConfirmation(false)
+    setFormResetKey((prev) => prev + 1)
+    setLoaderStatus(null)
+    setLoaderDone(false)
+  }
 
+    const submitPayment = async () => {
       // Guarantee the loader plays through its full
       // creating -> processing -> validating -> processing stages
       // even if the API responds (or fails) quickly.
@@ -219,6 +248,7 @@ function NewPaymentPage({
           createdPayment
         )
 
+
         setLoaderStatus('success')
 
 
@@ -235,15 +265,46 @@ function NewPaymentPage({
 
         // Wait for the same minimum delay so the animation isn't cut short.
         await minAnimationDelay
-
         setLoaderStatus('error')
 
       }
     }
 
+    const handleSubmit = async (e) => {
+      e.preventDefault()
+
+      if (Number(payment.amount) > MAX_PAYMENT_AMOUNT) {
+        setAmountError(
+          `Maximum payment allowed is ${MAX_PAYMENT_AMOUNT.toLocaleString()}.`
+        )
+        return
+      }
+
+      setAmountError('')
+
+      if (Number(payment.amount) > HIGH_VALUE_CONFIRMATION_AMOUNT) {
+        setShowHighValueConfirmation(true)
+        return
+      }
+
+      await submitPayment()
+    }
+
+    const confirmHighValuePayment = async () => {
+      setShowHighValueConfirmation(false)
+      await submitPayment()
+    }
+
+    const cancelHighValuePayment = () => {
+      setShowHighValueConfirmation(false)
+    }
+
+    const formattedConfirmationAmount = `${
+      CURRENCIES.find((c) => c.currency === selectedCurrency)?.symbol ?? ''
+    }${Number(payment.amount || 0).toLocaleString()}`
+
     const closeLoader = () => {
-      setLoaderStatus(null)
-      setLoaderDone(false)
+      resetPaymentForm()
     }
 
 
@@ -258,7 +319,7 @@ function NewPaymentPage({
         </div>
       </div>
 
-      <div className="form-card">
+      <div className="form-card" key={formResetKey}>
 
         {/* Payment Type */}
 
@@ -432,6 +493,7 @@ function NewPaymentPage({
             <input
               className="input"
               type="number"
+              max={MAX_PAYMENT_AMOUNT}
               value={payment.amount}
               onChange={(e) =>
                 updatePayment(
@@ -440,6 +502,7 @@ function NewPaymentPage({
                 )
               }
             />
+            {amountError && <small className="form-error">{amountError}</small>}
           </label>
 
           <label className="form-field">
@@ -621,6 +684,36 @@ function NewPaymentPage({
       </form>
         )}
       </div>
+
+      {showHighValueConfirmation && (
+        <div className="popup-overlay">
+          <div className="popup-card confirmation-card">
+            <h2>Confirm Payment</h2>
+            <p>
+              This payment amount is {formattedConfirmationAmount}. Are you sure you want
+              to continue?
+            </p>
+
+            <div className="popup-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={cancelHighValuePayment}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={confirmHighValuePayment}
+              >
+                Yes, Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loaderStatus && (
         <div className="popup-overlay">

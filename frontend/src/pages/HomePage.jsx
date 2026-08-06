@@ -64,15 +64,17 @@ function HomePage({ selectedUser }) {
 
         const recentPayments =
           [...userPayments]
-            .sort(
-              (a, b) =>
-                new Date(
-                  b.paymentDate
-                ) -
-                new Date(
-                  a.paymentDate
-                )
-            )
+            .sort((a, b) => {
+              const dateTimeA = new Date(
+                `${a.paymentDate.split('T')[0]}T${a.paymentTime}`
+              )
+
+              const dateTimeB = new Date(
+                `${b.paymentDate.split('T')[0]}T${b.paymentTime}`
+              )
+
+              return dateTimeB - dateTimeA
+            })
             .slice(0, 5)
 
         setSummary({

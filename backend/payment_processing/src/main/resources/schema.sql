@@ -113,8 +113,8 @@ CREATE TABLE IF NOT EXISTS Payments (
 
     payment_invoice_number VARCHAR(50) NOT NULL UNIQUE,
 
-    sender_account_number BIGINT NOT NULL,
-    receiver_account_number BIGINT NOT NULL,
+    sender_account_number BIGINT NULL,
+    receiver_account_number BIGINT NULL,
 
     amount DECIMAL(15,2) NOT NULL,
 
@@ -137,13 +137,12 @@ CREATE TABLE IF NOT EXISTS Payments (
 
     payment_method_id BIGINT NOT NULL,
 
+    payment_log VARCHAR(500),
+
     CONSTRAINT fk_payment_sender
         FOREIGN KEY (sender_account_number)
         REFERENCES Accounts(account_number),
 
-    CONSTRAINT fk_payment_receiver
-        FOREIGN KEY (receiver_account_number)
-        REFERENCES Accounts(account_number),
 
     CONSTRAINT fk_payment_method
         FOREIGN KEY (payment_method_id)
@@ -162,6 +161,26 @@ CREATE TABLE IF NOT EXISTS tags (
     tag_name    VARCHAR(100) NOT NULL UNIQUE,
     description VARCHAR(255)
 );
+
+-- Make account numbers nullable to allow failed payments to be inserted
+ALTER TABLE Payments MODIFY COLUMN sender_account_number BIGINT NULL;
+ALTER TABLE Payments MODIFY COLUMN receiver_account_number BIGINT NULL;
+
+-- Safely drop fk_payment_receiver if it still exists (idempotent - safe to run on every startup)
+-- Receiver account is validated manually in application code instead of via FK constraint,
+-- so payments can be inserted with FAILED status even when receiver account does not exist.
+SET @fk_exists = (
+    SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+    WHERE CONSTRAINT_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'Payments'
+      AND CONSTRAINT_NAME = 'fk_payment_receiver'
+);
+SET @drop_fk_sql = IF(@fk_exists > 0,
+    'ALTER TABLE Payments DROP FOREIGN KEY fk_payment_receiver',
+    'SELECT 1');
+PREPARE stmt FROM @drop_fk_sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS payment_tags (
   payment_id BIGINT NOT NULL,
