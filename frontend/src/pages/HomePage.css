@@ -36,7 +36,7 @@
   justify-content: center;
   gap: 4px;
 
-  width: 160px;
+  width: 180px;
   height: 40px;
   padding: 0 10px;
 
@@ -65,9 +65,13 @@
 }
 
 .home-cta svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  transform: translateY(-50%);
   transition: all 0.5s ease;
   z-index: 2;
 }
@@ -79,7 +83,7 @@
 }
 
 .home-cta:hover svg {
-  transform: scale(3) translate(150%);
+  transform: translateY(-50%) scale(3) translate(150%);
 }
 
 .home-cta .now {
@@ -98,6 +102,33 @@
 
 .home-cta:hover .play {
   transform: translateX(200%);
+  transition-delay: 300ms;
+}
+
+/* Mirrored (right-to-left) variant used by the Schedule Payment button */
+
+.home-cta-reverse svg {
+  left: auto;
+  right: 10px;
+}
+
+.home-cta-reverse:hover svg {
+  transform: translateY(-50%) scale(3) translate(-170%);
+}
+
+.home-cta-reverse .now {
+  left: auto;
+  right: 10px;
+  transform: translateX(150%);
+}
+
+.home-cta-reverse:hover .now {
+  transform: translateX(-10px);
+  transition-delay: 300ms;
+}
+
+.home-cta-reverse:hover .play {
+  transform: translateX(-200%);
   transition-delay: 300ms;
 }
 
