@@ -192,3 +192,5 @@ CREATE TABLE IF NOT EXISTS payment_tags (
     FOREIGN KEY (tag_id) REFERENCES tags(tag_id) ON DELETE CASCADE
 );
 
+ALTER TABLE Payments ADD COLUMN payment_log VARCHAR(500);
+
