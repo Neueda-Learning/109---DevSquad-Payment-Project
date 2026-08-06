@@ -97,21 +97,21 @@ public class PaymentController {
 
     // ── List Payments with Filters + Pagination
 
-    @GetMapping
-    public ResponseEntity<List<Payment>> getPaymentsWithFilters(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String mode,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate,
-            @RequestParam(required = false) Double minAmount,
-            @RequestParam(required = false) Double maxAmount,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    // @GetMapping
+    // public ResponseEntity<List<Payment>> getPaymentsWithFilters(
+    //         @RequestParam(required = false) String status,
+    //         @RequestParam(required = false) String mode,
+    //         @RequestParam(required = false) String fromDate,
+    //         @RequestParam(required = false) String toDate,
+    //         @RequestParam(required = false) Double minAmount,
+    //         @RequestParam(required = false) Double maxAmount,
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "20") int size) {
 
-        return ResponseEntity.ok(
-                paymentService.getPaymentsWithFilters(status, mode, fromDate, toDate,
-                        minAmount, maxAmount, page, size));
-    }
+    //     return ResponseEntity.ok(
+    //             paymentService.getPaymentsWithFilters(status, mode, fromDate, toDate,
+    //                     minAmount, maxAmount, page, size));
+    // }
 
     // ── Update Payment Status
     /**
@@ -133,11 +133,11 @@ public class PaymentController {
     /**
      * POST /api/v1/payments/{id}/cancel
      * Transitions a PENDING payment to CANCELLED.
-     */
-    @PostMapping("/{id}/cancel")
-    public ResponseEntity<Map<String, Object>> cancelPayment(@PathVariable Integer id) {
-        return ResponseEntity.ok(paymentService.cancelPayment(id));
-    }
+    //  */
+    // @PostMapping("/{id}/cancel")
+    // public ResponseEntity<Map<String, Object>> cancelPayment(@PathVariable Integer id) {
+    //     return ResponseEntity.ok(paymentService.cancelPayment(id));
+    // }
 
     // ── Refund Payment Hook
 
@@ -146,14 +146,14 @@ public class PaymentController {
      * Body (optional): { "reason": "..." }
      * Validates the payment is COMPLETED and records refund initiation.
      */
-    @PostMapping("/{id}/refund")
-    public ResponseEntity<Map<String, Object>> refundPayment(
-            @PathVariable Integer id,
-            @RequestBody(required = false) Map<String, String> request) {
+    // @PostMapping("/{id}/refund")
+    // public ResponseEntity<Map<String, Object>> refundPayment(
+    //         @PathVariable Integer id,
+    //         @RequestBody(required = false) Map<String, String> request) {
 
-        String reason = request != null ? request.get("reason") : null;
-        return ResponseEntity.ok(paymentService.refundPayment(id, reason));
-    }
+    //     String reason = request != null ? request.get("reason") : null;
+    //     return ResponseEntity.ok(paymentService.refundPayment(id, reason));
+    // }
 
 
     // ── Delete Payment
