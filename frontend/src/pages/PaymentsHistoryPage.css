@@ -5,6 +5,63 @@
   margin-bottom: 20px;
 }
 
+.history-tabs {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.history-tab {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-h);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.history-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.batch-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.batch-group-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.batch-group-header {
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.batch-group-header h2 {
+  margin: 0 0 6px;
+  color: var(--text-h);
+  font-size: 18px;
+}
+
+.batch-group-header p {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+}
+
 .payment-filters input,
 .payment-filters select {
   padding: 10px 14px;
@@ -43,6 +100,14 @@
 }
 
 @media (max-width: 720px) {
+  .history-tabs {
+    flex-direction: column;
+  }
+
+  .history-tab {
+    width: 100%;
+  }
+
   .payment-filters {
     flex-direction: column;
   }

@@ -6,9 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="0a7fd173-a06e-45b1-9409-d0ae223a586f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRowMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/payment_processing/src/main/java/com/devsquad/payment_processing/repository/PaymentRowMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/NewPaymentPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentsHistoryPage.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
