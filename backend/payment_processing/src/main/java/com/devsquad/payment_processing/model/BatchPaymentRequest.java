@@ -20,6 +20,9 @@ public class BatchPaymentRequest {
     // Optional. When present, batch should be executed by scheduler on this date.
     private LocalDate scheduledDate;
 
+    // Optional. Tags to apply to every payment in this batch.
+    private List<String> tags;
+
     @NotEmpty(message = "Recipients list cannot be empty")
     @Valid
     private List<BatchPaymentRecipient> recipients;
@@ -45,6 +48,9 @@ public class BatchPaymentRequest {
 
     public LocalDate getScheduledDate() { return scheduledDate; }
     public void setScheduledDate(LocalDate scheduledDate) { this.scheduledDate = scheduledDate; }
+
+    public List<String> getTags() { return tags; }
+    public void setTags(List<String> tags) { this.tags = tags; }
 
     public List<BatchPaymentRecipient> getRecipients() { return recipients; }
     public void setRecipients(List<BatchPaymentRecipient> recipients) { this.recipients = recipients; }

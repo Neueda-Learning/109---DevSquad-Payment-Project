@@ -1,8 +1,9 @@
-import { useState } from 'react'
-import { createBatchPayment, createBatchScheduledPayment } from '../../api/paymentApi'
+import { useState, useEffect } from 'react'
+import { createBatchPayment, createBatchScheduledPayment, fetchPaymentTags } from '../../api/paymentApi'
 import { formatCurrency, CURRENCIES } from '../../utils/currency'
 import StatusBadge from '../common/StatusBadge'
 import Spinner from '../common/Spinner'
+import TagSelector from './TagSelector'
 import './BatchPaymentFlow.css'
 
 let nextRowId = 1
@@ -27,6 +28,19 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [batchResult, setBatchResult] = useState(null)
+
+  // Tags
+  const [availableTags, setAvailableTags] = useState([])
+  const [selectedTags, setSelectedTags] = useState([])
+  const [tagsLoading, setTagsLoading] = useState(false)
+
+  useEffect(() => {
+    setTagsLoading(true)
+    fetchPaymentTags()
+      .then((data) => setAvailableTags(Array.isArray(data) ? data : []))
+      .catch(() => setAvailableTags([]))
+      .finally(() => setTagsLoading(false))
+  }, [])
 
   const updateRow = (id, field, value) => {
     setRows((prev) => prev.map((row) => (row.id === id ? { ...row, [field]: value } : row)))
@@ -96,6 +110,7 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
       senderAccountNumber,
       paymentModeId,
       description,
+      tags: selectedTags,
       ...(paymentTiming === 'schedule' ? { scheduledDate } : {}),
       recipients: rows.map((row) => ({
         receiverAccountNumber: Number(row.receiverAccountNumber),
@@ -237,6 +252,13 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
             <div className="batch-value">{rows.length}</div>
           </div>
 
+          {selectedTags.length > 0 && (
+            <div>
+              <span className="batch-label">Tags</span>
+              <div className="batch-value">{selectedTags.join(', ')}</div>
+            </div>
+          )}
+
           <div>
             <span className="batch-label">Total Amount</span>
             <div className="batch-value">
@@ -295,6 +317,16 @@ function BatchPaymentFlow({ senderAccountNumber, paymentModeId = 1, paymentTimin
           placeholder="Optional note for this batch"
         />
       </label>
+
+      {/* Tags */}
+      <div className="form-field">
+        <TagSelector
+          availableTags={availableTags}
+          selectedTags={selectedTags}
+          onChange={setSelectedTags}
+          loading={tagsLoading}
+        />
+      </div>
 
       {paymentTiming === 'schedule' && (
         <label className="form-field">

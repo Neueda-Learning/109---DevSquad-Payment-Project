@@ -434,6 +434,10 @@ public class PaymentService {
                 );
                 
                 // 4. REUSE existing createPayment() - follows full workflow
+                // Attach batch-level tags to each payment
+                if (request.getTags() != null && !request.getTags().isEmpty()) {
+                    payment.setTags(request.getTags());
+                }
                 Payment savedPayment = createPayment(payment);
                 
                 // 6. Check payment status to determine success/failure

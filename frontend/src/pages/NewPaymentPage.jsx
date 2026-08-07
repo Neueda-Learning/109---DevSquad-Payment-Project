@@ -1,9 +1,10 @@
 import { useState , useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CURRENCIES } from '../utils/currency'
-import { createSchedule } from '../api/paymentApi'
+import { createSchedule, fetchPaymentTags } from '../api/paymentApi'
 import BatchPaymentFlow from '../components/payments/BatchPaymentFlow'
 import PaymentLoader from '../components/payments/PaymentLoader'
+import TagSelector from '../components/payments/TagSelector'
 import './NewPaymentPage.css'
 
 const PAYMENT_METHOD_OPTIONS = [
@@ -86,7 +87,7 @@ function NewPaymentPage({
     senderAccountNumber: '',
     receiverAccountNumber: '',
     amount: '',
-    currencyId: 1,
+    currencyId: 0,
     paymentModeId: 1,
     paymentDate: '',
     paymentTime: '',
@@ -98,9 +99,14 @@ function NewPaymentPage({
     scheduledTime: getCurrentTimeValue(),
     endDate: '',
     status: 'CREATED',
+    tags: [],
   }
 
   const [payment, setPayment] = useState(initialPaymentState)
+
+  // Tags
+  const [availableTags, setAvailableTags] = useState([])
+  const [tagsLoading, setTagsLoading] = useState(false)
 
   const [selectedCurrency, setSelectedCurrency] = useState(
     CURRENCIES[0].currency
@@ -121,6 +127,15 @@ function NewPaymentPage({
     }
   }, [selectedUser])
 
+  // Fetch available tags from backend on mount
+  useEffect(() => {
+    setTagsLoading(true)
+    fetchPaymentTags()
+      .then((data) => setAvailableTags(Array.isArray(data) ? data : []))
+      .catch(() => setAvailableTags([]))
+      .finally(() => setTagsLoading(false))
+  }, [])
+
   const updatePayment = (field, value) => {
     if (field === 'amount') {
       setAmountError('')
@@ -139,6 +154,7 @@ function NewPaymentPage({
     setPayment({
       ...initialPaymentState,
       senderAccountNumber: selectedUser?.accounts?.[0] ?? '',
+      tags: [],
     })
     setAmountError('')
     setShowHighValueConfirmation(false)
@@ -164,7 +180,7 @@ function NewPaymentPage({
             senderAccountNumber: Number(payment.senderAccountNumber),
             receiverAccountNumber: Number(payment.receiverAccountNumber),
             amount: Number(payment.amount),
-            currencyId: Number(payment.currencyId),
+            currencyId: Number(payment.currencyId-1),
             paymentModeId: Number(payment.paymentModeId),
             description: payment.description.trim(),
             frequency: payment.frequency,
@@ -173,6 +189,7 @@ function NewPaymentPage({
               ? `${payment.scheduledTime}:00`
               : '',
             endDate: payment.endDate || null,
+            tags: payment.tags || [],
           }
 
           const validationError = validateScheduleDraft(scheduleRequest)
@@ -543,7 +560,7 @@ function NewPaymentPage({
 
                 setPayment((prev) => ({
                   ...prev,
-                  currencyId: index + 1
+                  currencyId: index
                 }))
               }}
             >
@@ -560,26 +577,26 @@ function NewPaymentPage({
 
         </div>
 
-        <label className="form-field">
-          <span>Payment Mode</span>
+{/*         <label className="form-field"> */}
+{/*           <span>Payment Mode</span> */}
 
-          <select
-            className="input"
-            value={payment.paymentModeId}
-            onChange={(e) =>
-              updatePayment(
-                'paymentModeId',
-                Number(e.target.value)
-              )
-            }
-          >
-            {PAYMENT_METHOD_OPTIONS.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+{/*           <select */}
+{/*             className="input" */}
+{/*             value={payment.paymentModeId} */}
+{/*             onChange={(e) => */}
+{/*               updatePayment( */}
+{/*                 'paymentModeId', */}
+{/*                 Number(e.target.value) */}
+{/*               ) */}
+{/*             } */}
+{/*           > */}
+{/*             {PAYMENT_METHOD_OPTIONS.map((option) => ( */}
+{/*               <option key={option.id} value={option.id}> */}
+{/*                 {option.label} */}
+{/*               </option> */}
+{/*             ))} */}
+{/*           </select> */}
+{/*         </label> */}
 
         {/* Description */}
 
@@ -597,6 +614,17 @@ function NewPaymentPage({
             }
           />
         </label>
+
+        {/* Tags */}
+
+        <div className="form-field">
+          <TagSelector
+            availableTags={availableTags}
+            selectedTags={payment.tags || []}
+            onChange={(tags) => updatePayment('tags', tags)}
+            loading={tagsLoading}
+          />
+        </div>
 
         {/* Payment Timing */}
 
