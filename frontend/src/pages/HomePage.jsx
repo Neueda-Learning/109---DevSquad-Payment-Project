@@ -4,7 +4,21 @@ import StatCard from '../components/common/StatCard'
 import PaymentList from '../components/payments/PaymentList'
 import Spinner from '../components/common/Spinner'
 import { formatCurrency } from '../utils/currency'
+import {
+  fetchNormalScheduledPayments,
+  fetchBatchScheduledPayments,
+} from '../api/paymentApi'
 import './HomePage.css'
+
+function isUpcomingNormalSchedule(schedule) {
+  const status = String(schedule?.status || '').toLowerCase()
+  return status === 'scheduled' || status === 'active'
+}
+
+function isUpcomingBatchSchedule(batch) {
+  const status = String(batch?.status || '').toLowerCase()
+  return status === 'scheduled' || status === 'processing'
+}
 
 function HomePage({ selectedUser }) {
   const [summary, setSummary] = useState(null)
@@ -19,9 +33,11 @@ function HomePage({ selectedUser }) {
 
         const apiUrl = import.meta.env.VITE_API_BASE_URL
 
-        const [paymentsResponse, accountsResponse] = await Promise.all([
+        const [paymentsResponse, accountsResponse, normalSchedules, batchSchedules] = await Promise.all([
           fetch(`${apiUrl}/api/v1/payments/all`),
           fetch(`${apiUrl}/api/1.0/accounts/all`),
+          fetchNormalScheduledPayments(),
+          fetchBatchScheduledPayments().catch(() => []),
         ])
 
         const allPayments = await paymentsResponse.json()
@@ -60,7 +76,9 @@ function HomePage({ selectedUser }) {
                 'PROCESSING'
           ).length
 
-        const upcomingScheduled = 0
+        const upcomingScheduled =
+          normalSchedules.filter(isUpcomingNormalSchedule).length +
+          batchSchedules.filter(isUpcomingBatchSchedule).length
 
         const recentPayments =
           [...userPayments]

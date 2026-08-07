@@ -76,27 +76,48 @@ public class PaymentRepository {
             request.setPaymentId(generatedId.intValue());
         }
 
+        // Save tags into payment_tags junction table (look up tag_id by tag_name)
+        if (request.getTags() != null && !request.getTags().isEmpty() && request.getPaymentId() != null) {
+            for (String tagName : request.getTags()) {
+                try {
+                    Integer tagId = jdbcTemplate.queryForObject(
+                            "SELECT tag_id FROM tags WHERE tag_name = ?", Integer.class, tagName);
+                    if (tagId != null) {
+                        jdbcTemplate.update(
+                                "INSERT IGNORE INTO payment_tags (payment_id, tag_id) VALUES (?, ?)",
+                                request.getPaymentId(), tagId);
+                    }
+                } catch (EmptyResultDataAccessException ignored) {
+                    // Tag name not found in tags table — skip silently
+                }
+            }
+        }
+
         return request;
     }
 
     public Payment getPaymentById(Integer paymentId) {
         String sql = """
-                SELECT payment_id,
-                       payment_invoice_number,
-                       sender_account_number,
-                       receiver_account_number,
-                       amount,
-                       currency_id,
-                       payment_date,
-                       payment_time,
-                       status,
-                       description,
-                       schedule_id,
-                       batch_id,
-                       payment_method_id,
-                       payment_log
-                FROM Payments
-                WHERE payment_id = ?
+                SELECT p.payment_id,
+                       p.payment_invoice_number,
+                       p.sender_account_number,
+                       p.receiver_account_number,
+                       p.amount,
+                       p.currency_id,
+                       p.payment_date,
+                       p.payment_time,
+                       p.status,
+                       p.description,
+                       p.schedule_id,
+                       p.batch_id,
+                       p.payment_method_id,
+                       p.payment_log,
+                       GROUP_CONCAT(t.tag_name ORDER BY t.tag_name) AS tag_names
+                FROM Payments p
+                LEFT JOIN payment_tags pt ON pt.payment_id = p.payment_id
+                LEFT JOIN tags t ON t.tag_id = pt.tag_id
+                WHERE p.payment_id = ?
+                GROUP BY p.payment_id
                 """;
 
         try {

@@ -3,7 +3,9 @@ package com.devsquad.payment_processing.api;
 import com.devsquad.payment_processing.model.BatchPaymentRequest;
 import com.devsquad.payment_processing.model.BatchPaymentResponse;
 import com.devsquad.payment_processing.model.Payment;
+import com.devsquad.payment_processing.model.Tag;
 import com.devsquad.payment_processing.service.BatchScheduleService;
+import com.devsquad.payment_processing.service.CatalogService;
 import com.devsquad.payment_processing.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/payments")
@@ -24,6 +27,22 @@ public class PaymentController {
 
     @Autowired
     private BatchScheduleService batchScheduleService;
+
+    @Autowired
+    private CatalogService catalogService;
+
+    /**
+     * GET /api/v1/payments/tags
+     * Returns the list of available tag names for labelling payments.
+     */
+    @GetMapping("/tags")
+    public ResponseEntity<List<String>> getPaymentTags() {
+        List<String> tagNames = catalogService.getAllTags()
+                .stream()
+                .map(Tag::getTagName)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(tagNames);
+    }
 
     /**
      * POST /api/v1/payments/create

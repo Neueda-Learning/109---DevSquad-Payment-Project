@@ -31,14 +31,17 @@ public class PaymentRowMapper implements RowMapper<Payment> {
                 rs.getString("payment_log")
         );
 
-//        String tagNames = rs.getString("tag_names");
-//        List<String> tags = (tagNames == null || tagNames.isBlank())
-//                ? List.of()
-//                : Arrays.stream(tagNames.split(","))
-//                .map(String::trim)
-//                .toList();
-//
-//        payment.setTags(tags);
+        try {
+            String tagNames = rs.getString("tag_names");
+            List<String> tags = (tagNames == null || tagNames.isBlank())
+                    ? List.of()
+                    : Arrays.stream(tagNames.split(","))
+                    .map(String::trim)
+                    .toList();
+            payment.setTags(tags);
+        } catch (SQLException e) {
+            payment.setTags(List.of());
+        }
         return payment;
     }
 
