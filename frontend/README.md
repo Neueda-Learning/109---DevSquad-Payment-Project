@@ -53,7 +53,6 @@ src/
       PaymentFailureDetails.jsx / .css
       PaymentStatusTimeline.jsx / .css
       ReceiptDownloadButton.jsx / .css
-      CurrencySelect.jsx
   pages/
     HomePage.jsx / .css
     PaymentsHistoryPage.jsx

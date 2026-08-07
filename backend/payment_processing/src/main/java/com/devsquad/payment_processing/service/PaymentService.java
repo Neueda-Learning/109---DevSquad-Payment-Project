@@ -139,53 +139,53 @@ public class PaymentService {
 
     // ── Cancel hook ────────
 
-    public Map<String, Object> cancelPayment(Integer paymentId) {
-        Payment payment = paymentRepo.getPaymentById(paymentId);
-        if (payment == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "PAYMENT_NOT_FOUND");
-        }
-
-        if (payment.getStatus() != Payment.Status.CREATED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "INVALID_PAYMENT_STATE: Only CREATED payments can be cancelled. Current status: "
-                    + payment.getStatus());
-        }
-
-        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
-
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("paymentId", paymentId);
-        response.put("previousStatus", payment.getStatus());
-        response.put("targetStatus", Payment.Status.FAILED);
-        response.put("message", "Payment has been successfully cancelled");
-        response.put("updatedAt", LocalDateTime.now().toString());
-        return response;
-    }
+//    public Map<String, Object> cancelPayment(Integer paymentId) {
+//        Payment payment = paymentRepo.getPaymentById(paymentId);
+//        if (payment == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "PAYMENT_NOT_FOUND");
+//        }
+//
+//        if (payment.getStatus() != Payment.Status.CREATED) {
+//            throw new ResponseStatusException(HttpStatus.CONFLICT,
+//                    "INVALID_PAYMENT_STATE: Only CREATED payments can be cancelled. Current status: "
+//                    + payment.getStatus());
+//        }
+//
+//        paymentRepo.updatePaymentStatus(paymentId, Payment.Status.FAILED);
+//
+//        Map<String, Object> response = new LinkedHashMap<>();
+//        response.put("paymentId", paymentId);
+//        response.put("previousStatus", payment.getStatus());
+//        response.put("targetStatus", Payment.Status.FAILED);
+//        response.put("message", "Payment has been successfully cancelled");
+//        response.put("updatedAt", LocalDateTime.now().toString());
+//        return response;
+//    }
 
     // ── Refund hook
 
-    public Map<String, Object> refundPayment(Integer paymentId, String reason) {
-        Payment payment = paymentRepo.getPaymentById(paymentId);
-        if (payment == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "PAYMENT_NOT_FOUND");
-        }
-
-        if (payment.getStatus() != Payment.Status.COMPLETED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "INVALID_PAYMENT_STATE: Only COMPLETED payments are eligible for refund. Current status: "
-                    + payment.getStatus());
-        }
-
-        // Domain-level hook: refund initiation recorded, status kept COMPLETED
-        // until downstream refund processor confirms reversal
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("paymentId", paymentId);
-        response.put("currentStatus", payment.getStatus());
-        response.put("message", "Refund has been initiated for payment " + paymentId
-                + ". Awaiting downstream processing.");
-        response.put("initiatedAt", LocalDateTime.now().toString());
-        return response;
-    }
+//    public Map<String, Object> refundPayment(Integer paymentId, String reason) {
+//        Payment payment = paymentRepo.getPaymentById(paymentId);
+//        if (payment == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "PAYMENT_NOT_FOUND");
+//        }
+//
+//        if (payment.getStatus() != Payment.Status.COMPLETED) {
+//            throw new ResponseStatusException(HttpStatus.CONFLICT,
+//                    "INVALID_PAYMENT_STATE: Only COMPLETED payments are eligible for refund. Current status: "
+//                    + payment.getStatus());
+//        }
+//
+//        // Domain-level hook: refund initiation recorded, status kept COMPLETED
+//        // until downstream refund processor confirms reversal
+//        Map<String, Object> response = new LinkedHashMap<>();
+//        response.put("paymentId", paymentId);
+//        response.put("currentStatus", payment.getStatus());
+//        response.put("message", "Refund has been initiated for payment " + paymentId
+//                + ". Awaiting downstream processing.");
+//        response.put("initiatedAt", LocalDateTime.now().toString());
+//        return response;
+//    }
 
 
     // ── Transition rules
@@ -265,7 +265,6 @@ public class PaymentService {
      */
     private String validatePayment(Payment payment) {
         // 1. Validate sender account exists and is active
-        System.out.println("Punjabi aagye oye");
         BigDecimal senderBalance = accountRepo.getAccountBalance(payment.getSenderAccountNumber());
         if (senderBalance == null) {
             return "ACCOUNT_NOT_FOUND: Sender account " + payment.getSenderAccountNumber() + " does not exist";
@@ -274,7 +273,6 @@ public class PaymentService {
         // 2. Validate receiver account exists
         BigDecimal receiverBalance = accountRepo.getAccountBalance(payment.getReceiverAccountNumber());
         if (receiverBalance == null) {
-            System.out.println("Bhaag bsdk");
             return "ACCOUNT_NOT_FOUND: Receiver account " + payment.getReceiverAccountNumber() + " does not exist";
         }
 
@@ -451,11 +449,6 @@ public class PaymentService {
                     result.setErrorMessage(savedPayment.getPaymentLog());
                     failedCount++;
                 }
-                // 5. Record success
-                result.setPaymentId(savedPayment.getPaymentId());
-                result.setStatus("SUCCESS");
-                result.setErrorMessage(null);
-                successCount++;
 
             } catch (ResponseStatusException e) {
                 // 6. Record failure but continue processing
@@ -478,6 +471,20 @@ public class PaymentService {
         // 7. Set summary
         response.setSuccessfulPayments(successCount);
         response.setFailedPayments(failedCount);
+        
+        // 8. Validate consistency
+        int totalExpected = response.getTotalPayments();
+        int totalCounted = successCount + failedCount;
+        int resultCount = response.getResults().size();
+        
+        if (totalCounted != totalExpected || resultCount != totalExpected) {
+            System.err.println("BATCH RESPONSE INCONSISTENCY DETECTED:");
+            System.err.println("  Total Recipients: " + totalExpected);
+            System.err.println("  Counted (success + failed): " + totalCounted + " (success=" + successCount + ", failed=" + failedCount + ")");
+            System.err.println("  Result Objects: " + resultCount);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "BATCH_CALCULATION_ERROR: Response counts are inconsistent");
+        }
         
         return response;
     }
